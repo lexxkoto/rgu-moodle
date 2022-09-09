@@ -1,0 +1,94 @@
+body {
+    background-color: $garthdee-background;
+}
+
+.navbar.fixed-top {
+    background-color: $garthdee-brand;
+    border-bottom-color: darken($garthdee-brand, 5%);
+    color: #fff;
+}
+
+.primary-navigation {
+    .navigation {
+        .nav-link {
+            color: #fff;
+        }
+    }
+}
+
+.fixed-top {
+    .moremenu {
+        .nav-link {
+            &.active {
+                background-color: $garthdee-brand-dark;
+                border-color: transparent;
+                border-bottom-color: #fff;
+            }
+            &:focus,
+            &:hover {
+                background-color: $garthdee-brand-dark !important;
+                border-bottom-color: transparent;
+            }
+        }
+    }
+}
+
+nav.navbar a.navbar-brand {
+    background-image: url([[pix:theme|rgu-logo-retina]]);
+    background-size: 204px 35px;
+    background-repeat: no-repeat;
+    width: 204px;
+    background-position: 0 50%;
+    font-size: 0;
+}
+
+body .navbar-nav .popover-region > .nav-link > .icon {
+    color: #fff !important;
+}
+
+body .navbar-nav .popover-region .icon {
+    color: $garthdee-text !important;
+}
+
+.navbar-nav .dropdown-toggle::after {
+    color: #fff;
+}
+
+.navbar-nav .text-primary {
+    color: #fff !important;
+}
+
+.navbar-nav {
+    .custom-control-input:checked ~ .custom-control-label::before {
+        color: #fff;
+        border-color: #fff;
+        background-color: #fff;
+    }
+    
+    .custom-control-input:checked ~ .custom-control-label::after {
+        color: $garthdee-brand-dark;
+        border-color: $garthdee-brand-dark;
+        background-color: $garthdee-brand-dark;
+    }
+    
+    .custom-switch .custom-control-label::before {
+        background-color: $garthdee-brand-dark;
+        color: $garthdee-brand-dark;
+        border-color: #fff;
+    }
+    
+    .custom-switch .custom-control-label::after {
+        background-color: #fff;
+        color: $garthdee-brand-dark;
+        border-color: #fff;
+    }
+}
+
+.side-image {
+    max-width: 150px;
+    height: auto;
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    clear: left;
+}
