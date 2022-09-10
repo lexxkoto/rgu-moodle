@@ -84,6 +84,83 @@ body .navbar-nav .popover-region .icon {
     }
 }
 
+#page-login-index {
+    background-image: url([[pix:theme|login-bg]]);
+    background-size: cover;
+}
+
+#page-login-index #page {
+    background: transparent;
+    background-image: none;
+}
+
+#page-login-index .login-option.real .btn {
+    @include button-variant($garthdee-brand, $garthdee-brand-dark);
+    font-weight: bold;
+}
+
+#page-login-index .login-option.guest .btn {
+    @include button-variant($garthdee-grey, $garthdee-grey-dark);
+    font-weight: bold;
+}
+
+#page-login-index #login-holder {
+    transition: 0.4s;
+}
+
+#page-login-index .gu-feature-link {
+    text-align: center;
+}
+
+#page-login-index .login-panel {
+    background-color: rgba(243, 243, 243, 0.95);
+    padding: 20px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+#page-login-index h1.login-heading {
+    background-color: $garthdee-brand;
+    background-image: url([[pix:theme|rgu-logo-retina]]);
+    background-size: 204px 35px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    height: 55px;
+    padding: 20px;
+    margin: 0;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}   
+
+@include media-breakpoint-up(md) {
+    #page-login-index {
+        padding-top: 100px;
+    }
+    
+    #page-login-index .login-option.real {
+        margin-bottom: 0;
+        padding-right: 10px;
+    }
+    
+    #page-login-index .login-option.guest {
+        padding-left: 10px;
+    }
+    
+    #page-login-index .login-option .description{
+        min-height: 8rem;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    #page-login-index {
+        padding-top: 150px;
+    }
+    
+    #page-login-index .login-option .description{
+        min-height: 8rem;
+    }
+}
+
 .side-image {
     max-width: 150px;
     height: auto;
