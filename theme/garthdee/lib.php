@@ -28,24 +28,24 @@ function theme_garthdee_get_main_scss_content($theme) {
                                                                        
     global $CFG;                                                                                                                    
  
-    $scss = '';                                                                                                                   
+    $scss = '';
+    
+    $filename = !empty($theme->settings->preset) ? $theme->settings->preset : 'purple';
+    $scss .= file_get_contents($CFG->dirroot . '/theme/garthdee/scss/preset-'.$filename.'.scss');
     
     $sheets = Array('config');
     
     foreach($sheets as $sheet) {
         $scss .= file_get_contents($CFG->dirroot . '/theme/garthdee/scss/'.$sheet.'.scss');
-    }
-    
+    } 
+                                                                                                                         
     $scss .= theme_boost_get_main_scss_content($theme);
     
     $sheets = Array('garthdee', 'custom-styles');
     
     foreach($sheets as $sheet) {
         $scss .= file_get_contents($CFG->dirroot . '/theme/garthdee/scss/'.$sheet.'.scss');
-    }
-    
-    $filename = !empty($theme->settings->preset) ? $theme->settings->preset : 'blue.scss';
-    $scss .= file_get_contents($CFG->dirroot . '/theme/garthdee/scss/'.$filename);                                                   
+    }                                                   
  
     return $scss;                                                                                                                   
 }

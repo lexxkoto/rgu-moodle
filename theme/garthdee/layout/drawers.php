@@ -76,6 +76,9 @@ if ($PAGE->has_secondary_navigation()) {
     }
 }
 
+$contentWarning = '';
+require_once('content-warning.php');
+
 $primary = new core\navigation\output\primary($PAGE);
 $renderer = $PAGE->get_renderer('core');
 $primarymenu = $primary->export_for_template($renderer);
@@ -105,7 +108,8 @@ $templatecontext = [
     'hasregionmainsettingsmenu' => !empty($regionmainsettingsmenu),
     'overflow' => $overflow,
     'headercontent' => $headercontent,
-    'addblockbutton' => $addblockbutton
+    'addblockbutton' => $addblockbutton,
+    'contentwarning' => $contentWarning
 ];
 
 echo $OUTPUT->render_from_template('theme_garthdee/drawers', $templatecontext);
