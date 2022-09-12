@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022090901;
+$plugin->version   = 2022090902;
 $plugin->requires  = 2022041200;
 $plugin->component = 'theme_garthdee';

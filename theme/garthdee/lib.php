@@ -38,7 +38,7 @@ function theme_garthdee_get_main_scss_content($theme) {
     
     $scss .= theme_boost_get_main_scss_content($theme);
     
-    $sheets = Array('garthdee');
+    $sheets = Array('garthdee', 'custom-styles');
     
     foreach($sheets as $sheet) {
         $scss .= file_get_contents($CFG->dirroot . '/theme/garthdee/scss/'.$sheet.'.scss');

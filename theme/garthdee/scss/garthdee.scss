@@ -115,8 +115,8 @@ body .navbar-nav .popover-region .icon {
 #page-login-index .login-panel {
     background-color: rgba(243, 243, 243, 0.95);
     padding: 20px;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
 }
 
 #page-login-index h1.login-heading {
@@ -128,8 +128,8 @@ body .navbar-nav .popover-region .icon {
     height: 55px;
     padding: 20px;
     margin: 0;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
 }   
 
 @include media-breakpoint-up(md) {
