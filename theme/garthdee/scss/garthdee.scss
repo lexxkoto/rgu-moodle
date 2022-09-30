@@ -186,3 +186,43 @@ body .navbar-nav .popover-region .icon {
     right: 20px;
     text-decoration: none !important;
 }
+
+footer {
+    color: $garthdee-text-footer;
+    border-top: 1px solid $garthdee-footer-border;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+footer a {
+    color: $garthdee-text-footer;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: darken($garthdee-text-footer, 5%);
+    text-decoration: none;
+}
+
+.footer-links {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+    margin-bottom: 20px;
+}
+
+.footer-links li {
+    display: inline-block;
+    margin-right: 1em;
+}
+
+.footer-links li a {
+    margin-right: 1em;
+}
+
+.footer-links li a ::after {
+    content: "\00B7";
+    color: $garthdee-footer-border;
+    margin-left: 1em;
+    margin-right: 1em;
+}

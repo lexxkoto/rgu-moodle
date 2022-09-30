@@ -26,18 +26,20 @@
             "supportemail": "<a href=\"#\">Contact site support</a>",
             "has_popover_links": true,
             "services_support": "Services and support",
-            "login_info": "You are logged in as cute kitten",
+            "login_info": "You aπre logged in as cute kitten",
             "moodle_release": "90210"
         }
     }
 }}
 
-<footer id="page-footer" class="footer-popover bg-white">
-    <div data-region="footer-container-popover">
-        <button class="btn btn-icon bg-secondary icon-no-margin btn-footer-popover" data-action="footer-popover" aria-label="{{#str}}showfooter, theme_boost{{/str}}">
-            {{#pix}}e/question, core{{/pix}}
-        </button>
-    </div>
+<footer id="page-footer">
+    <ul class="footer-links">
+        <li><a href="https://www.rgu.ac.uk">Robert Gordon University</a></li>
+        <li><a href="https://campusmoodle.rgu.ac.uk/public/policy/policy.html">User Policy</a></li>
+        <li><a href="https://campusmoodle.rgu.ac.uk/public/policy/policy.html">Data Protection</a></li>
+        <li><a href="https://campusmoodle.rgu.ac.uk/public/policy/accessibility.html">Accessibility</a></li>
+    </ul>
+    <p>Robert Gordon University is a registered Scottish charity, Registration Number SC013781</p>
     <div class="footer-content-popover container" data-region="footer-content-popover">
         {{# output.has_popover_links }}
             <div class="footer-section p-3 border-bottom">
@@ -73,12 +75,7 @@
             {{/output.moodle_release}}
         </div>
     </div>
-
-    <div class="footer-content-debugging footer-dark bg-dark text-light">
-        <div class="container-fluid footer-dark-inner">
-            {{{ output.debug_footer_html }}}
-        </div>
-    </div>
+    
 </footer>
 {{#js}}
 require(['theme_boost/footer-popover'], function(FooterPopover) {
