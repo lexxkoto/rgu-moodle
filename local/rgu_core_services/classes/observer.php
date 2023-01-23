@@ -5,7 +5,7 @@
     
     class local_rgu_core_services_observer {
         
-        private $schools = Array(
+        private static $schools = Array(
             'MBS'=>'Aberdeen Business School',
 			'RGU'=>'RGU Professional', 
 			'BUS'=>'Aberdeen Business School',
@@ -75,73 +75,6 @@
             return(isset($setting) && (!empty($setting)) && ($setting == 'enabled'));
         }
         
-        public static function update_user($userid) {
-            global $DB, $CFG;
-            
-            $shouldAppendNumber = local_rgu_core_services_observer::isEnabled('number_in_lastname_enabled');
-            $shouldSyncSits = local_rgu_core_services_observer::isEnabled('sits_db_enabled');
-            $shouldSyncAvatars = local_rgu_core_services_observer::isEnabled('avatar_enabled');
-            
-            $update = false;
-            
-            $user = $DB->get_record('user', ['id' => $userid]);
-            
-            switch($user->institution) {
-                case 'Student':
-                    
-                    // If they don't have the student ID in the lastname field,
-                    // add it.
-                    if($shouldAppendNumber) {
-                        if(strpos($user->lastname, '(') === false) {
-                            if(!empty($user->idnumber)) {
-                                $user->lastname = $user->lastname.' ('.$user->idnumber.')';
-                                $update = true;
-                            }
-                        }
-                    }
-                    
-                    // Custom profile fields
-                    
-                    if($shouldSyncSits) {
-                        $profileFields = profile_user_record($userid);
-                    }
-                    
-                    // Update the user's profile picture
-                    
-                    if($shouldSyncAvatars) {
-                        if($user->picture == 0) {
-                            $ftpserver = get_config('local_rgu_core_services', 'avatar_host');
-                            $ftpport = get_config('local_rgu_core_services', 'avatar_port');
-                            $ftpuser = get_config('local_rgu_core_services', 'avatar_username');
-                            $ftppass = get_config('local_rgu_core_services', 'avatar_password');
-                            $ftpfolder = get_config('local_rgu_core_services', 'avatar_folder');
-                            
-                            try{
-                                $ftp = ftp_connect($ftpserver, $ftpport, 15);
-                                ftp_login($ftp, $ftpuser, $ftppass);
-                                ftp_pasv($ftp, true);
-                                //ftp_chdir($ftp, $ftpfolder);
-                                ftp_get($ftp, $CFG->tempdir.'/profile_pic_'.$user->idnumber.'.jpg', $ftpfolder.'/'.$user->idnumber.'.jpg', FTP_BINARY);
-                                ftp_close($ftp);
-                                $iconid = process_new_icon(context_user::instance($userid), 'user', 'icon', 0, $CFG->tempdir.'/profile_pic_'.$user->idnumber.'.jpg');
-                                $DB->set_field('user', 'picture', $iconid, array('id'=>$userid));
-                                unlink($CFG->tempdir.'/profile_pic_'.$user->idnumber.'.jpg');
-                            } catch (Exception $e) {
-                                error_log('Problem updating profile photo for user ID '.$userid);
-                            }
-                        }
-                    }
-                    
-                    
-                    break;
-                default:
-            }
-            if($update) {
-                $DB->update_record('user', $user);
-            }
-            
-        }
-        
         public static function sendQueryToSITS($query) {
             
             $host = get_config('local_rgu_core_services', 'sits_db_host');
@@ -169,6 +102,178 @@
             }
             
             return $results;
+        }
+        
+        public static function update_user($userid) {
+            global $DB, $CFG;
+            
+            $currentYear = get_config('local_rgu_core_services', 'sits_current_year');
+            
+            $shouldAppendNumber = local_rgu_core_services_observer::isEnabled('number_in_lastname_enabled');
+            $shouldSyncSits = local_rgu_core_services_observer::isEnabled('sits_db_enabled');
+            $shouldSyncAvatars = local_rgu_core_services_observer::isEnabled('avatar_enabled');
+            
+            $update = false;
+            
+            $user = $DB->get_record('user', ['id' => $userid]);
+            
+            if(empty($user->idnumber) {
+                mtrace("Didn't sync user ".$userid.' because they have no ID number.';
+                return false;
+            }
+            
+            $profileFields = profile_user_record($userid);
+            $profileFields->id = $userid;
+            
+            switch($user->institution) {
+                case 'Student':
+                    
+                    // If they don't have the student ID in the lastname field,
+                    // add it.
+                    if($shouldAppendNumber) {
+                        if(strpos($user->lastname, '(') === false) {
+                            if(!empty($user->idnumber)) {
+                                $user->lastname = $user->lastname.' ('.$user->idnumber.')';
+                                $update = true;
+                            }
+                        }
+                    }
+                    
+                    // Custom profile fields
+                    
+                    if($shouldSyncSits) {
+
+                        $sql = 'select SCE_SCJC,SCE_STUC,CRS_NAME,SCE_CRSC,SCE_DPTC,SCE_STAC,SCE_BLOK '.
+                        'from INTUIT.SRS_SCE '.
+ 		                'inner join INTUIT.SRS_CRS '.
+ 		                'ON INTUIT.SRS_SCE.SCE_CRSC = INTUIT.SRS_CRS.CRS_CODE '.
+		                'where SCE_AYRC = '.$currentYear.
+		                ' and SCE_STAC <> "T" '.
+		                'and SCE_STUC = '.$user->idnumber.
+		                ' order by SCE_SCJC';
+		                
+		                $result = local_rgu_core_services_observer::sendQueryToSITS($sql);
+		                
+		                // We want to deal with the last record
+		                
+		                $records = array_slice($result, -1);
+		                $record = $records[0];
+		                
+		                $profileFields->profile_field_rgu_coursecode = $record->SCE_CRSC;
+		                $profileFields->profile_field_rgu_coursename = $record->CRS_NAME;
+		                
+		                if(isset(local_rgu_core_services_observer::$schools[$record->SCE_DPTC])) {
+		                    $profileFields->profile_field_rgu_school = local_rgu_core_services_observer::$schools[$record->SCE_DPTC];
+		                } else {
+		                    $profileFields->profile_field_rgu_school = 'Unknown Department: ('.$record->SCE_DPTC.')';
+		                }
+		                
+		                $courseType = substr($record->SCE_CRSC, 0, 1);
+		                
+		                switch($courseType) {
+		                    case 'P':
+		                    case 'R':
+		                        $profileFields->profile_field_rgu_stage = 'Postgraduate';
+		                        break;
+		                    default:
+		                        $profileFields->profile_field_rgu_stage = 'Undergraduate Level '.$courseType;
+		                }
+		                
+		                $sql = 'select distinct SCJ_STUC, SCJ_PRSC '.
+					    'from INTUIT.SRS_SCJ '.
+					    'inner join INTUIT.SRS_SCE '.
+					    'on SRS_SCE.SCE_SCJC = SRS_SCJ.SCJ_CODE '.
+					    'WHERE SCE_AYRC = '.$currentYear.
+					    ' AND SCJ_STUC="'.$user->idnumber.'" '.
+					    'AND SCJ_PRSC IS NOT NULL';
+					    
+					    $result = local_rgu_core_services_observer::sendQueryToSITS($sql);
+					    
+					    if(count($result) > 0) {
+					    
+					        $tutors = Array();
+					        
+					        foreach($result as $tutor) {
+					            if(!isset($tutors[$tutor->SCJ_PRSC])) {
+					                $tutors[$tutor->SCJ_PRSC] = $DB->get_record(
+					                    'user',
+					                    array('idnumber'=>$tutor->SCJ_PRSC),
+					                    'id,username,firstname,lastname,email');
+					            }
+					        }
+					        
+					        $tutorText = '<ul>';
+					        
+					        foreach($tutors as $tutor) {
+					            $tutorText .= '<li>'.html_writer::tag('a', $tutor->firstname.' '.$tutor->lastname, array('href'=>new moodle_url('/user/profile.php', array('id'=>$tutor->id)))).'</li>';
+					        }
+					        
+					        $tutorText .= '</ul>';
+					        
+					        $profileFields->profile_field_rgu_tutors = $tutorText;
+					    }
+		                
+		                $profileFields->profile_field_rgu_lastupdate = time();
+		                
+		                profile_save_data($profileFields);
+                    }
+                    
+                    // Update the user's profile picture
+                    
+                    if($shouldSyncAvatars) {
+                        if($profileFields->rgu_nophoto == 0) {
+                            if($user->picture == 0) {
+                                $ftpserver = get_config('local_rgu_core_services', 'avatar_host');
+                                $ftpport = get_config('local_rgu_core_services', 'avatar_port');
+                                $ftpuser = get_config('local_rgu_core_services', 'avatar_username');
+                                $ftppass = get_config('local_rgu_core_services', 'avatar_password');
+                                $ftpfolder = get_config('local_rgu_core_services', 'avatar_folder');                    
+                                
+                                try{
+                                    $ftp = ftp_connect($ftpserver, $ftpport, 15);
+                                    ftp_login($ftp, $ftpuser, $ftppass);
+                                    ftp_pasv($ftp, true);
+                                    //ftp_chdir($ftp, $ftpfolder);
+                                    ftp_get($ftp, $CFG->tempdir.'/profile_pic_'.$user->idnumber.'.jpg', $ftpfolder.'/'.$user->idnumber.'.jpg', FTP_BINARY);
+                                    ftp_close($ftp);
+                                    $iconid = process_new_icon(context_user::instance($userid), 'user', 'icon', 0, $CFG->tempdir.'/profile_pic_'.$user->idnumber.'.jpg');
+                                    $DB->set_field('user', 'picture', $iconid, array('id'=>$userid));
+                                    unlink($CFG->tempdir.'/profile_pic_'.$user->idnumber.'.jpg');
+                                } catch (Exception $e) {
+                                    error_log('Problem updating profile photo for user ID '.$userid);
+                                }
+                            }
+                        } else {
+                            $userContext = context_user::instance($userid);
+                             $files = $DB->get_records_sql(
+                                'SELECT * FROM {files} WHERE component="user" AND filearea="icon" AND contextid=:contextid',
+                                ['contextid' => $userContext->id],
+                                0,
+                            );
+
+                            $fs = get_file_storage();
+
+                            foreach ($files as $thisfile) {
+
+                                $file = $fs->get_file(
+                                    $thisfile->contextid, $thisfile->component, $thisfile->filearea,
+                                    $thisfile->itemid, $thisfile->filepath, $thisfile->filename
+                                );
+
+                                if ($file) {
+                                    $file->delete();
+                                }
+                            }
+                            $DB->set_field('user', 'picture', '0', array('id'=>$userid));
+                        }
+                    }
+                    break;
+                default:
+            }
+            if($update) {
+                $DB->update_record('user', $user);
+            }
+            
         }
         
     }

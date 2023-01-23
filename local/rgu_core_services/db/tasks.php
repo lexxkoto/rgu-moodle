@@ -23,3 +23,15 @@
  */
 
 defined('MOODLE_INTERNAL') || die;
+
+$tasks = array(
+    array(
+        'classname' => 'local_rgu_core_services\task\updateusers',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '4',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    )
+);

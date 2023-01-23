@@ -38,6 +38,8 @@ $string['sits_db_username'] = 'Username';
 $string['sits_db_username_desc'] = 'The username that will be used to connect to the SITS database.';
 $string['sits_db_password'] = 'Password';
 $string['sits_db_password_desc'] = 'The password that will be used to connect to the SITS database.';
+$string['sits_current_year'] = 'Current SITS Year';
+$string['sits_current_year_desc'] = 'The current year to use when querying SITS. This will be updated when the rollover happens each summer.';
 $string['page_avatar'] = 'Profile Picture Syncing';
 $string['avatar_enabled'] = 'Enable Profile Picture Sync';
 $string['avatar_enabled_desc'] = 'Whether or not RGU Core Services will try to contact the profile picture server.';
@@ -54,3 +56,19 @@ $string['avatar_folder_desc'] = 'The folder on the FTP server to pull photos fro
 
 $string['option_on'] = 'Enabled';
 $string['option_off'] = 'Disabled';
+
+$string['page_cron'] = 'Scheduled Task';
+$string['cron_num_users'] = 'Number of users to update';
+$string['cron_num_users_desc'] = 'When the scheduled task runs, it will update users who haven\'t logged in recently. This controls how many users you want to update every time the task runs. Setting it to a large number will put stress on the SITS DB mirror.';
+$string['cron_inactive_time'] = 'Consider users inactive after';
+$string['cron_inactive_time_desc'] = 'The scheduled task updates users who haven\'t logged in recently. Users are considered inactive and will be updated if they haven\'t logged in for this period of time.';
+$string['cron_inactive_1_day'] = '1 day';
+$string['cron_inactive_1_week'] = '1 week';
+$string['cron_inactive_2_weeks'] = '2 weeks';
+$string['cron_inactive_4_weeks'] = '4 weeks';
+$string['cron_inactive_8_weeks'] = '8 weeks';
+$string['cron_inactive_12_weeks'] = '12 weeks';
+$string['cron_inactive_24_weeks'] = '24 weeks';
+$string['cron_inactive_48_weeks'] = '48 weeks';
+
+$string['updateusers'] = 'Update inactive users';
