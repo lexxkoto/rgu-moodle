@@ -118,7 +118,7 @@
             $user = $DB->get_record('user', ['id' => $userid]);
             
             if(empty($user->idnumber)) {
-                mtrace("Didn't sync user ".$userid.' because they have no ID number.';
+                mtrace("Didn't sync user ".$userid.' because they have no ID number.');
                 return false;
             }
             
