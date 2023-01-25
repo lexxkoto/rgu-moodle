@@ -192,6 +192,11 @@ footer {
     border-top: 1px solid $garthdee-footer-border;
     margin-top: 20px;
     padding-top: 20px;
+    background-image: url([[pix:theme|rgu-footer-retina]]);
+    background-size: 275px 50px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    height: 50px;
 }
 
 footer a {
@@ -208,7 +213,8 @@ footer a:hover {
     list-style: none;
     padding-left: 0;
     margin-left: 0;
-    margin-bottom: 20px;
+    margin-bottom: 0;
+    line-height: 25px;
 }
 
 .footer-links li {
