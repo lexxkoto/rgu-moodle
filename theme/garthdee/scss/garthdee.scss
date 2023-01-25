@@ -213,12 +213,16 @@ footer a:hover {
     text-decoration: none;
 }
 
+footer p {
+    line-height: 20px;
+}
+
 .footer-links {
     list-style: none;
     padding-left: 0;
     margin-left: 0;
-    margin-bottom: 0;
-    line-height: 25px;
+    margin-bottom: 10px;
+    line-height: 20px;
 }
 
 .footer-links li {
