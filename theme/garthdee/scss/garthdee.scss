@@ -149,6 +149,15 @@ body .navbar-nav .popover-region .icon {
     #page-login-index .login-option .description{
         min-height: 8rem;
     }
+    
+    footer {
+        background-image: url([[pix:theme|rgu-footer-retina]]);
+        background-size: 275px 50px;
+        background-position: 0 20px;
+        background-repeat: no-repeat;
+        height: 90px;
+        padding-left: 295px;
+    }
 }
 
 @include media-breakpoint-up(lg) {
@@ -192,11 +201,6 @@ footer {
     border-top: 1px solid $garthdee-footer-border;
     margin-top: 20px;
     padding-top: 20px;
-    background-image: url([[pix:theme|rgu-footer-retina]]);
-    background-size: 275px 50px;
-    background-position: 0 0;
-    background-repeat: no-repeat;
-    height: 50px;
 }
 
 footer a {
