@@ -1,0 +1,295 @@
+.rgu_tabs_controls { 
+    margin:0;
+    text-align:right;
+    font-size:.7em;
+    color:blue; 
+}
+
+.rguarrow {
+    background-color:#666666;
+    height:15px; 
+    width:15px;
+    padding:0px;
+}
+
+.rguarrow:hover {
+    background-color:#750795;
+}
+
+.mod-tabbedcontent-addnew.btn {
+    margin-bottom:10px;
+}
+.jsenabled .visibleifjs {
+    display:block !important;
+    margin-top:30px;
+}
+
+/*-----------easyResponsiveTabs Styles-----------*/
+
+ul.resp-tabs-list, p {
+    margin: 0px;
+    padding: 0px;
+}
+
+.resp-tabs-list li {
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+    padding: 13px 15px;
+    margin: 0 4px 0 0;
+    list-style: none;
+    cursor: pointer;
+    float: left;
+}
+
+h2.resp-accordion {
+    cursor: pointer;
+    padding: 5px;
+    display: none;
+}
+
+.resp-tab-content {
+    display: none;
+    clear:both;
+    padding: 20px 15px;
+}
+
+.resp-tab-active {
+    border: 1px solid #333;
+    border-bottom: none;
+    margin-bottom: -1px;
+    padding: 12px 14px 14px 14px;
+    border-top: 1px solid #333;
+    border-bottom: 0px #fff solid;
+}
+
+.resp-tab-active {
+    border-color: #333 !important;
+    border-bottom: none;
+    background-color: #fff;
+}
+
+.resp-content-active,
+.resp-accordion-active {
+    display: block;
+}
+
+.resp-tab-content {
+    margin:0 0 -1px;
+    border: 1px solid #c1c1c1;
+    border-top-color: #333;
+}
+
+h2.resp-accordion {
+    font-size: 13px;
+    border: 1px solid #c1c1c1;
+    border-top: 1px solid #c1c1c1;
+    margin: 0 0 -1px;
+    padding: 10px 15px;
+}
+
+h2.resp-tab-active {
+    border-top: 1px solid #333;
+    border-bottom: 0px solid #c1c1c1;
+    margin-bottom: 0px;
+    padding: 10px 15px;
+    background:#fff !important;
+}
+
+h2.resp-tab-title:last-child {
+    border-bottom: 12px solid #c1c1c1 !important;
+    background: blue;
+}
+
+.resp-arrow {
+    font-size:0;
+    width: 0;
+    height: 0;
+    float: right;
+    margin-top: 16px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #c1c1c1;
+}
+
+h2.resp-tab-active span.resp-arrow {
+    border: none;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 8px solid #9B9797;
+}
+#rgu_tabbed_content .mod-tabbedcontent-tabswitcher.upswitch,
+#rgu_tabbed_content .mod-tabbedcontent-tabswitcher.downswitch {
+    display:none;
+}
+
+/*-----------Accordion styles-----------*/
+h2.resp-tab-active {
+    background: #DBDBDB;/* !important;*/
+}
+
+.resp-easy-accordion h2.resp-accordion {
+    display: block;
+}
+
+.resp-easy-accordion .resp-tab-content {
+    border: 1px solid #c1c1c1;
+}
+
+.resp-easy-accordion .resp-tab-content:last-child {
+    border-bottom: 1px solid #c1c1c1;/* !important;*/
+}
+
+.resp-jfit {
+    width: 100%;
+    margin: 0px;
+}
+
+.resp-tab-content-active {
+    display: block;
+}
+
+h2.resp-accordion:first-child {
+    border-top: 1px solid #c1c1c1;/* !important;*/
+}
+
+/*Here your can change the breakpoint to set the accordion, when screen resolution changed*/
+@media only screen and (max-width: 979px) {
+    #rgu_tabbed_content ul.resp-tabs-list,
+    #rgu_tabbed_content .mod-tabbedcontent-tabswitcher.leftswitch,
+    #rgu_tabbed_content .mod-tabbedcontent-tabswitcher.rightswitch {
+        display: none;
+    }
+
+    #rgu_tabbed_content h2.resp-accordion {
+        display: block;
+    }
+    #rgu_tabbed_content .mod-tabbedcontent-tabswitcher.upswitch,
+    #rgu_tabbed_content .mod-tabbedcontent-tabswitcher.downswitch {
+        display: inline-block;
+    }
+
+    #rgu_tabbed_content .resp-accordion-closed {
+        display: none !important;
+    }
+
+    #rgu_tabbed_content .resp-tabs-container,
+    #rgu_tabbed_content h2.resp-accordion:first-child {
+        border-top:none !important;
+    }
+}
+
+#rgu_tabbed_content {
+    margin:10px 0 25px;
+    padding:12px;
+    background:#F1E8F2;
+}
+#rgu_tabbed_content .rgumymoodle_outertabs {
+    clear:both;
+    display:none;
+    position:relative;
+    background:#FFF;
+    box-shadow:0 0 3px rgba(0,0,0,0.2);
+}
+#rgu_tabbed_content .resp-tab-content {
+    border: none;
+}
+#rgu_tabbed_content h2.resp-accordion,
+#rgu_tabbed_content .resp-tabs-list li {
+    font-size:1em;
+    font-weight:400;
+    margin:0 0 -1px;
+    border:none;
+    border-bottom:1px solid #d5d3d4;
+    border-right:1px solid #d5d3d4;
+    background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(105,105,105,0) 56%,rgba(0,0,0,0.12) 100%) !important; /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(56%,rgba(105,105,105,0)), color-stop(100%,rgba(0,0,0,0.12))) !important; /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(105,105,105,0) 56%,rgba(0,0,0,0.12) 100%) !important; /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(105,105,105,0) 56%,rgba(0,0,0,0.12) 100%) !important; /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(105,105,105,0) 56%,rgba(0,0,0,0.12) 100%) !important; /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(105,105,105,0) 56%,rgba(0,0,0,0.12) 100%) !important; /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#dddddd',GradientType=0 ) !important; /* IE6-9 */
+}
+#rgu_tabbed_content h2.resp-accordion,
+#rgu_tabbed_content .resp-tabs-list li.resp-tab-active {
+    font-weight:600 !important;
+    border-bottom: 1px solid #FFF !important;
+    border-right-color: #d5d3d4 !important;
+    background:transparent !important;
+}
+#rgu_tabbed_content h2.resp-accordion {
+    padding:2px 15px 0px;
+    border-right:none;
+    border-top:1px solid #d5d3d4 !important;
+    border-bottom-color:#d5d3d4 !important;
+}
+#rgu_tabbed_content h2.resp-accordion a {
+    padding-left:25px;
+}
+#rgu_tabbed_content h2.resp-accordion.ui-state-focus a,
+#rgu_tabbed_content h2.resp-accordion.resp-tab-active a,
+#rgu_tabbed_content .resp-tabs-list li.ui-state-focus a,
+#rgu_tabbed_content .resp-tabs-list li.resp-tab-active a,
+#rgu_tabbed_content h2.resp-accordion.resp-tab-active a:active,
+#rgu_tabbed_content .resp-tabs-list li.resp-tab-active a:active {
+    font-weight:600 !important;
+    color: #000;
+}
+#rgu_tabbed_content .resp-arrow,
+#rgu_tabbed_content h2.resp-tab-active .resp-arrow {
+    border:none;
+    float:left;
+    margin:0;
+}
+#rgu_tabbed_content .resp-arrow:before {
+    font-family: "FontAwesome";
+    font-size:20px;
+    color:#ac82b3;
+    content: "\f055";
+}
+#rgu_tabbed_content h2.resp-tab-active .resp-arrow:before {
+    content: "\f056";
+}
+
+
+
+/*If Vertical Accodian is selected*/
+
+#rgu_tabbed_content.accordion ul.resp-tabs-list,
+#rgu_tabbed_content.accordion .mod-tabbedcontent-tabswitcher.leftswitch,
+#rgu_tabbed_content.accordion .mod-tabbedcontent-tabswitcher.rightswitch {
+    display: none !important;
+}
+
+#rgu_tabbed_content.accordion h2.resp-accordion {
+    display: block !important;
+}
+#rgu_tabbed_content.accordion .mod-tabbedcontent-tabswitcher.upswitch,
+#rgu_tabbed_content.accordion .mod-tabbedcontent-tabswitcher.downswitch {
+    display: inline-block !important;
+}
+#rgu_tabbed_content.accordion .resp-tabs-container,
+#rgu_tabbed_content.accordion h2.resp-accordion:first-child {
+    border-top:none !important;
+}
+
+#rgu_tabbed_content.accordion .resp-accordion-closed {
+    display: none !important;
+}
+
+.instanceintro {
+    display: block;
+    margin-bottom: 14px;
+}
+
+.rgu_inner_tab {
+	overflow:auto;
+}
+.rgutabheading,.packtabs,.closeprinttabs {
+	background-color:white;
+	display:none;
+}
+
+
+
+
