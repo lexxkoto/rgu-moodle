@@ -77,6 +77,7 @@ if ($PAGE->has_secondary_navigation()) {
 }
 
 $contentWarning = '';
+require_once('notifications.php');
 require_once('content-warning.php');
 
 $primary = new core\navigation\output\primary($PAGE);
@@ -109,7 +110,8 @@ $templatecontext = [
     'overflow' => $overflow,
     'headercontent' => $headercontent,
     'addblockbutton' => $addblockbutton,
-    'contentwarning' => $contentWarning
+    'contentwarning' => $contentWarning,
+    'pagebanner' => $pageBannerText
 ];
 
 echo $OUTPUT->render_from_template('theme_garthdee/drawers', $templatecontext);
