@@ -77,6 +77,7 @@ if ($PAGE->has_secondary_navigation()) {
 }
 
 $contentWarning = '';
+require_once('downtime.php');
 require_once('notifications.php');
 require_once('content-warning.php');
 
@@ -111,7 +112,8 @@ $templatecontext = [
     'headercontent' => $headercontent,
     'addblockbutton' => $addblockbutton,
     'contentwarning' => $contentWarning,
-    'pagebanner' => $pageBannerText
+    'pagebanner' => $pageBannerText,
+    'downtime' => $downtimeText
 ];
 
 echo $OUTPUT->render_from_template('theme_garthdee/drawers', $templatecontext);
