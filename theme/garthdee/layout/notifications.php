@@ -35,8 +35,6 @@ if((substr($PAGE->pagetype, 0, 8) == 'my-index') && ($dashboardNotification == '
     if(empty($_SESSION['SESSION']->garthdee_notifications) || !array_key_exists(md5($dashboardAlertText), $_SESSION['SESSION']->garthdee_notifications)) {
         $pageBannerText .= '<div class="message-outside-content message-grey message-closable"><a class="close d-flex-item ml-auto" href="'.$CFG->wwwroot.'/theme/garthdee/notification.php?h='.md5($dashboardAlertText).'" aria-label="Close"><span aria-hidden="true">&times;</span></a>'.$dashboardAlertText.'</div>';
     }
-} else {
-    var_dump($PAGE->pagetype);
 }
     
 ?>
