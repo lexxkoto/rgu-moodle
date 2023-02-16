@@ -19,53 +19,88 @@
     echo $OUTPUT->header();
 
     if(isset($report) && $report !== false) {
-        
-        $r = $DB->get_records_sql(str_replace('___', $CFG->prefix, $reports[$report]['query']));
-        
-        echo $OUTPUT->heading($reports[$report]['name'].' ('.count($r).')');
-        
-        echo '<p>'.$reports[$report]['desc'].'</p>';
-        
-        echo '<table class="table">';
-        echo '<thead><tr>';
-        foreach($reports[$report]['titles'] as $title) {
-            echo '<th>'.$title.'</th>';
-        }
-        echo '</tr></thead>';
-        echo '<tbody>';
-        foreach($r as $record) {
-            echo '<tr>';
-            foreach($reports[$report]['titles'] as $code=>$friendly) {
-                if(isset($reports[$report]['filters'][$code])) {
-                    echo '<td>';
-                    switch($reports[$report]['filters'][$code]) {
-                        case 'relative-time':
-                            echo time_elapsed_string($record->$code);
-                            break;
-                        case 'user-link':
-                            user_link($record->$code);
-                            break;
-                        case 'course-link':
-                            course_link($record->$code);
-                            break;
-                        case 'assign-link':
-                            assign_link($record->$code);
-                            break;
-                        case 'module-link':
-                            module_link($record->$code);
-                            break;
-                        default:
-                            echo 'Unknown Filter: '.$record->$code;
-                    }
-                    echo '</td>';
-                } else {
-                    echo '<td>'.$record->$code.'</td>';
+    
+        $showPlaceholdersPage = false;
+        $placeholders = Array();
+    
+        if(isset($reports[$report]['placeholders'])) {
+            foreach($reports[$report]['placeholders'] as $placeholderName=>$placeholderData) {
+                $placeholders[$placeholderName] = optional_param('ph_'.$placeholderName, false, PARAM_TEXT);
+                if(empty($placeholders[$placeholderName])) {
+                    $showPlaceholdersPage = true;
                 }
             }
-            echo '</tr>';
         }
-        echo '</tbody>';
-        echo '</table>';
+        
+        if($showPlaceholdersPage) {
+            echo '<form method="get" id="adminsettings">';
+            echo '<input type="hidden" name="report" value="'.$report.'" />';
+            foreach($reports[$report]['placeholders'] as $code=>$data) {
+                echo '<div class="form-item row">';
+                echo '<div class="form-label col-sm-3 text-sm-right"><label for="id_ph_'.$code.'">'.$data['label'].'</label></div>';
+                echo '<div class="form-setting col-sm-9"><div class="form-text defaultsnext"><input id="id_ph_'.$code.'" type="text" name="ph_'.$code.'" value="'.$data['default'].'" class="form-control" size="30" /></div><div class="form-description mt-3"><p>'.$data['hint'].'</p></div></div>';
+                echo '</div>';
+            }
+            echo '<div class="row"><div class="offset-sm-3 col-sm-3"><button type="submit" class="btn btn-primary">Save changes</button></div></div>';
+            echo '</form>';
+        } else {
+        
+            $fixedQuery = $reports[$report]['query'];
+            
+            foreach($placeholders as $code=>$value) {
+                $fixedQuery = str_replace('__'.$code.'__', $value, $fixedQuery);
+            }
+        
+            $r = $DB->get_records_sql($fixedQuery);
+            
+            echo $OUTPUT->heading($reports[$report]['name'].' ('.count($r).')');
+            
+            echo '<p>'.$reports[$report]['desc'].'</p>';
+            
+            echo '<table class="table">';
+            echo '<thead><tr>';
+            foreach($reports[$report]['titles'] as $title) {
+                echo '<th>'.$title.'</th>';
+            }
+            echo '</tr></thead>';
+            echo '<tbody>';
+            foreach($r as $record) {
+                echo '<tr>';
+                foreach($reports[$report]['titles'] as $code=>$friendly) {
+                    if(isset($reports[$report]['filters'][$code])) {
+                        echo '<td>';
+                        switch($reports[$report]['filters'][$code]) {
+                            case 'relative-time':
+                                echo time_elapsed_string($record->$code);
+                                break;
+                            case 'user-link':
+                                user_link($record->$code);
+                                break;
+                            case 'course-link':
+                                course_link($record->$code);
+                                break;
+                            case 'assign-link':
+                                assign_link($record->$code);
+                                break;
+                            case 'module-link':
+                                module_link($record->$code);
+                                break;
+                            case 'date-long':
+                                pretty_date($record->$code, 'long');
+                                break;
+                            default:
+                                echo 'Unknown Filter: '.$record->$code;
+                        }
+                        echo '</td>';
+                    } else {
+                        echo '<td>'.$record->$code.'</td>';
+                    }
+                }
+                echo '</tr>';
+            }
+            echo '</tbody>';
+            echo '</table>';
+        }
         
     } else {
         echo $OUTPUT->heading(get_string('pluginname', 'report_rgu'));

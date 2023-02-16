@@ -82,4 +82,15 @@ function module_link($cmid) {
     }
 }
 
+function pretty_date($timestamp, $format='long') {
+    switch($format) {
+        case 'long':
+            echo date('l jS F Y H:i', $timestamp);
+            break;
+        default:
+            echo date('l jS F Y H:i', $timestamp);
+            break;
+    }
+}
+
 ?>
