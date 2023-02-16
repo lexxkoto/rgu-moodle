@@ -149,6 +149,36 @@
                 'duedate'       => 'date-long'
             ),
         ),
+        'opencourses' => Array(
+            'name'              => 'Courses with Self Enrolment',
+            'desc'              => 'Shows courses that users can add themselves to using the self-enrolment option.',
+            'query'             => 'SELECT {course}.id courseid,
+                                    {course}.visible, {enrol}.enrol,
+                                    {enrol}.enrolperiod DIV (60*60*24) enrol_days,
+                                    COUNT({user_enrolments}.id) AS user_count
+                                    FROM {enrol}
+                                    INNER JOIN {course}
+                                    ON {enrol}.courseid = {course}.id
+                                    INNER JOIN {user_enrolments}
+                                    ON {user_enrolments}.enrolid = {enrol}.id
+                                    WHERE (enrol = "self" OR enrol = "selfdirect")
+                                    AND {enrol}.status = 0
+                                    GROUP BY {enrol}.id
+                                    ORDER BY {course}.shortname',
+            'capability'        => 'moodle/site:viewreports',
+            'titles'            => Array(
+                'courseid'      => 'Course',
+                'visible'       => 'Visible to Students',
+                'enrol'         => 'Enrolment Method',
+                'enrol_days'    => 'Enrolment in Days',
+                'user_count'    => 'Number of Users',
+            ),
+            'filters'           => Array(
+                'courseid'      => 'course-link',
+                'visible'       => 'yes-no',
+                'user_count'    => 'number-format'
+            ),
+        ),
     );
     
     $categories = Array(
@@ -159,6 +189,9 @@
         ),
         'DELTA Engagement' => Array(
             'deltahits',
+        ),
+        'Course Auditing' => Array(
+            'opencourses',
         ),
         'Test Category' => Array(
             'test'

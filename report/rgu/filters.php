@@ -93,4 +93,17 @@ function pretty_date($timestamp, $format='long') {
     }
 }
 
+function yes_no($bool) {
+    switch($bool) {
+        case '0':
+        case false:
+            return 'No';
+            break;
+        case '1':
+        case true:
+            return 'Yes';
+            break;
+    }
+}
+
 ?>

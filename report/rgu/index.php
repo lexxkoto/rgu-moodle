@@ -41,7 +41,7 @@
                 echo '<div class="form-setting col-sm-9"><div class="form-text defaultsnext"><input id="id_ph_'.$code.'" type="text" name="ph_'.$code.'" value="'.$data['default'].'" class="form-control" size="30" /></div><div class="form-description mt-3"><p>'.$data['hint'].'</p></div></div>';
                 echo '</div>';
             }
-            echo '<div class="row"><div class="offset-sm-3 col-sm-3"><button type="submit" class="btn btn-primary">Save changes</button></div></div>';
+            echo '<div class="row"><div class="offset-sm-3 col-sm-3"><button type="submit" class="btn btn-primary">Show Report</button></div></div>';
             echo '</form>';
         } else {
         
@@ -87,6 +87,12 @@
                                 break;
                             case 'date-long':
                                 pretty_date($record->$code, 'long');
+                                break;
+                            case 'yes-no':
+                                yes_no($record->$code);
+                                break;
+                            case 'number-format':
+                                echo number_format($record->$code, 0);
                                 break;
                             default:
                                 echo 'Unknown Filter: '.$record->$code;
