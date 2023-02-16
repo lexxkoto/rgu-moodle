@@ -2712,16 +2712,9 @@ abstract class data_preset_importer {
                 /* Data not used anymore so wipe! */
                 echo "Deleting field $currentfield->name<br />";
 
-<<<<<<< HEAD
-                $id = $currentfield->id;
-                // Why delete existing data records and related comments/ratings??
-                $DB->delete_records('data_content', ['fieldid' => $id]);
-                $DB->delete_records('data_fields', ['id' => $id]);
-=======
                 // Delete all information related to fields.
                 $todelete = data_get_field_from_id($currentfield->id, $this->module);
                 $todelete->delete_field();
->>>>>>> 44d77d0848728d61a8da722375434dc1b513cc21
             }
         }
 

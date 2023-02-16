@@ -65,11 +65,6 @@ Feature: availability_profile
     Given the following "custom profile fields" exist:
       | datatype | shortname  | name        |
       | text     | superfield | Super field |
-<<<<<<< HEAD
-    And I log in as "admin"
-
-=======
->>>>>>> 44d77d0848728d61a8da722375434dc1b513cc21
     # Set field value for user.
     And I am on the "s@example.com" "user > editing" page logged in as "admin"
     And I expand all fieldsets

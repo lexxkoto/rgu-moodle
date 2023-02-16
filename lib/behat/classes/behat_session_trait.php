@@ -1695,8 +1695,6 @@ EOF;
 
         return !empty($matches);
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Get the user id from an identifier.
@@ -1723,5 +1721,4 @@ EOF;
 
         return $result ?: null;
     }
->>>>>>> 44d77d0848728d61a8da722375434dc1b513cc21
 }
