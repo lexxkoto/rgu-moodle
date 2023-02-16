@@ -7,14 +7,12 @@
     
     $report = optional_param('report', false, PARAM_TEXT);
     
-    $PAGE->set_url('/report/rgu/index.php');
-    $PAGE->set_pagelayout('report');
-    
     $context = context_system::instance();
     require_capability('report/rgu:view', $context);
     $PAGE->set_context($context);
     
     admin_externalpage_setup('reportrgu', '', null, '', array('pagelayout' => 'report'));
+    $renderer = $PAGE->get_renderer('report_rgu');
     $PAGE->set_title($SITE->shortname .': '.get_string('pluginname', 'report_rgu'));
     $PAGE->set_primary_active_tab('siteadminnode');
     
@@ -25,6 +23,8 @@
         $r = $DB->get_records_sql(str_replace('___', $CFG->prefix, $reports[$report]['query']));
         
         echo $OUTPUT->heading($reports[$report]['name'].' ('.count($r).')');
+        
+        echo '<p>'.$reports[$report]['desc'].'</p>';
         
         echo '<table class="table">';
         echo '<thead><tr>';
@@ -89,6 +89,6 @@
         }
     }
     
-    
+    echo $OUTPUT->footer();
 
 ?>
