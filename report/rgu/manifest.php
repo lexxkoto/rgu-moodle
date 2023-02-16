@@ -80,6 +80,45 @@
                 'cm'        => 'module-link'
             ),
         ),
+        'deltahits' => Array(
+            'name'          => 'DELTA Course Visitors',
+            'desc'          => 'Shows the number of users that have visited courses run by DELTA over the past 90 days.',
+            'query'         => 'SELECT  FROM_UNIXTIME({logstore_standard_log}.timecreated,"%Y-%m") month,
+                                {course}.id courseid,
+                                count({logstore_standard_log}.id) as hits,
+                                count(distinct({logstore_standard_log}.userid)) as visitors
+                                FROM {logstore_standard_log}
+                                INNER JOIN {course} ON
+                                {logstore_standard_log}.courseid = {course}.id 
+                                WHERE courseid IN (74843,85986,86458,88430,88343,88436,88431,83710,83736,79470,79471,79469,79475,79474,79473,79472,81485,79168,79173,79182,79176,88464,88466,88465)
+                                and component = "core" 
+                                and action = "viewed"
+                                and userid not in (
+                                select userid from {user_info_data} 
+                                inner join {user_info_field} on
+                                {user_info_data}.fieldid = {user_info_field}.id
+                                where trim(data) = "DELTA"
+                                and shortname = "rgu_school")
+                                and {logstore_standard_log}.timecreated >
+                                unix_timestamp()-(60*60*24*100)
+                                GROUP BY FROM_UNIXTIME(timecreated,"%Y-%m"),
+                                {course}.id
+                                ORDER BY FROM_UNIXTIME(timecreated,"%Y-%m")
+                                {course}.shortname',
+            'capability'    => 'moodle/site:viewreports',
+            'titles'        => Array(
+                'month'     => 'Month',
+                'userid'    => 'User',
+                'courseid'  => 'Course',
+                'cm'        => 'Activity',
+            ),
+            'filters'       => Array(
+                'uploaded'  => 'relative-time',
+                'userid'    => 'user-link',
+                'courseid'  => 'course-link',
+                'cm'        => 'module-link'
+            ),
+        ),
     );
     
     $categories = Array(
