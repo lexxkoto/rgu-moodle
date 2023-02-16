@@ -17,6 +17,7 @@ Feature: Block region moving
     And the following "activities" exist:
       | activity | course | name             | template |
       | survey   | C1     | Test survey name | 4        |
+<<<<<<< HEAD
     And I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Book" to section "1" and I fill the form with:
@@ -28,6 +29,13 @@ Feature: Block region moving
       | Content       | Book content test test |
     And I press "Save changes"
     And I log out
+=======
+      | book     | C1     | Test book name   |          |
+    And the following "mod_book > chapter" exists:
+      | book    | Test book name         |
+      | title   | Book title             |
+      | content | Book content test test |
+>>>>>>> 44d77d0848728d61a8da722375434dc1b513cc21
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Comments" block
