@@ -241,3 +241,17 @@ footer p {
     margin-left: 1em;
     margin-right: 1em;
 }
+
+.floating-help-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 48px;
+    color: $garthdee-brand;
+    transition: 0.5s;
+}
+
+.floating-help-icon:hover {
+    color: $garthdee-brand-dark;
+    text-decoration: none;
+}

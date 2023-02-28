@@ -6,18 +6,19 @@
     $string['option_off'] = 'Disabled';
     
     $string['page_presets'] = 'Colours';
+    $string['section_preset'] = 'Colour Scheme';
     $string['preset'] = 'Theme preset';
     $string['preset_desc'] = 'This lets you change the colour scheme of development and testing sites. It mostly exists to stop someone pushing the wrong button on the live site.';
     
     $string['page_notifications'] = 'Notifications';
     
-    $string['smart_alerts_title'] = 'Course Smart Alerts';
+    $string['section_smart_alerts'] = 'Course Smart Alerts';
     $string['garthdee_smart_alerts'] = 'Show Smart Alerts in courses';
     $string['garthdee_smart_alerts_desc'] = 'Smart Alerts give lecturers a heads up about common problems, such as no students being enrolled on a course, or the course being hidden from students. These can cut down on basic helpdesk tickets.';
     $string['garthdee_smart_alerts_on'] = 'On';
     $string['garthdee_smart_alerts_off'] = 'Off';
     
-    $string['course_alert_title'] = 'Student Dashboard Notification';
+    $string['section_course_alert'] = 'Student Dashboard Notification';
     $string['garthdee_student_course_alert'] = 'Show notification on student dashboards';
     $string['garthdee_student_course_alert_desc'] = 'This shows a big notification at the top of student dashboards. This can be useful for communicating things to students.';
     $string['garthdee_student_course_alert_on'] = 'On';
@@ -26,7 +27,7 @@
     $string['garthdee_student_course_alert_text'] = 'Text for dashboard notification';
     $string['garthdee_student_course_alert_text_desc'] = 'This is the text that will be shown in the notification on student dashboards.';
     
-    $string['downtime_title'] = 'Downtime and System Maintenance';
+    $string['section_downtime'] = 'Downtime and System Maintenance';
     $string['garthdee_downtime_datetime'] = 'Date and time';
     $string['garthdee_downtime_datetime_desc'] = 'This is the date and time of the next system downtime. As the date and time approaches, Moodle will show a notification to students that will gradually change from blue to yellow to red.';
     $string['garthdee_downtime_length'] = 'Downtime length';
@@ -44,7 +45,7 @@
     $string['garthdee_downtime_details'] = 'Extra details';
     $string['garthdee_downtime_details_desc'] = 'Extra details that will be shown at the end of the system downtime message.';
     
-    $string['general_notification'] = 'Page Banner';
+    $string['section_notification'] = 'Page Banner';
     $string['garthdee_notification_type'] = 'Notification type';
     $string['garthdee_notification_none'] = 'Hidden';
     $string['garthdee_notification_danger'] = 'Red';
@@ -57,17 +58,18 @@
     $string['garthdee_notification_desc'] = 'This is the text that will be shown in the page banner. Keep it short and relevant.';
     
     $string['page_content_warning'] = 'Content Warning';
+    $string['section_content_warning'] = 'Content Warning';
     $string['content_warning_enabled'] = 'Show content warning in courses';
     $string['content_warning_enabled_desc'] = 'If enabled, a content warning will be shown at the top of every course page.';
     $string['content_warning_text'] = 'Text to show in content warning';
     $string['content_warning_text_desc'] = 'This is the text that will be displayed in the content warning at the top of every course.';
     
-    $string[''] = '';
-    $string[''] = '';
-    $string[''] = '';
-    $string[''] = '';
-    $string[''] = '';
-    $string[''] = '';
+    $string['page_navigation'] = 'Navigation and Links';
+    $string['section_help_icon'] = 'Help Icon';
+    $string['help_icon_enabled'] = 'Show floating help icon';
+    $string['help_icon_enabled_desc'] = 'Shows a floating help icon in the bottom right of the page.';
+    $string['help_icon_link'] = 'Link for help icon';
+    $string['help_icon_link_desc'] = 'The place the help icon will take you to when clicked.';
     $string[''] = '';
     $string[''] = '';
     $string[''] = '';

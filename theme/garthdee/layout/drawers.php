@@ -80,6 +80,7 @@ $contentWarning = '';
 require_once('downtime.php');
 require_once('notifications.php');
 require_once('content-warning.php');
+require_once('help-icon.php');
 
 $primary = new core\navigation\output\primary($PAGE);
 $renderer = $PAGE->get_renderer('core');
@@ -113,7 +114,8 @@ $templatecontext = [
     'addblockbutton' => $addblockbutton,
     'contentwarning' => $contentWarning,
     'pagebanner' => $pageBannerText,
-    'downtime' => $downtimeText
+    'downtime' => $downtimeText,
+    'helpicon' => $helpText,
 ];
 
 echo $OUTPUT->render_from_template('theme_garthdee/drawers', $templatecontext);
