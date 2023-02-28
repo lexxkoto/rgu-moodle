@@ -94,6 +94,11 @@ body .navbar-nav .popover-region .icon {
     background-image: none;
 }
 
+#page-login-index #page-content {
+    margin-left: 0;
+    margin-right: 0;
+}
+
 #page-login-index .login-option.real .btn {
     @include button-variant($garthdee-brand, $garthdee-brand-dark);
     font-weight: bold;
