@@ -24,7 +24,7 @@ if(substr($PAGE->pagetype, 0, 11) == 'course-view') {
     if((!empty($courseDetails->id)) && $courseDetails->id != 1) {
         if($courseDetails->visible=='0') {
             if(empty($_SESSION['SESSION']->garthdee_notifications) || !array_key_exists(md5($courseDetails->id.'courseinvisible'), $_SESSION['SESSION']->garthdee_notifications) && $canEditCourse) {
-                $contentWarning .= '<div class="message-grey message-closable message-outside-content"><a class="close d-flex-item ml-auto" href="'.$CFG->wwwroot.'/theme/garthdee/notification.php?h='.md5($courseDetails->id.'courseinvisible').'" aria-label="Close"><span aria-hidden="true">&times;</span></a><span><strong>This course is currently hidden.</strong> You can see it, but students can\'t. You can unhide this course <a class="alert-link" href="edit.php?id='.$courseDetails->id.'">on the settings page</a>.</span></div>';
+                $contentWarning .= '<div class="message-grey message-closable message-outside-content"><a class="close d-flex-item ml-auto" href="'.$CFG->wwwroot.'/theme/garthdee/notification.php?h='.md5($courseDetails->id.'courseinvisible').'" aria-label="Close"><span aria-hidden="true">&times;</span></a><span><strong>This course is currently hidden.</strong> You can see it, but students can\'t. When you\'re ready, <a class="alert-link" href="'.$CFG->wwwroot.'/theme/garthdee/course-visible.php?id='.$courseDetails->id.'">make this course available to students</a>.</span></div>';
                 $automaticEnrolmentsDisabled = true;
                 $automaticEnrolmentsReason = 'this course has been hidden from students.';
             }
