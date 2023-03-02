@@ -15,9 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * UofG Database enrolment plugin.
- *
- * This plugin synchronises enrolment and roles with external database table.
  *
  * @package    enrol
  * @subpackage sits
@@ -2079,4 +2076,164 @@ class enrol_sits_plugin extends enrol_plugin {
         error_reporting($CFG->debug);
         ob_end_flush();
     }
+    
+    public static function addToLog($instance, $course, $level, $message) {
+        global $DB;
+        
+        $entry = new stdClass;
+        $entry->instanceid = $instance;
+        $entry->courseid = $course;
+        $entry->level = $level;
+        $entry->details = $message;
+        $entry->timeadded = time();
+        
+        $DB->insert_record('enrol_sits_log', $entry);
+        
+    }
+    
+    public static function sendQueryToSITS($query) {
+        
+        $host = get_config('enrol_sits', 'sits_db_host');
+        $username = get_config('enrol_sits', 'sits_db_username');
+        $password = get_config('enrol_sits', 'sits_db_password');
+        $database = get_config('enrol_sits', 'sits_db_database');
+        
+        if(
+            empty($host) ||
+            empty($username) ||
+            empty($password) ||
+            empty($database) ||
+            empty($query)
+        ) {
+            return false;
+        }
+        
+        $sitsDB = new mysqli($host, $username, $password, $database);
+        
+        $result = $sitsDB->query($query);
+        
+        $results = Array();
+        while ($row = $result->fetch_object()) {
+            $results[] = $row;
+        }
+        
+        return $results;
+    }
+    
+    function getEnrolInstancesForCourse($courseid) {
+        global $DB;
+        
+        
+        $instances = $DB->get_records('enrol', array('enrol'=>'sits','status'=>'1','courseid'=>$courseid));
+        
+        return $instances;
+    }
+    
+    function getAllModules() {
+        $mods = sendQueryToSITS('SELECT mod_code,mod_name FROM INS_MOD WHERE mod_iuse = "Y" ORDER BY mod_name');
+        
+        $modules = Array();
+        
+        foreach($mods as $mod) {
+            $modules[$mod->mod_code] = $mod->mod_name;
+        }
+        
+        return $modules;
+    }
+    
+    function checkModCode($code) {
+        $mods = sendQueryToSITS('SELECT mod_code,mod_name FROM INS_MOD WHERE mod_code="'.$code.'" AND mod_iuse = "Y"');
+        if(count($mods) === 1) {
+            return $mods;
+        } else {
+            return false;
+        }
+    }
+    
+    function getAllCourses() {
+        $crss = sendQueryToSITS('SELECT crs_code,crs_name FROM srs_crs ORDER BY crs_name');
+        
+        $courses = Array();
+        
+        foreach($crss as $crs) {
+            $courses[$crs->crs_code] = $crs->crs_name;
+        }
+        
+        return $courses;
+    }
+    
+    function checkCourseCode($code) {
+        $crss = sendQueryToSITS('SELECT crs_code,crs_name FROM src_crs WHERE crs_code="'.$code.'"');
+        if(count($crss === 1) {
+            return $crss;
+        } else {
+            return false;
+        }
+    }
+    
+    function fixModuleName($name) {
+        if($name != ucase($name) {
+            return $name;
+        }
+        
+        $fixWords = Array(
+            'OF'        => 'of',
+            'A'         => 'a',
+            'THE'       => 'the',
+            'AND'       => 'and',
+            'AN'        => 'an',
+            'OR'        => 'or',
+            'NOR'       => 'nor',
+            'BUT'       => 'but',
+            'IS'        => 'is',
+            'IF'        => 'if',
+            'THEN'      => 'then',
+            'ELSE'      => 'else',
+            'WHEN'      => 'when',
+            'AT'        => 'at',
+            'FROM'      => 'from',
+            'BY'        => 'by',
+            'ON'        => 'on',
+            'OFF'       => 'off',
+            'FOR'       => 'for',
+            'IN'        => 'in',
+            'OUT'       => 'out',
+            'OVER'      => 'over',
+            'TO'        => 'to',
+            'INTO'      => 'into',
+            'WITH'      => 'with'
+            'MA'        => 'MA',
+            'MSC'       => 'MSc',
+            'BA'        => 'BA',
+            'HE'        => 'HE',
+            'PT'        => 'PT',
+            '(PT)'      => '(PT)',
+            'BSC'       => 'BSc',
+            'BDES'      => 'BDES',
+            '(HONS)'    => '(Hons)',
+            'DL'        => 'DL',
+            'MBA'       => 'MBA',
+            'PGCERT'    => 'PGCert',
+            'PGDIP'     => 'PGDip',
+            'PGDIP/MSC' => 'PGDip/MSc',
+        );
+		
+		$words = explode(' ', $name);
+		$newWords = Array();
+		
+		foreach($words as $word) {
+		    if(isset($fixWords[$word])) {
+		        $newWords[] = $fixWords[$word];
+		    } else {
+		        $newWords[] = ucwords($word);
+		    }
+		}
+		
+		return implode(' ', $newWords);
+    }
+    
+    function getStudentsWhoMatchCode($code) {
+        
+    }
+    
 }

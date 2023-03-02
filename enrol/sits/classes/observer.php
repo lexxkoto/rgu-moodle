@@ -36,13 +36,36 @@ class enrol_sits_observer {
         global $DB;
 
         $courseid = $event->courseid;
-        $plugin = enrol_get_plugin('gudatabase');
+        $plugin = enrol_get_plugin('sits');
+        
+        enrol_sits_plugin::addToLog(-1, $courseid, 'i', 'SITS sync triggered by course reset');
 
         // Delete the cached entries for the course codes in enrol_gudatabase_codes
         // This might give problems with students logging in to recently reset courses
         // but I don't care - it won't be many.
         $DB->delete_records('enrol_gudatabase_codes', array('courseid' => $courseid));
         return;
+    }
+    
+    public static function course_updated(\core\event\course_updated $event) {
+        global $DB;
+        
+        $courseid = $event->courseid;
+        $plugin = enrol_get_plugin('sits');
+        
+        enrol_sits_plugin::addToLog(-1, $courseid, 'i', 'SITS sync triggered by course settings change');
+    }
+    
+    public static function course_viewed(\core\event\course_viewed $event) {
+        global $DB;
+        
+        
+    }
+    
+    public static function enrol_instance_updated(\core\event\enrol_instance_updated) {
+        global $DB;
+        
+        
     }
 
     /**
@@ -53,6 +76,8 @@ class enrol_sits_observer {
 
         $courseid = $event->objectid;
         $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+        
+        enrol_sits_plugin::addToLog(-1, $courseid, 'i', 'SITS sync triggered by course creation');
 
 	// get default course length
         $courseconfig = get_config('moodlecourse');
