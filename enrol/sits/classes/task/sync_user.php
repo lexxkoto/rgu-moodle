@@ -15,17 +15,32 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Database enrolment plugin version specification.
- *
- * @package    enrol
- * @subpackage sits
+ * @package    enrol_sits
  * @copyright  2023 Alex Walker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace enrol_sits\task;
 
-$plugin->version   = 2023021101;
-$plugin->requires  = 2018051700;
-$plugin->component = 'enrol_sits';
-$plugin->maturity = MATURITY_STABLE;
+defined('MOODLE_INTERNAL') || die;
+
+class sync_user extends \core\task\adhoc_task {
+
+    public function execute() {
+        global $DB;
+
+        // Get enrolment plugin
+        $plugin = enrol_get_plugin('sits');
+
+        // Get custom data (and courseid)
+        $data = $this->get_custom_data();
+        $userid = $data->userid;
+        if ($user = $DB->get_record('user', ['id' => $userid, 'deleted' => 0])) {
+            mtrace('enrol_sits: processing user '.$user->username);
+            $plugin->process_user_enrolments($user);
+        } else {
+            mtrace('enrol_sits: user no longer exists: '.$userid);
+        }
+    }
+
+}

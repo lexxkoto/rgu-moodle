@@ -57,24 +57,12 @@ class enrol_sits_plugin extends enrol_plugin {
     }
 
     public function get_instance_name($instance) {
-        global $DB;
-
-        if (empty($instance->name)) {
-            if (!empty($instance->roleid) and $role = $DB->get_record('role', array('id' => $instance->roleid))) {
-                $role = ' (' . role_get_name($role, context_course::instance($instance->courseid, IGNORE_MISSING)) . ')';
-            } else {
-                $role = '';
-            }
-            $enrol = $this->get_name();
-            return get_string('pluginname', 'enrol_'.$enrol) . $role;
-        } else {
-            return format_string($instance->name);
-        }
+        return get_string('pluginname', 'enrol_sits');
     }
 
     public function can_add_instance($courseid) {
         $context = context_course::instance($courseid, MUST_EXIST);
-
+        return true;
         if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/sits:config', $context)) {
             return false;
         }
@@ -101,11 +89,12 @@ class enrol_sits_plugin extends enrol_plugin {
     }
 
     public function is_configured() {
-        if (!$this->get_config('dbtype') or
-                !$this->get_config('dbhost') or
-                !$this->get_config('remoteenroltable') or
-                !$this->get_config('remotecoursefield') or
-                !$this->get_config('remoteuserfield')) {
+        return true;
+        if (!$this->get_config('sits_db_enabled') or
+                !$this->get_config('sits_db_host') or
+                !$this->get_config('sits_db_username') or
+                !$this->get_config('sits_db_password') or
+                !$this->get_config('sits_db_database')) {
             return false;
         } else {
             return true;
@@ -984,7 +973,7 @@ class enrol_sits_plugin extends enrol_plugin {
         }
 
         // Ad-hoc task to enrol users.
-        $synccourse = new \enrol_gudatabase\task\sync_course();
+        $synccourse = new \enrol_sits\task\sync_course();
         $data = [
             'newcourse' => $inserted,
             'courseid' => $course->id,
@@ -1347,7 +1336,7 @@ class enrol_sits_plugin extends enrol_plugin {
         }
 
         // Ad-hoc task to enrol user.
-        $syncuser = new \enrol_gudatabase\task\sync_user();
+        $syncuser = new \enrol_sits\task\sync_user();
         $data = [
             'userid' => $user->id,
         ];
@@ -1546,7 +1535,7 @@ class enrol_sits_plugin extends enrol_plugin {
         list($codeclasses, $coursedescriptions) = $this->get_coursedescriptions($course, $instance);
 
         // Get renderer.
-        $output = $PAGE->get_renderer('enrol_gudatabase');
+        $output = $PAGE->get_renderer('enrol_sits');
 
         // Unpack groups.
         if (empty($instance->customtext2)) {

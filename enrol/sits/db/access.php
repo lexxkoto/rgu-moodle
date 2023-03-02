@@ -38,6 +38,15 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [],
     ],
+    
+    'enrol/sits:config' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        ],
+    ],
 ];
 
 ?>
