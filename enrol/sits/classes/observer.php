@@ -81,7 +81,7 @@ class enrol_sits_observer {
         $courseid = $event->objectid;
         $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
         
-        $plugin->ddToLog(-1, $courseid, 'i', 'SITS sync triggered by course creation');
+        $plugin->addToLog(-1, $courseid, 'i', 'SITS sync triggered by course creation');
 
 	// get default course length
         $courseconfig = get_config('moodlecourse');
