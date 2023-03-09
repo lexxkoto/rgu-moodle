@@ -72,29 +72,13 @@ class enrol_sits_renderer extends plugin_renderer_base {
     /**
      * Print legacy codes
      */
-    public function print_codes($courseid, $codes, $settingcodes=false, $enrolmentpossible = true) {
-        global $DB, $CFG;
-
+    public function print_codes($codes) {
         $html = '';
-        if (!$enrolmentpossible) {
-            $link = $CFG->wwwroot . '/report/guenrol/index.php?id=' . $courseid;
-            $html .= '<div class="alert alert-danger">' . get_string('enrolmentdisabled', 'enrol_gudatabase', $link) . '</div>';
-        }
-        if ($codes) {
-            $html .= '<div class="alert alert-info">';
-            if ($settingcodes) {
-                $html .= "<p><b>" . get_string('legacycodes', 'enrol_gudatabase') . "</b></p>";
-            } else {
-                $html .= "<p><b>" . get_string('codesdefined', 'enrol_gudatabase') . "</b></p>";
-            }
-            $html .= "<ul>";
-            foreach ($codes as $code) {
-                $courseinfo = $this->courseinfo($courseid, $code);
-                $html .= "<li><b>$code</b>&nbsp;&nbsp;&nbsp; ($courseinfo)</li>";
-            }
-            $html .= "</ul></div>";
+        
+        if(count($codes) == 0) {
+            $html = '<div class="message-grey"><span><strong>You haven\'t added any enrolment rules yet.</strong><br />Use the form below to add an enrolment rule to this course.</span></div>';
         } else {
-            $html .= '<div class="alert alert-warning">' . get_string('nolegacycodes', 'enrol_gudatabase') . '</div>';
+            $html = '<pre>'.print_r($codes, true).'</pre>';
         }
 
         return $html;

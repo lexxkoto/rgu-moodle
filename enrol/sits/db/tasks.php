@@ -15,32 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * GUID Enrolment sync
+ *
  * @package    enrol_sits
  * @copyright  2023 Alex Walker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_sits\task;
-
 defined('MOODLE_INTERNAL') || die;
 
-class sync_course extends \core\task\adhoc_task {
-
-    public function execute() {
-        global $DB;
-
-        // Get enrolment plugin
-        $plugin = enrol_get_plugin('sits');
-
-        // Get custom data (and courseid)
-        $data = $this->get_custom_data();
-        $courseid = $data->courseid;
-        $newcourse = $data->newcourse;
-        if ($course = $DB->get_record('course', ['id' => $courseid])) {
-            mtrace('enrol_sits: processing course '.$course->fullname);
-            $plugin->process_course($newcourse, $course);
-        } else {
-            mtrace('enrol_gudatabase: course does not exist: '.$courseid);
-        }
-    }
-}
+$tasks = array(
+    array(
+        'classname' => 'enrol_sits\task\update_courses',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '4',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    )
+);

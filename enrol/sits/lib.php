@@ -147,17 +147,21 @@ class enrol_sits_plugin extends enrol_plugin {
 
         $fields['roleid'] = '5';
         $fields['customint1'] = 14400; // Deletion Grace Period
+        $fields['customint2'] = 1; // Expire action
         return $this->add_instance($course, $fields);
     }
-
+    
     /**
      * check if course has at least one instance of this plugin
      * add if not
      * @param object $course
      * @return int instanceid
      */
-    public function check_instance($course) {
-
+    public function check_instance($courseid) {
+        global $DB;
+        
+        $course = $DB->get_record('course', array('id'=>$courseid));
+        
         // Get all instances in this course.
         $instances = enrol_get_instances($course->id, true);
 
@@ -194,34 +198,6 @@ class enrol_sits_plugin extends enrol_plugin {
         global $DB;
 
         return $DB->get_record('course', array('id' => $instance->courseid), '*', MUST_EXIST);
-    }
-
-    /**
-     * Called after updating/inserting course.
-     * Should set off adhoc task for course update
-     *
-     * @param bool $inserted true if course just inserted
-     * @param object $course
-     * @param object $data form data
-     * @return void
-     */
-    public function course_updated($inserted, $course, $data) {
-
-        // We want all our new courses to have this plugin.
-        if ($inserted) {
-            $instanceid = $this->add_first_instance($course);
-        }
-
-        // Ad-hoc task to enrol users.
-        $synccourse = new \enrol_sits\task\sync_course();
-        $data = [
-            'newcourse' => $inserted,
-            'courseid' => $course->id,
-        ];
-        $synccourse->set_custom_data($data);
-        \core\task\manager::queue_adhoc_task($synccourse);
-
-        return true;
     }
 
     /**
@@ -330,10 +306,28 @@ class enrol_sits_plugin extends enrol_plugin {
         return $many;
     }
     
+    function syncCourse($courseid, $force=false) {
+        $limit = get_config('enrol_sits', 'trigger_inactive_time');
+        $instances = getEnrolInstancesForCourse($courseid);
+        foreach($instances as $instance) {
+            if($instance->customint8 < (time()-$limit) || $force) {
+                syncEnrolInstance($instance);
+                updateInstanceTime($instance);
+            }
+        }
+    }
+    
+    function updateInstanceTime($instance) {
+        global $DB;
+    
+        $instance->customint8 = time();
+        $DB->update_record('enrol', $instance);
+    }
+    
     function syncEnrolInstance($instance) {
         global $DB;
         
-        addToLog($instance->id, $instance->courseid, 'i', 'Started SITS sync');
+        addToLog($instance->id, $instance->courseid, 'i', 'Syncing enrolments for this copy of the plugin');
         
         $codes = getCodesForInstance($instance->id);
         
@@ -587,6 +581,8 @@ class enrol_sits_plugin extends enrol_plugin {
             //$mform->addElement('html', '<div class="alert alert-warning">' . get_string('noenddatealert', 'enrol_gudatabase') .
             //    ' - <b><a href="' . $link . '">' . get_string('settings') . '</a></b></div>');
         }
+        
+        //$mform->addElement('header', 'section_settings', get_string('section_settings', 'enrol_sits'));
 
         $mform->addElement('text', 'name', get_string('customname', 'enrol_sits'));
         $mform->addElement('static', 'name_desc', '', get_string('customname_desc', 'enrol_sits'));
@@ -616,48 +612,16 @@ class enrol_sits_plugin extends enrol_plugin {
         $mform->setDefault('customint2', 1);
         $mform->addElement('static', 'expireaction_desc', '', get_string('expireaction_desc', 'enrol_sits'));
 
-        if (has_capability('enrol/gudatabase:enableunenrol', $context)) {
-	    $mform->addElement('html','<div class="alert alert-danger">' . get_string('removewarning', 'enrol_gudatabase') . '</div>');
-
-            $mform->addElement('select', 'customint4', get_string('enableunenrol', 'enrol_gudatabase'), $yesno);
-            $mform->setDefault('customint4', 0);
-            $mform->addHelpButton('customint4', 'enableunenrol', 'enrol_gudatabase');
-
-            $mform->addElement('select', 'customint5', get_string('enablegroupremove', 'enrol_gudatabase'), $yesno);
-            $mform->setDefault('customint5', 0);
-            $mform->addHelpButton('customint5', 'enablegroupremove', 'enrol_gudatabase');
-        }
-
-        $mform->addElement('html', $output->print_codes($course->id, $codes, $instance->customint3, $this->enrolment_possible($course, $instance)));
-
-        $mform->addElement('textarea', 'customtext1', get_string('codelist', 'enrol_gudatabase'),
-            'rows="15" cols="25" style="height: auto; width:auto;"');
-        $mform->addHelpButton('customtext1', 'codelist', 'enrol_gudatabase');
-        $mform->setType('customtext1', PARAM_TEXT);
+        //$mform->closeHeaderBefore('section_settings');
 
         // Automatic groups settings.
-        $mform->addElement('header', 'groupsettings', get_string('groupsettings', 'enrol_gudatabase'));
-
-        if ($coursedescriptions) {
-            $mform->addElement('html', '<div class="alert alert-info">' .
-                get_string('groupsinstruction', 'enrol_gudatabase') . '</div>');
-        } else {
-            $mform->addElement('html', '<div class="alert alert-warning">' .
-                get_string('nolegacycodes', 'enrol_gudatabase') . '</div>');
-        }
-
-        if ($coursedescriptions) {
-            $mform->addElement('advcheckbox', 'coursegroups', get_string('coursegroups', 'enrol_gudatabase'), '');
-            $mform->setDefault('coursegroups', $instance->customint2);
-            $mform->addHelpButton('coursegroups', 'coursegroups', 'enrol_gudatabase');
-        }
+        $mform->addElement('header', 'section_codes', get_string('section_codes', 'enrol_sits'));
 
         $codes = $this->getCodesForInstance($instance->id);
-        echo '<pre>'.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
-        var_dump($codes);
-        echo '</pre>';
-
-        $mform->closeHeaderBefore('groupsettings');
+        
+        $mform->addElement('html', $output->print_codes($codes));
+        
+        $mform->closeHeaderBefore('section_codes');
     }
 
     /**
