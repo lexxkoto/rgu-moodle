@@ -38,7 +38,11 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [],
     ],
-    
+    'enrol/sits:bulk' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [],
+    ],
     'enrol/sits:config' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,

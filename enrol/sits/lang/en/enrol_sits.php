@@ -25,6 +25,7 @@
 $string['pluginname'] = 'RGU SITS Sync';
 $string['pluginname_desc'] = 'Lets you add an entire class of students from SITS and keep them in sync. This replaces the old AutoEnrol system.';
 $string['configtitle'] = 'RGU Sits Sync';
+$string['backgroundrefresh'] = 'RGU SITS Background Refresh';
 
 $string['page_sits_db'] = 'SITS Database';
 $string['sits_db_enabled'] = 'Enable SITS Sync';
@@ -78,3 +79,6 @@ $string['trigger_4_hours'] = '4 hours';
 $string['trigger_6_hours'] = '6 hours';
 $string['trigger_12_hours'] = '12 hours';
 $string['trigger_1_day'] = '1 day';
+
+$string['addrule'] = 'Add Rule';
+$string['viewlog'] = 'View Log';

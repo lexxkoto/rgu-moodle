@@ -38,7 +38,7 @@ class enrol_sits_observer {
         $courseid = $event->courseid;
         $plugin = enrol_get_plugin('sits');
         
-        enrol_sits_plugin::addToLog(-1, $courseid, 'i', 'SITS sync triggered by course reset');
+        enrol_sits_plugin::addToLog(-1, $courseid, 'd', 'SITS sync triggered by course reset');
     }
     
     public static function course_updated(\core\event\course_updated $event) {
@@ -48,22 +48,25 @@ class enrol_sits_observer {
         
         $plugin = enrol_get_plugin('sits');
         $plugin->check_instance($courseid);
-        $plugin->addToLog(-1, intval($courseid), 'i', 'SITS sync triggered by course settings change');
+        $plugin->addToLog(-1, intval($courseid), 'd', 'SITS sync triggered by course settings change');
         
         $sync = new \enrol_sits\task\sync_course();
-        $sync->set_custom_data(array('courseid'=>$courseid));
+        $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course settings change'));
         \core\task\manager::queue_adhoc_task($sync);
     }
     
     public static function course_viewed(\core\event\course_viewed $event) {
-        return false;
         global $DB;
         
         $courseid = $event->courseid;
         
         $plugin = enrol_get_plugin('sits');
         $plugin->check_instance($courseid);
-        $plugin->addToLog(-1, intval($courseid), 'i', 'SITS sync triggered by course view');
+        $plugin->addToLog(-1, intval($courseid), 'd', 'SITS sync triggered by course view');
+        
+        $sync = new \enrol_sits\task\sync_course();
+        $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course view'));
+        \core\task\manager::queue_adhoc_task($sync);
     }
     
     public static function enrol_instance_updated(\core\event\enrol_instance_updated $event) {

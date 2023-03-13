@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023021106;
+$plugin->version   = 2023021109;
 $plugin->requires  = 2018051700;
 $plugin->component = 'enrol_sits';
 $plugin->maturity = MATURITY_STABLE;

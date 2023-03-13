@@ -76,11 +76,102 @@ class enrol_sits_renderer extends plugin_renderer_base {
         $html = '';
         
         if(count($codes) == 0) {
-            $html = '<div class="message-grey"><span><strong>You haven\'t added any enrolment rules yet.</strong><br />Use the form below to add an enrolment rule to this course.</span></div>';
+            $html = '<div class="message-grey"><span><strong>You haven\'t added any enrolment rules yet.</strong><br />Use the options below to add an enrolment rule to this course.</span></div>';
         } else {
-            $html = '<pre>'.print_r($codes, true).'</pre>';
+            foreach($codes as $code) {
+                echo '<div class="enrolment-rule enrol-'.$code->type.'"><a class="btn btn-link pull-right" title="Delete Rule" href="rule-delete.php?rule='.$code->id.'"><i class="fa fa-trash"></i></a><span>';
+                switch($code->type) {
+                    case 'all-students':
+                        echo '<h4>All Students</h4>';
+                        echo '<p>There are no options for this type of rule.</p>';
+                        break;
+                }
+                echo '</span></div>';
+            }
         }
 
         return $html;
+    }
+    
+    public function print_log_entries($entries) {
+        echo '<table class="table"><thead><tr><th>Time</th><th>Information</th></tr></thead><tbody>';
+        foreach($entries as $entry) {
+            if($entry->level != 'd') {
+                echo '<tr>';
+                echo '<td>'.date('D j M H:i', $entry->timeadded).'</td>';
+                echo '<td><i class="fa fa-';
+                switch ($entry->level) {
+                    default:
+                        echo 'info-circle';
+                        break;
+                }
+                echo '"></i> '.$entry->details.'</td>';
+                echo '</tr>';
+            }
+        }
+        echo '</tbody></table>';
+    }
+    
+    public function print_enrol_buttons($instance) {
+        $buttons = Array(
+            [
+                'title' => 'Add Students',
+                'buttons' => [
+                    [
+                        'text' => 'By Module',
+                        'rule' => 'module',
+                        'icon' => 'cubes',
+                        'type' => 'secondary'
+                    ],
+                    [
+                        'text' => 'By Course',
+                        'rule' => 'course',
+                        'icon' => 'mortar-board',
+                        'type' => 'secondary'
+                    ],
+                    [
+                        'text' => 'By School',
+                        'rule' => 'school',
+                        'icon' => 'institution',
+                        'type' => 'secondary'
+                    ],
+                    [
+                        'text' => 'Add All Students',
+                        'rule' => 'all-students',
+                        'icon' => 'plus',
+                        'type' => 'warning'
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Add Staff',
+                'buttons' => [
+                    [
+                        'text' => 'By Department',
+                        'rule' => 'dept-staff',
+                        'icon' => 'group',
+                        'type' => 'secondary'
+                    ],
+                    [
+                        'text' => 'Add All Staff',
+                        'rule' => 'all-staff',
+                        'icon' => 'plus',
+                        'type' => 'warning'
+                    ],
+                ]
+            ],
+        );
+    
+        echo '<div class="enrol-buttons mt-4">';
+        foreach($buttons as $group) {
+            echo '<div class="row mt-4"><div class="col-md-3"><span class="btn">'.$group['title'].':</span></div><div class="col-md-9 btn-toolbar">';
+            foreach ($group['buttons'] as $button) {
+                echo '<a class="btn btn-'.$button['type'].' mr-2" href="add-rule.php?instance='.$instance.'&rule='.$button['rule'].'">';
+                echo '<i class="fa fa-'.$button['icon'].'"></i> '.$button['text'];
+                echo '</a>';
+            }
+            echo '</div></div>';
+        }
+        echo '</div>';
     }
 }

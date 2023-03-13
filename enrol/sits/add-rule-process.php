@@ -24,40 +24,53 @@
 
 require('../../config.php');
 
-$instanceID = required_param('instance', PARAM_INT);
+function ifPosted($name, $required=false) {
+    if(isset($_POST[$name]) && !empty($_POST[$name])) {
+        return $_POST[$name];
+    } else {
+        if($required) {
+            die('Missing data: '.$name);
+        }
+        return '';
+    }
+}
+
+$instanceID = ifPosted('instance', true);
+$rule = ifPosted('type', true);
+$token = ifPosted('token', true);
+
+if($token != md5('TheHandThatFeeds'.$instanceID.$rule)) {
+    die('Invalid token');
+}
 
 $instance = $DB->get_record('enrol', array('id'=>$instanceID, 'enrol'=>'sits'));
-
 $course = $DB->get_record('course', array('id'=>$instance->courseid));
-
 require_login();
-
 $context = context_course::instance($course->id, MUST_EXIST);
 
 require_capability('enrol/sits:manage', $context);
 
-$PAGE->set_course($course);
-$PAGE->set_pagelayout('incourse');
-$PAGE->add_body_class('limitedwidth');
-$PAGE->set_url('/enrol/sits/rules.php', array('id'=>$course->id));
+// Check extra permissions here
 
-$PAGE->set_title(get_string('managerules', 'enrol_sits'));
-$PAGE->set_heading($course->fullname);
-$PAGE->navbar->add(get_string('enrolmentoptions','enrol'));
+switch($rule) {
+    case 'all-students':
+        require_capability('enrol/sits:bulk', $context);
+        break;
+}
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('managerules', 'enrol_sits'));
+$record = new stdClass();
+$record->instanceid = $instanceID;
+$record->type = $rule;
+$record->code = ifPosted('code');
+$record->modes = ifPosted('modes');
+$record->status = ifPosted('status');
+$record->course = ifPosted('course');
+$record->start = ifPosted('start');
+$record->blocks = ifPosted('blocks');
+$record->occurrence = ifPosted('occurrence');
+$record->period = ifPosted('period');
+$record->timeadded = time();
 
-$courserenderer = $PAGE->get_renderer('core', 'course');
+$DB->insert_record('enrol_sits_code', $record);
 
-$output = $PAGE->get_renderer('enrol_sits');
-
-$plugin = enrol_get_plugin('sits');
-
-$codes = $plugin->getCodesForInstance($instanceID);
-
-echo $output->print_codes($codes);
-
-echo $output->print_enrol_buttons($instanceID);
-
-echo $OUTPUT->footer();
+header('Location: rules.php?instance='.$instanceID);

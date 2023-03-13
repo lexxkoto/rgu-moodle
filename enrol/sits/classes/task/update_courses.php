@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_rgu_core_services\task;
+namespace enrol_sits\task;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -39,19 +39,20 @@ class update_courses extends \core\task\scheduled_task {
         $limit = get_config('enrol_sits', 'cron_num_courses');
 
         $courses = $DB->get_records_sql(
-            'select distinct courseid from {enrol} where enrol="sits" and customint 8 > :inactivetime',
+            'select distinct courseid from {enrol} where enrol="sits" and (customint8 < :inactivetime or customint8 is null)',
             ['inactivetime' => (time() - ($days))],
             0,
             $limit
         );
 
         foreach ($courses as $course) {
+            mtrace('Found course '.$course->courseid);
             $plugin = enrol_get_plugin('sits');
-            $plugin->check_instance($course);
-            $plugin->addToLog(-1, intval($course), 'i', 'SITS sync triggered by scheduled task');
+            $plugin->check_instance($course->courseid);
+            $plugin->addToLog(-1, intval($course->courseid), 'i', 'SITS sync triggered by scheduled task');
             
             $sync = new \enrol_sits\task\sync_course();
-            $sync->set_custom_data(array('courseid'=>$course));
+            $sync->set_custom_data(array('courseid'=>$course->courseid));
             \core\task\manager::queue_adhoc_task($sync);
         }
     }

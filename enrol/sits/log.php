@@ -41,23 +41,20 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->add_body_class('limitedwidth');
 $PAGE->set_url('/enrol/sits/rules.php', array('id'=>$course->id));
 
-$PAGE->set_title(get_string('managerules', 'enrol_sits'));
+$PAGE->set_title(get_string('viewlog', 'enrol_sits'));
 $PAGE->set_heading($course->fullname);
-$PAGE->navbar->add(get_string('enrolmentoptions','enrol'));
+$PAGE->navbar->add(get_string('viewlog','enrol_sits'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('managerules', 'enrol_sits'));
+echo $OUTPUT->heading(get_string('viewlog', 'enrol_sits'));
+
+$logentries = $DB->get_records('enrol_sits_log', array('courseid'=>$course->id));
+
 
 $courserenderer = $PAGE->get_renderer('core', 'course');
 
 $output = $PAGE->get_renderer('enrol_sits');
 
-$plugin = enrol_get_plugin('sits');
-
-$codes = $plugin->getCodesForInstance($instanceID);
-
-echo $output->print_codes($codes);
-
-echo $output->print_enrol_buttons($instanceID);
+echo $output->print_log_entries($logentries);
 
 echo $OUTPUT->footer();

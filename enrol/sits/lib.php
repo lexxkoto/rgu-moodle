@@ -52,6 +52,10 @@ class enrol_sits_plugin extends enrol_plugin {
     public function allow_unenrol(stdClass $instance) {
         return true;
     }
+    
+    public function can_hide_show_instance($instance) {
+        return false;
+    }
 
     public function get_instance_name($instance) {
         global $DB;
@@ -148,6 +152,7 @@ class enrol_sits_plugin extends enrol_plugin {
         $fields['roleid'] = '5';
         $fields['customint1'] = 14400; // Deletion Grace Period
         $fields['customint2'] = 1; // Expire action
+        $fields['customint8'] = 0; // Last update timestamp
         return $this->add_instance($course, $fields);
     }
     
@@ -160,10 +165,11 @@ class enrol_sits_plugin extends enrol_plugin {
     public function check_instance($courseid) {
         global $DB;
         
+        $this->addToLog(-1, $courseid, 'd', 'Checking if SITS sync is already used on course.');
         $course = $DB->get_record('course', array('id'=>$courseid));
         
         // Get all instances in this course.
-        $instances = enrol_get_instances($course->id, true);
+        $instances = enrol_get_instances($courseid, true);
 
         // Search for this one.
         $found = false;
@@ -171,12 +177,14 @@ class enrol_sits_plugin extends enrol_plugin {
             if ($instance->enrol == $this->get_name()) {
                 $found = true;
                 $instanceid = $instance->id;
+                $this->addToLog($instanceid, $courseid, 'd', 'Found SITS Sync on course.');
             }
         }
 
         // If we didn't find it then add it.
         if (!$found) {
             $instanceid = $this->add_first_instance($course);
+            $this->addToLog($instanceid, $courseid, 'c', 'Added SITS Sync to course.');
         }
 
         return $instanceid;
@@ -306,132 +314,6 @@ class enrol_sits_plugin extends enrol_plugin {
         return $many;
     }
     
-    function syncCourse($courseid, $force=false) {
-        $limit = get_config('enrol_sits', 'trigger_inactive_time');
-        $instances = getEnrolInstancesForCourse($courseid);
-        foreach($instances as $instance) {
-            if($instance->customint8 < (time()-$limit) || $force) {
-                syncEnrolInstance($instance);
-                updateInstanceTime($instance);
-            }
-        }
-    }
-    
-    function updateInstanceTime($instance) {
-        global $DB;
-    
-        $instance->customint8 = time();
-        $DB->update_record('enrol', $instance);
-    }
-    
-    function syncEnrolInstance($instance) {
-        global $DB;
-        
-        addToLog($instance->id, $instance->courseid, 'i', 'Syncing enrolments for this copy of the plugin');
-        
-        $codes = getCodesForInstance($instance->id);
-        
-        $usersWhoBelong = Array();
-        $usersRemoved = Array();
-        
-        // Now we add the users who belong
-        
-        foreach($codes as $code) {
-            $usersAdded = Array();
-            switch($code->type) {
-                case 'module':
-                
-                    break;
-                case 'course':
-                
-                    break;
-                case 'school':
-                
-                    break;
-                case 'all-students':
-                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all students to course');
-                    $students = $DB->get_records('user', array('institution'=>'student', 'deleted'=>'0'));
-                    addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.s(count($students)));
-                    foreach($students as $student) {
-                        $usersWhoBelong[$student->id] = $student->id;
-                        if(createEnrolmentRecord($instance->id, $student->id)) {
-                            addToLog($instance->id, $student->id, 'a', 'Added '.$student->firstname.' '.$student->lastname.' - User ID '.$student->idnumber);
-                            $usersAdded[$student->id] = $student->id;
-                        }
-                    }
-                    addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
-                    break;
-                case 'all-staff':
-                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff to course');
-                    $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0'));
-                    addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff)));
-                    foreach($staff as $user) {
-                        $usersWhoBelong[$user->id] = $user->id;
-                        if(createEnrolmentRecord($instance->id, $user->id)) {
-                            addToLog($instance->id, $user->id, 'a', 'Added '.$user->firstname.' '.$user->lastname.' - User ID '.$student->idnumber);
-                            $usersAdded[$user->id] = $user->id;
-                        }
-                    }
-                    addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
-                    break;
-                case 'dept-staff':
-                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff in a department to course');
-                    if(isset(enrol_sits_plugin::$schools[$code->code])) {
-                        $dept = enrol_sits_plugin::$schools[$code->code];
-                        $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0', 'department'=>$dept));
-                        addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff).' in '.$dept));
-                        foreach($staff as $user) {
-                            $usersWhoBelong[$user->id] = $user->id;
-                            if(createEnrolmentRecord($instance->id, $user->id)) {
-                                addToLog($instance->id, $user->id, 'a', 'Added '.$user->firstname.' '.$user->lastname.' - User ID '.$student->idnumber);
-                                $usersAdded[$user->id] = $user->id;
-                            }
-                        }
-                        addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
-                    } else {
-                        addToLog($instance->id, $instance->courseid, 'e', 'The department "'.$code->code.'" doesn\'t seem to exist.');
-                    }
-                    break;
-            }
-        }
-        
-        // Get the users who don't belong and decide what to do with them
-        
-        $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE userid NOT IN ('.implode(',', $usersWhoBelong).')');
-        
-    }
-    
-    function createEnrolmentRecord($instanceid, $userid, $usernumber="") {
-        global $DB;
-        
-        $exists = $DB->get_record('enrol_sits_users', array('instanceid'=>$instanceid, 'userid'=>$userid));
-        
-        if(!exists) {
-            $record = new stdClass;
-            $record->instanceid = $instanceid;
-            $record->userid = $userid;
-            $record->studentno = $usernumber;
-            $record->timeupdated = time();
-            $record->frozen = '0';
-        
-            $DB->insert_record('enrol_sits_users', $record);
-        
-            $record = new stdClass;
-            $record->status = ENROL_USER_ACTIVE;
-            $record->enrolid = $instanceid;
-            $record->userid = $userid;
-            $record->modifierid = 2;
-            $record->timecreated = time();
-            $record->timemodified = time();
-            
-            $DB->insert_record('user_enrolments', $record);
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
     function getCodesForInstance($instanceid) {
         global $DB;
         
@@ -444,7 +326,7 @@ class enrol_sits_plugin extends enrol_plugin {
         global $DB;
         
         
-        $instances = $DB->get_records('enrol', array('enrol'=>'sits','status'=>'1','courseid'=>$courseid));
+        $instances = $DB->get_records('enrol', array('enrol'=>'sits','status'=>'0','courseid'=>$courseid));
         
         return $instances;
     }
@@ -556,6 +438,135 @@ class enrol_sits_plugin extends enrol_plugin {
         
     }
     
+    function syncCourse($courseid, $force=false) {
+        $limit = get_config('enrol_sits', 'trigger_inactive_time');
+        $instances = $this->getEnrolInstancesForCourse($courseid);
+        foreach($instances as $instance) {
+            if($instance->customint8 < (time()-$limit) || $force) {
+                addToLog($instance->id, $courseid, 'i', 'Syncing with SITS...');
+                syncEnrolInstance($instance);
+                updateInstanceTime($instance);
+            } else {
+                addToLog($instance->id, $courseid, 'i', 'Syncing was run recently. Not running again.');
+            }
+        }
+    }
+    
+    function updateInstanceTime($instance) {
+        global $DB;
+    
+        $instance->customint8 = time();
+        $DB->update_record('enrol', $instance);
+    }
+    
+    function syncEnrolInstance($instance) {
+        global $DB;
+        
+        //addToLog($instance->id, $instance->courseid, 'i', 'Syncing enrolments for this copy of the plugin');
+        
+        $codes = getCodesForInstance($instance->id);
+        
+        $usersWhoBelong = Array();
+        $usersRemoved = Array();
+        
+        // Now we add the users who belong
+        
+        foreach($codes as $code) {
+            $usersAdded = Array();
+            switch($code->type) {
+                case 'module':
+                
+                    break;
+                case 'course':
+                
+                    break;
+                case 'school':
+                
+                    break;
+                case 'all-students':
+                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all students to course');
+                    $students = $DB->get_records('user', array('institution'=>'student', 'deleted'=>'0'));
+                    addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.s(count($students)));
+                    foreach($students as $student) {
+                        $usersWhoBelong[$student->id] = $student->id;
+                        if(createEnrolmentRecord($instance->id, $student->id)) {
+                            addToLog($instance->id, $student->id, 'a', 'Added '.$student->firstname.' '.$student->lastname.' - User ID '.$student->idnumber);
+                            $usersAdded[$student->id] = $student->id;
+                        }
+                    }
+                    addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    break;
+                case 'all-staff':
+                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff to course');
+                    $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0'));
+                    addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff)));
+                    foreach($staff as $user) {
+                        $usersWhoBelong[$user->id] = $user->id;
+                        if(createEnrolmentRecord($instance->id, $user->id)) {
+                            addToLog($instance->id, $user->id, 'a', 'Added '.$user->firstname.' '.$user->lastname.' - User ID '.$student->idnumber);
+                            $usersAdded[$user->id] = $user->id;
+                        }
+                    }
+                    addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    break;
+                case 'dept-staff':
+                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff in a department to course');
+                    if(isset(enrol_sits_plugin::$schools[$code->code])) {
+                        $dept = enrol_sits_plugin::$schools[$code->code];
+                        $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0', 'department'=>$dept));
+                        addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff).' in '.$dept));
+                        foreach($staff as $user) {
+                            $usersWhoBelong[$user->id] = $user->id;
+                            if(createEnrolmentRecord($instance->id, $user->id)) {
+                                addToLog($instance->id, $user->id, 'a', 'Added '.$user->firstname.' '.$user->lastname.' - User ID '.$student->idnumber);
+                                $usersAdded[$user->id] = $user->id;
+                            }
+                        }
+                        addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    } else {
+                        addToLog($instance->id, $instance->courseid, 'e', 'The department "'.$code->code.'" doesn\'t seem to exist.');
+                    }
+                    break;
+            }
+        }
+        
+        // Get the users who don't belong and decide what to do with them
+        
+        $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE userid NOT IN ('.implode(',', $usersWhoBelong).')');
+        
+    }
+    
+    function createEnrolmentRecord($instanceid, $userid, $usernumber="") {
+        global $DB;
+        
+        $exists = $DB->get_record('enrol_sits_users', array('instanceid'=>$instanceid, 'userid'=>$userid));
+        
+        if(!exists) {
+            $record = new stdClass;
+            $record->instanceid = $instanceid;
+            $record->userid = $userid;
+            $record->studentno = $usernumber;
+            $record->timeupdated = time();
+            $record->frozen = '0';
+        
+            $DB->insert_record('enrol_sits_users', $record);
+        
+            $record = new stdClass;
+            $record->status = ENROL_USER_ACTIVE;
+            $record->enrolid = $instanceid;
+            $record->userid = $userid;
+            $record->modifierid = 2;
+            $record->timecreated = time();
+            $record->timemodified = time();
+            
+            $DB->insert_record('user_enrolments', $record);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
         /**
      * Add elements to the edit instance form.
      *
@@ -569,20 +580,6 @@ class enrol_sits_plugin extends enrol_plugin {
 
         // Get renderer.
         $output = $PAGE->get_renderer('enrol_sits');
-
-        if ($this->enrolment_possible($course, $instance)) {
-            //$mform->addElement('html', '<div class="alert alert-info">' . get_string('savewarning', 'enrol_gudatabase') . '</div>');
-        } else {
-            //$mform->addElement('html', '<div class="alert alert-danger">' . get_string('savedisabled', 'enrol_gudatabase') . '</div>');
-        }
-
-        if (empty($course->enddate)) {
-            //$link = new moodle_url('/course/edit.php', ['id' => $course->id]);
-            //$mform->addElement('html', '<div class="alert alert-warning">' . get_string('noenddatealert', 'enrol_gudatabase') .
-            //    ' - <b><a href="' . $link . '">' . get_string('settings') . '</a></b></div>');
-        }
-        
-        //$mform->addElement('header', 'section_settings', get_string('section_settings', 'enrol_sits'));
 
         $mform->addElement('text', 'name', get_string('customname', 'enrol_sits'));
         $mform->addElement('static', 'name_desc', '', get_string('customname_desc', 'enrol_sits'));
@@ -615,13 +612,7 @@ class enrol_sits_plugin extends enrol_plugin {
         //$mform->closeHeaderBefore('section_settings');
 
         // Automatic groups settings.
-        $mform->addElement('header', 'section_codes', get_string('section_codes', 'enrol_sits'));
-
-        $codes = $this->getCodesForInstance($instance->id);
         
-        $mform->addElement('html', $output->print_codes($codes));
-        
-        $mform->closeHeaderBefore('section_codes');
     }
 
     /**

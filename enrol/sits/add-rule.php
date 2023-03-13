@@ -25,6 +25,7 @@
 require('../../config.php');
 
 $instanceID = required_param('instance', PARAM_INT);
+$rule = required_param('rule', PARAM_TEXT);
 
 $instance = $DB->get_record('enrol', array('id'=>$instanceID, 'enrol'=>'sits'));
 
@@ -39,25 +40,33 @@ require_capability('enrol/sits:manage', $context);
 $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->add_body_class('limitedwidth');
-$PAGE->set_url('/enrol/sits/rules.php', array('id'=>$course->id));
+$PAGE->set_url('/enrol/sits/add-rule.php', array('instance'=>$instanceID, 'rule'=>$rule));
 
-$PAGE->set_title(get_string('managerules', 'enrol_sits'));
+$PAGE->set_title(get_string('addrule', 'enrol_sits'));
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add(get_string('enrolmentoptions','enrol'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('managerules', 'enrol_sits'));
+echo $OUTPUT->heading(get_string('addrule', 'enrol_sits'));
 
 $courserenderer = $PAGE->get_renderer('core', 'course');
 
 $output = $PAGE->get_renderer('enrol_sits');
 
-$plugin = enrol_get_plugin('sits');
+echo '<form method="post" action="add-rule-process.php">';
+echo '<input type="hidden" name="instance" value="'.$instanceID.'" />';
+echo '<input type="hidden" name="type" value="'.$rule.'" />';
+switch($rule) {
+    case 'all-students':
+        require_capability('enrol/sits:bulk', $context);
+        echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
+        echo '<h3>Add All Students to Course</h3>';
+        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of students at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
+        echo '<p>Consider putting the information on the main University website or intranet instead.</p></div></div>';
+        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        break;
+}
 
-$codes = $plugin->getCodesForInstance($instanceID);
-
-echo $output->print_codes($codes);
-
-echo $output->print_enrol_buttons($instanceID);
+echo '</form>';
 
 echo $OUTPUT->footer();
