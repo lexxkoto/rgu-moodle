@@ -82,3 +82,7 @@ $string['trigger_1_day'] = '1 day';
 
 $string['addrule'] = 'Add Rule';
 $string['viewlog'] = 'View Log';
+
+$string['task_synccourse'] = 'Sync Course';
+$string['task_deleteusers'] = 'Delete Users';
+$string['navlink'] = 'SITS Sync';

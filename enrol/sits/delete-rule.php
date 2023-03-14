@@ -25,8 +25,8 @@
 require('../../config.php');
 
 function ifPosted($name, $required=false) {
-    if(isset($_POST[$name]) && !empty($_POST[$name])) {
-        return $_POST[$name];
+    if(isset($_GET[$name]) && !empty($_GET[$name])) {
+        return $_GET[$name];
     } else {
         if($required) {
             die('Missing data: '.$name);
@@ -36,13 +36,14 @@ function ifPosted($name, $required=false) {
 }
 
 $instanceID = ifPosted('instance', true);
-$rule = ifPosted('type', true);
+$rule = ifPosted('rule', true);
 $token = ifPosted('token', true);
 
-if($token != md5('TheHandThatFeeds'.$instanceID.$rule)) {
+if($token != md5('WheresMyFruitMachineGone'.$instanceID.$rule)) {
     die('Invalid token');
 }
 
+$ruleDetails = $DB->get_record('enrol_sits_code', array('id'=>$rule));
 $instance = $DB->get_record('enrol', array('id'=>$instanceID, 'enrol'=>'sits'));
 $course = $DB->get_record('course', array('id'=>$instance->courseid));
 require_login();
@@ -50,27 +51,13 @@ $context = context_course::instance($course->id, MUST_EXIST);
 
 require_capability('enrol/sits:manage', $context);
 
-$record = new stdClass();
-$record->instanceid = $instanceID;
-$record->type = $rule;
-$record->code = ifPosted('code');
-$record->modes = ifPosted('modes');
-$record->status = ifPosted('status');
-$record->course = ifPosted('course');
-$record->start = ifPosted('start');
-$record->blocks = ifPosted('blocks');
-$record->occurrence = ifPosted('occurrence');
-$record->period = ifPosted('period');
-$record->timeadded = time();
+// Check extra permissions here
 
-switch($rule) {
+switch($ruleDetails->code) {
     case 'all-students':
         require_capability('enrol/sits:bulk', $context);
         break;
-    case 'dept-staff':
-        $record->code = ifPosted('dept', true);
 }
-
-$DB->insert_record('enrol_sits_code', $record);
+$DB->delete_records('enrol_sits_code', array('id'=>$rule));
 
 header('Location: rules.php?id='.$course->id);

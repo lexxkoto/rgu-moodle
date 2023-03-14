@@ -82,6 +82,14 @@ require_once('notifications.php');
 require_once('content-warning.php');
 require_once('help-icon.php');
 
+if(substr($PAGE->pagetype, 0, 11) == 'course-view') {
+    $courseDetails = $PAGE->course;
+    $context = context_course::instance($courseDetails->id);
+    if(has_capability('enrol/sits:config', $context)) {
+        
+    }
+}
+
 $primary = new core\navigation\output\primary($PAGE);
 $renderer = $PAGE->get_renderer('core');
 $primarymenu = $primary->export_for_template($renderer);

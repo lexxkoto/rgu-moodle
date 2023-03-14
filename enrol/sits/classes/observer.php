@@ -38,7 +38,9 @@ class enrol_sits_observer {
         $courseid = $event->courseid;
         $plugin = enrol_get_plugin('sits');
         
-        enrol_sits_plugin::addToLog(-1, $courseid, 'd', 'SITS sync triggered by course reset');
+        $sync = new \enrol_sits\task\sync_course();
+        $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course reset'));
+        \core\task\manager::queue_adhoc_task($sync);
     }
     
     public static function course_updated(\core\event\course_updated $event) {
@@ -48,8 +50,7 @@ class enrol_sits_observer {
         
         $plugin = enrol_get_plugin('sits');
         $plugin->check_instance($courseid);
-        $plugin->addToLog(-1, intval($courseid), 'd', 'SITS sync triggered by course settings change');
-        
+                
         $sync = new \enrol_sits\task\sync_course();
         $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course settings change'));
         \core\task\manager::queue_adhoc_task($sync);
@@ -62,7 +63,6 @@ class enrol_sits_observer {
         
         $plugin = enrol_get_plugin('sits');
         $plugin->check_instance($courseid);
-        $plugin->addToLog(-1, intval($courseid), 'd', 'SITS sync triggered by course view');
         
         $sync = new \enrol_sits\task\sync_course();
         $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course view'));
@@ -79,35 +79,16 @@ class enrol_sits_observer {
      * Triggered when a course is created
      */
     public static function course_created(\core\event\course_created $event) {
-        global $DB, $USER;
-
-        $courseid = $event->objectid;
-        $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+        global $DB;
         
-        $plugin->addToLog(-1, $courseid, 'i', 'SITS sync triggered by course creation');
-
-	// get default course length
-        $courseconfig = get_config('moodlecourse');
+        $courseid = $event->courseid;
         
-        // how many days is current end
-        $currentlength = $course->enddate - time();
-
-        // Check if this is 'close' as Moodle does some odd things with timestamp
-        // calculation
-        if (abs($currentlength - $courseconfig->courseduration) < 3 * 86400) {
-
-            // Set to end of july
-            $month = date('m');
-            $year = date('Y');
-            if ($month > 7) {
-                $year++;
-            }
-            $future = strtotime("$year-07-31");
-            $course->enddate = $future;
-            $DB->update_record('course', $course);
-        }
-
-        return;
+        $plugin = enrol_get_plugin('sits');
+        $plugin->check_instance($courseid);
+        
+        $sync = new \enrol_sits\task\sync_course();
+        $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course creation'));
+        \core\task\manager::queue_adhoc_task($sync);
     }
 
 }

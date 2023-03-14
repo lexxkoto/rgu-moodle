@@ -61,8 +61,24 @@ switch($rule) {
         require_capability('enrol/sits:bulk', $context);
         echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
         echo '<h3>Add All Students to Course</h3>';
-        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of students at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
+        echo '<div class="row mb-2"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of students at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
         echo '<p>Consider putting the information on the main University website or intranet instead.</p></div></div>';
+        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        break;
+    case 'all-staff':
+        require_capability('enrol/sits:bulk', $context);
+        echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
+        echo '<h3>Add All Staff to Course</h3>';
+        echo '<div class="row mb-2"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of staff at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
+        echo '<p>Consider putting the information on the main University website or intranet instead.</p></div></div>';
+        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        break;
+    case 'dept-staff':
+        echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
+        echo '<h3>Add All Staff in a Department</h3>';
+        echo '<div class="row mb-2"><div class="col-sm-3 col-form-label">Department:</div><div class="col-sm-9">';
+        $output->print_staff_depts();
+        echo '</div></div>';
         echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
 }

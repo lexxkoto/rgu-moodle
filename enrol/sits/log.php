@@ -24,11 +24,8 @@
 
 require('../../config.php');
 
-$instanceID = required_param('instance', PARAM_INT);
-
-$instance = $DB->get_record('enrol', array('id'=>$instanceID, 'enrol'=>'sits'));
-
-$course = $DB->get_record('course', array('id'=>$instance->courseid));
+$courseID = required_param('id', PARAM_INT);
+$course = $DB->get_record('course', array('id'=>$courseID));
 
 require_login();
 
@@ -48,8 +45,9 @@ $PAGE->navbar->add(get_string('viewlog','enrol_sits'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('viewlog', 'enrol_sits'));
 
-$logentries = $DB->get_records('enrol_sits_log', array('courseid'=>$course->id));
+echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link active" href="log.php?id='.$courseID.'">View Logs</a></li></ul>';
 
+$logentries = $DB->get_records('enrol_sits_log', array('courseid'=>$course->id));
 
 $courserenderer = $PAGE->get_renderer('core', 'course');
 

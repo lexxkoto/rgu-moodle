@@ -46,7 +46,6 @@ class update_courses extends \core\task\scheduled_task {
         );
 
         foreach ($courses as $course) {
-            mtrace('Found course '.$course->courseid);
             $plugin = enrol_get_plugin('sits');
             $plugin->check_instance($course->courseid);
             $plugin->addToLog(-1, intval($course->courseid), 'i', 'SITS sync triggered by scheduled task');
@@ -55,6 +54,20 @@ class update_courses extends \core\task\scheduled_task {
             $sync->set_custom_data(array('courseid'=>$course->courseid));
             \core\task\manager::queue_adhoc_task($sync);
         }
+        
+        $expirytime = time() - (86400*30);
+        $usersToDelete = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE frozen=1 AND timeupdated<'.$expirytime.' AND instanceid IN (SELECT id FROM {enrol} WHERE enrol="sits" AND status=0 AND customint2=2)');
+        
+        foreach($usersToDelete as $victim) {
+            $instance = $DB->get_record('enrol', array('id'=>$victim->instanceid));
+            $user = $DB->get_record('user', array('id'=>$victim->userid));
+            $plugin->addToLog($instance->id, $instance->courseid, 'r', 'Deleting '.$user->firstname.' '.$user->lastname.' from the course.');
+            
+            $DB->delete_records('enrol_sits_users', array('id'=>$victim->id));
+            $DB->delete_records('user_enrolments', array('enrolid'=>$victim->instanceid,$userid=>$victim->userid));
+        }
+        
+        $DB->delete_records_select('enrol_sits_log', 'timeadded < '.$expirytime);
     }
 
 }

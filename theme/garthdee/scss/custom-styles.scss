@@ -82,6 +82,10 @@
 @include message-box(message-rounded-hilite, #6A4B23, #fcefdc, solid, #F1DFC6, "\f0a4");
 @include message-box(message-dotted-hilite, #6A4B23, #fcefdc, solid, #F1DFC6, "\f08d");
 
+@include message-box(enrol-all-students, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f055");
+@include message-box(enrol-all-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f2c1");
+@include message-box(enrol-dept-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f0c0");
+
 @mixin nonclass-message-box ($name, $text, $background, $backgroundtype, $border, $glyph) {
 	#{$name} {
 		background-color: $background;
@@ -136,3 +140,7 @@ pre {
 	line-height: 0.8em;
 }
 
+.enrolment-rule h4 {
+    font-size: 1em;
+    margin-bottom: 0;
+}

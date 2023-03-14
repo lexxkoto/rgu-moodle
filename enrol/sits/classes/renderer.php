@@ -79,12 +79,19 @@ class enrol_sits_renderer extends plugin_renderer_base {
             $html = '<div class="message-grey"><span><strong>You haven\'t added any enrolment rules yet.</strong><br />Use the options below to add an enrolment rule to this course.</span></div>';
         } else {
             foreach($codes as $code) {
-                echo '<div class="enrolment-rule enrol-'.$code->type.'"><a class="btn btn-link pull-right" title="Delete Rule" href="rule-delete.php?rule='.$code->id.'"><i class="fa fa-trash"></i></a><span>';
+                echo '<div class="enrolment-rule enrol-'.$code->type.' mb-2"><a class="btn btn-link pull-right" title="Delete Rule" href="delete-rule.php?instance='.$code->instanceid.'&rule='.$code->id.'&token='.md5('WheresMyFruitMachineGone'.$code->instanceid.$code->id).'"><i class="fa fa-trash"></i></a><span>';
                 switch($code->type) {
                     case 'all-students':
                         echo '<h4>All Students</h4>';
                         echo '<p>There are no options for this type of rule.</p>';
                         break;
+                    case 'all-staff':
+                        echo '<h4>All Staff</h4>';
+                        echo '<p>There are no options for this type of rule.</p>';
+                        break;
+                    case 'dept-staff':
+                        echo '<h4>All Staff in a Department</h4>';
+                        echo '<p>Department: <strong>'.$code->code.'</strong></p>';
                 }
                 echo '</span></div>';
             }
@@ -173,5 +180,17 @@ class enrol_sits_renderer extends plugin_renderer_base {
             echo '</div></div>';
         }
         echo '</div>';
+    }
+    
+    function print_staff_depts($name='dept') {
+        global $DB;
+        
+        $depts = $DB->get_records_sql('SELECT DISTINCT department FROM {user} WHERE institution="staff" AND deleted=0 ORDER BY department');
+        
+        echo '<select class="form-control" name="'.$name.'" id="'.$name.'">';
+        foreach ($depts as $dept) {
+            echo '<option value="'.$dept->department.'">'.$dept->department.'</div>';
+        }
+        echo '</select>';
     }
 }

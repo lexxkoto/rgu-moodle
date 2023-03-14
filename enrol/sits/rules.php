@@ -24,11 +24,12 @@
 
 require('../../config.php');
 
-$instanceID = required_param('instance', PARAM_INT);
+$courseID = required_param('id', PARAM_INT);
+$course = $DB->get_record('course', array('id'=>$courseID));
 
-$instance = $DB->get_record('enrol', array('id'=>$instanceID, 'enrol'=>'sits'));
+$instances = $DB->get_records('enrol', array('courseid'=>$courseID, 'enrol'=>'sits'));
 
-$course = $DB->get_record('course', array('id'=>$instance->courseid));
+
 
 require_login();
 
@@ -54,10 +55,18 @@ $output = $PAGE->get_renderer('enrol_sits');
 
 $plugin = enrol_get_plugin('sits');
 
-$codes = $plugin->getCodesForInstance($instanceID);
+echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link active" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link" href="log.php?id='.$courseID.'">View Logs</a></li></ul>';
 
-echo $output->print_codes($codes);
-
-echo $output->print_enrol_buttons($instanceID);
+foreach($instances as $instance) {
+    if(!empty($instance->name)) {
+        echo '<h3 class="mt-4">Rules for '.$instance->name.'</h3>';
+    } else {
+        echo '<h3 class="mt-4">Rules for SITS Sync</h3>';
+    }
+    $instanceID = $instance->id;
+    $codes = $plugin->getCodesForInstance($instanceID);
+    echo $output->print_codes($codes);
+    echo $output->print_enrol_buttons($instanceID);
+}
 
 echo $OUTPUT->footer();

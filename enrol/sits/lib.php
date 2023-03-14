@@ -29,6 +29,21 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Howard Miller - inherited from code by Petr Skoda
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+ 
+function enrol_sits_extend_navigation_course(navigation_node $parentnode, stdClass $course, context_course $context) {
+    global $PAGE, $COURSE;
+
+    $canview = has_capability('enrol/sits:config', context_course::instance($COURSE->id));
+
+    if ($COURSE->id !== SITEID && $canview) {
+        $url = new moodle_url('/enrol/sits/rules.php', ['id' => $COURSE->id]);
+        $parentnode->add(
+            get_string('navlink', 'enrol_sits'),
+            $url,
+        );
+    }
+}
+    
 class enrol_sits_plugin extends enrol_plugin {
 
     protected $trace;
@@ -274,6 +289,7 @@ class enrol_sits_plugin extends enrol_plugin {
         $entry->details = $message;
         $entry->timeadded = time();
         
+        mtrace($message);
         $DB->insert_record('enrol_sits_log', $entry);
         
     }
@@ -438,16 +454,24 @@ class enrol_sits_plugin extends enrol_plugin {
         
     }
     
+    public static function getAllCodesForCourse($courseid) {
+        global $DB;
+        
+        $codes = $DB->get_records_sql('SELECT * FROM {enrol_sits_code} WHERE instanceid in (SELECT id FROM {enrol} WHERE courseid='.$courseid.' AND enrol="sits")');
+        
+        return $codes;
+    }
+    
     function syncCourse($courseid, $force=false) {
         $limit = get_config('enrol_sits', 'trigger_inactive_time');
         $instances = $this->getEnrolInstancesForCourse($courseid);
         foreach($instances as $instance) {
             if($instance->customint8 < (time()-$limit) || $force) {
-                addToLog($instance->id, $courseid, 'i', 'Syncing with SITS...');
-                syncEnrolInstance($instance);
-                updateInstanceTime($instance);
+                $this->addToLog($instance->id, $courseid, 'i', 'Syncing with SITS...');
+                $this->syncEnrolInstance($instance);
+                $this->updateInstanceTime($instance);
             } else {
-                addToLog($instance->id, $courseid, 'i', 'Syncing was run recently. Not running again.');
+                $this->addToLog($instance->id, $courseid, 'd', 'Syncing was run recently. Not running again.');
             }
         }
     }
@@ -464,7 +488,7 @@ class enrol_sits_plugin extends enrol_plugin {
         
         //addToLog($instance->id, $instance->courseid, 'i', 'Syncing enrolments for this copy of the plugin');
         
-        $codes = getCodesForInstance($instance->id);
+        $codes = $this->getCodesForInstance($instance->id);
         
         $usersWhoBelong = Array();
         $usersRemoved = Array();
@@ -484,47 +508,47 @@ class enrol_sits_plugin extends enrol_plugin {
                 
                     break;
                 case 'all-students':
-                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all students to course');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all students to course.');
                     $students = $DB->get_records('user', array('institution'=>'student', 'deleted'=>'0'));
-                    addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.s(count($students)));
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.s(count($students)));
                     foreach($students as $student) {
                         $usersWhoBelong[$student->id] = $student->id;
-                        if(createEnrolmentRecord($instance->id, $student->id)) {
-                            addToLog($instance->id, $student->id, 'a', 'Added '.$student->firstname.' '.$student->lastname.' - User ID '.$student->idnumber);
+                        if($this->createEnrolmentRecord($instance->id, $student->id)) {
+                            $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$student->firstname.' '.$student->lastname.' - User ID '.$student->idnumber);
                             $usersAdded[$student->id] = $student->id;
                         }
                     }
-                    addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
                     break;
                 case 'all-staff':
-                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff to course');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff to course.');
                     $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0'));
-                    addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff)));
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff)).'.');
                     foreach($staff as $user) {
                         $usersWhoBelong[$user->id] = $user->id;
-                        if(createEnrolmentRecord($instance->id, $user->id)) {
-                            addToLog($instance->id, $user->id, 'a', 'Added '.$user->firstname.' '.$user->lastname.' - User ID '.$student->idnumber);
+                        if($this->createEnrolmentRecord($instance->id, $user->id)) {
+                            $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$user->firstname.' '.$user->lastname.' to the course.');
                             $usersAdded[$user->id] = $user->id;
                         }
                     }
-                    addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
                     break;
                 case 'dept-staff':
-                    addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff in a department to course');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff in a department to course.');
                     if(isset(enrol_sits_plugin::$schools[$code->code])) {
                         $dept = enrol_sits_plugin::$schools[$code->code];
                         $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0', 'department'=>$dept));
-                        addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff).' in '.$dept));
+                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff).' in '.$dept).'.');
                         foreach($staff as $user) {
                             $usersWhoBelong[$user->id] = $user->id;
                             if(createEnrolmentRecord($instance->id, $user->id)) {
-                                addToLog($instance->id, $user->id, 'a', 'Added '.$user->firstname.' '.$user->lastname.' - User ID '.$student->idnumber);
+                                $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$user->firstname.' '.$user->lastname.' to the course.');
                                 $usersAdded[$user->id] = $user->id;
                             }
                         }
-                        addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
                     } else {
-                        addToLog($instance->id, $instance->courseid, 'e', 'The department "'.$code->code.'" doesn\'t seem to exist.');
+                        $this->addToLog($instance->id, $instance->courseid, 'e', 'The department "'.$code->code.'" doesn\'t seem to exist.');
                     }
                     break;
             }
@@ -532,39 +556,114 @@ class enrol_sits_plugin extends enrol_plugin {
         
         // Get the users who don't belong and decide what to do with them
         
-        $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE userid NOT IN ('.implode(',', $usersWhoBelong).')');
+        if(count($usersWhoBelong)) {
+            $deletions = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE instanceid='.$instance->id.' AND userid NOT IN ('.implode(',', $usersWhoBelong).')');
+        } else {
+            // Nobody belongs. Remove everyone? Do nothing for safety?
+            $deletions = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE instanceid='.$instance->id);
+            $this->addToLog($instance->id, $instance->courseid, 'd', 'This enrolment rule has selected nobody. Rollover? Nasty Bug?');
+        }
         
+        $usersToDelete = Array();
+        
+        foreach($deletions as $deletion) {
+            $usersToDelete[$deletion->userid] = $deletion->userid;
+        }
+        
+        if(count($usersToDelete)) {
+            $this->addToLog($instance->id, $instance->courseid, 'a', 'Found '.count($usersToDelete).' expired user'.s(count($usersToDelete)).'.');
+        } else {
+            $this->addToLog($instance->id, $instance->courseid, 'a', 'Didn\'t find any expired users.');
+        }
+        
+        foreach($usersToDelete as $victim) {
+            $userDetails = $DB->get_record('user', array('id'=>$victim));
+            
+            // Each enrolment creates two records - one in this plugin's table
+            // and one in Moodle's enrolment table. We'll freeze the plugin's
+            // record so we can clean up the user later, then decide what to
+            // do with the enrolment record.
+            
+            $record = $DB->get_record('enrol_sits_users', array('instanceid'=>$instance->id,'userid'=>$victim));
+            $record->frozen = 1;
+            $record->timeupdated = time();
+            $DB->update_record('enrol_sits_users', $record);
+            
+            switch($instance->customint2) {
+                case 0:
+                    $this->addToLog($instance->id, $instance->courseid, 'r', $userDetails->firstname.' '.$userDetails->lastname.' has expired. Doing nothing.');
+                    break;
+                case 1:
+                    $this->addToLog($instance->id, $instance->courseid, 'r', $userDetails->firstname.' '.$userDetails->lastname.' has expired. Suspending them.');
+                    $record = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$victim));
+                    $record->status = ENROL_USER_SUSPENDED;
+                    $DB->update_record('user_enrolments', $record);
+                    break;
+                case 2:
+                    $this->addToLog($instance->id, $instance->courseid, 'r', $userDetails->firstname.' '.$userDetails->lastname.' has expired. Removing them from the course.');
+                    // We suspend them now, so they're hidden. We don't delete
+                    // them now for safety - we schedule an ad-hoc task in the
+                    // future to delete them if they're still frozen.
+                    $record = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$victim));
+                    $record->status = ENROL_USER_SUSPENDED;
+                    $DB->update_record('user_enrolments', $record);
+                    break;
+            }              
+        }
     }
     
     function createEnrolmentRecord($instanceid, $userid, $usernumber="") {
         global $DB;
         
+        // This function returns true if we create a record or unsuspend a
+        // suspended user.
+        $touched = false;
+        
         $exists = $DB->get_record('enrol_sits_users', array('instanceid'=>$instanceid, 'userid'=>$userid));
         
-        if(!exists) {
+        if($exists && $exists->frozen==1) {
+            // User was enrolled before and needs to be re-added. Unfreeze record.
+            $record = $exists;
+            $record->frozen = 0;
+            $record->timeupdated = time();
+            $DB->update_record('enrol_sits_users', $record);
+            $touched = true;
+        }
+        if(!$exists) {
+            // User was never added. This is a new enrolment.
             $record = new stdClass;
             $record->instanceid = $instanceid;
             $record->userid = $userid;
             $record->studentno = $usernumber;
             $record->timeupdated = time();
             $record->frozen = '0';
-        
             $DB->insert_record('enrol_sits_users', $record);
+            $touched = true;
+        }
         
+        $exists = $DB->get_record('user_enrolments', array('enrolid'=>$instanceid, 'userid'=>$userid));
+        if($exists && $record->status != ENROL_USER_ACTIVE) {
+            // Users was enrolled before and needs to be re-added. Unsuspend.
+            $record = $exists;
+            $record->status = ENROL_USER_ACTIVE;
+            $record->timemodified = time();
+            $DB->update_record('user_enrolments', $record);
+            $touched = true;
+        }
+        if(!$exists) {
+            // User was never added. This is a new enrolment.
             $record = new stdClass;
             $record->status = ENROL_USER_ACTIVE;
             $record->enrolid = $instanceid;
             $record->userid = $userid;
             $record->modifierid = 2;
             $record->timecreated = time();
-            $record->timemodified = time();
-            
+            $reeord->timemodified = time();
             $DB->insert_record('user_enrolments', $record);
-            
-            return true;
+            $touched = true;
         }
         
-        return false;
+        return $touched;
     }
     
         /**

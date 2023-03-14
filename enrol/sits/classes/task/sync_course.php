@@ -25,6 +25,10 @@ namespace enrol_sits\task;
 defined('MOODLE_INTERNAL') || die;
 
 class sync_course extends \core\task\adhoc_task {
+    
+    public function get_name() {
+        get_string('task_synccourse', 'enrol_sits');
+    }
 
     public function execute() {
         global $DB;
@@ -37,8 +41,7 @@ class sync_course extends \core\task\adhoc_task {
         $courseid = $data->courseid;
         $plugin->check_instance($courseid);
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
-            mtrace('enrol_sits: processing course '.$courseid);
-            $plugin->addToLog(-1, $courseid, 'i', 'SITS sync triggered by '.$data->reason);
+            $plugin->addToLog(-1, $courseid, 'd', 'SITS sync triggered by '.$data->reason.'.');
             $plugin->syncCourse($courseid);
         } else {
             mtrace('enrol_sits: course does not exist: '.$courseid);

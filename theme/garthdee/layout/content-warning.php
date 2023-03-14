@@ -35,8 +35,13 @@ if(substr($PAGE->pagetype, 0, 11) == 'course-view') {
                 
         if($studentyUsers === 0) {
             if(empty($_SESSION['SESSION']->garthdee_notifications) || !array_key_exists(md5($courseDetails->id.'coursenostudents'), $_SESSION['SESSION']->garthdee_notifications) && $canConfigureEnrolments) {
-                $contentWarning .= '<div class="message-grey message-closable message-outside-content"><a class="close d-flex-item ml-auto" href="'.$CFG->wwwroot.'/theme/garthdee/notification.php?h='.md5($courseDetails->id.'coursenostudents').'" aria-label="Close"><span aria-hidden="true">&times;</span></a><span><strong>There are no students on this course.</strong> Students need to be added to a course before they can see it. <a class="alert-link" href="'.$CFG->wwwroot.'/enrol/instances.php?id='.$courseDetails->id.'">Manage Enrolments</a></span></div>';
+                $contentWarning .= '<div class="message-grey message-closable message-outside-content"><a class="close d-flex-item ml-auto" href="'.$CFG->wwwroot.'/theme/garthdee/notification.php?h='.md5($courseDetails->id.'coursenostudents').'" aria-label="Close"><span aria-hidden="true">&times;</span></a><span><strong>There are no students on this course.</strong> Students need to be added to a course before they can see it. <a class="alert-link" href="'.$CFG->wwwroot.'/enrol/sits/rules.php?id='.$courseDetails->id.'">Manage SITS Sync Rules</a></span></div>';
             }
+        }
+        
+        $enrolCodes = enrol_sits_plugin::getAllCodesForCourse($courseDetails->id);
+        if(empty($_SESSION['SESSION']->garthdee_notifications) || !array_key_exists(md5($courseDetails->id.'nositsrules'), $_SESSION['SESSION']->garthdee_notifications) && $canConfigureEnrolments) {
+            $contentWarning .= '<div class="message-grey message-closable message-outside-content"><a class="close d-flex-item ml-auto" href="'.$CFG->wwwroot.'/theme/garthdee/notification.php?h='.md5($courseDetails->id.'nositsrules').'" aria-label="Close"><span aria-hidden="true">&times;</span></a><span><strong>You haven\'t added any rules to SITS Sync for this course.</strong> SITS Sync is the easiest way to add students to your course. <a class="alert-link" href="'.$CFG->wwwroot.'/enrol/sits/rules.php?id='.$courseDetails->id.'">Manage SITS Sync Rules</a></span></div>';
         }
     }
 }
