@@ -324,7 +324,7 @@ class enrol_sits_plugin extends enrol_plugin {
     }
     
     function s($count, $one='', $many='s') {
-        if($count==1) {
+        if($count===1) {
             return $one;
         }
         return $many;
@@ -510,7 +510,7 @@ class enrol_sits_plugin extends enrol_plugin {
                 case 'all-students':
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all students to course.');
                     $students = $DB->get_records('user', array('institution'=>'student', 'deleted'=>'0'));
-                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.s(count($students)));
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.$this->s(count($students)));
                     foreach($students as $student) {
                         $usersWhoBelong[$student->id] = $student->id;
                         if($this->createEnrolmentRecord($instance->id, $student->id)) {
@@ -518,12 +518,12 @@ class enrol_sits_plugin extends enrol_plugin {
                             $usersAdded[$student->id] = $student->id;
                         }
                     }
-                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.$this->s(count($usersAdded)).' to the course.');
                     break;
                 case 'all-staff':
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff to course.');
                     $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0'));
-                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff)).'.');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.$this->s(count($staff)).'.');
                     foreach($staff as $user) {
                         $usersWhoBelong[$user->id] = $user->id;
                         if($this->createEnrolmentRecord($instance->id, $user->id)) {
@@ -531,14 +531,14 @@ class enrol_sits_plugin extends enrol_plugin {
                             $usersAdded[$user->id] = $user->id;
                         }
                     }
-                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.$this->s(count($usersAdded)).' to the course.');
                     break;
                 case 'dept-staff':
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all staff in a department to course.');
                     if(isset(enrol_sits_plugin::$schools[$code->code])) {
                         $dept = enrol_sits_plugin::$schools[$code->code];
                         $staff = $DB->get_records('user', array('institution'=>'staff', 'deleted'=>'0', 'department'=>$dept));
-                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.s(count($staff).' in '.$dept).'.');
+                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.$this->s(count($staff).' in '.$dept).'.');
                         foreach($staff as $user) {
                             $usersWhoBelong[$user->id] = $user->id;
                             if(createEnrolmentRecord($instance->id, $user->id)) {
@@ -546,7 +546,7 @@ class enrol_sits_plugin extends enrol_plugin {
                                 $usersAdded[$user->id] = $user->id;
                             }
                         }
-                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.s(count($usersAdded)).' to the course.');
+                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.$this->s(count($usersAdded)).' to the course.');
                     } else {
                         $this->addToLog($instance->id, $instance->courseid, 'e', 'The department "'.$code->code.'" doesn\'t seem to exist.');
                     }
@@ -571,7 +571,7 @@ class enrol_sits_plugin extends enrol_plugin {
         }
         
         if(count($usersToDelete)) {
-            $this->addToLog($instance->id, $instance->courseid, 'a', 'Found '.count($usersToDelete).' expired user'.s(count($usersToDelete)).'.');
+            $this->addToLog($instance->id, $instance->courseid, 'a', 'Found '.count($usersToDelete).' expired user'.$this->s(count($usersToDelete)).'.');
         } else {
             $this->addToLog($instance->id, $instance->courseid, 'a', 'Didn\'t find any expired users.');
         }

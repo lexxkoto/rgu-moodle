@@ -47,11 +47,9 @@ class update_courses extends \core\task\scheduled_task {
 
         foreach ($courses as $course) {
             $plugin = enrol_get_plugin('sits');
-            $plugin->check_instance($course->courseid);
-            $plugin->addToLog(-1, intval($course->courseid), 'i', 'SITS sync triggered by scheduled task');
-            
+            $plugin->check_instance($course->courseid);            
             $sync = new \enrol_sits\task\sync_course();
-            $sync->set_custom_data(array('courseid'=>$course->courseid));
+            $sync->set_custom_data(array('courseid'=>$course->courseid, 'reason'=>'scheduled task'));
             \core\task\manager::queue_adhoc_task($sync);
         }
         
