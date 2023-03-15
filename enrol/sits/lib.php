@@ -23,12 +23,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-/**
- * UofG Database enrolment plugin implementation.
- * @author  Howard Miller - inherited from code by Petr Skoda
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
  
 function enrol_sits_extend_navigation_course(navigation_node $parentnode, stdClass $course, context_course $context) {
     global $PAGE, $COURSE;
@@ -464,15 +458,32 @@ class enrol_sits_plugin extends enrol_plugin {
     
     function syncCourse($courseid, $force=false) {
         $limit = get_config('enrol_sits', 'trigger_inactive_time');
+        $courseDetails = $DB->get_record('course', array('id'=>$courseid));
+        
+        if($courseDetails->startdate != 0 && $courseDetails->startdate > time()) {
+            $this->addToLog(-1, $courseid, 'i', 'Not syncing. Course start date is in the future.');
+        }
+        if($courseDetails->enddate != 0 && $courseDetails->enddate < time()) {
+            $this->addToLog(-1, $courseid, 'i', 'Not syncing. Course end date is in the past.');
+        }
+        if($courseDetails->visible != 1) {
+            $this->addToLog(-1, $courseid, 'i', 'Not syncing. Course is hidden from students.');
+        }
+        
         $instances = $this->getEnrolInstancesForCourse($courseid);
         foreach($instances as $instance) {
-            if($instance->customint8 < (time()-$limit) || $force) {
-                $this->addToLog($instance->id, $courseid, 'i', 'Syncing with SITS...');
-                $this->syncEnrolInstance($instance);
-                $this->updateInstanceTime($instance);
-            } else {
-                $this->addToLog($instance->id, $courseid, 'd', 'Syncing was run recently. Not running again.');
+            if($instance->status !== 0) {
+                $this->addToLog($instance->id, $courseid, 'i', 'Not syncing. Sync users is set to off.');
+                break;
             }
+            if($instance->customint8 > (time()-$limit) && !$force) {
+                $this->addToLog($instance->id, $courseid, 'i', 'Not syncing. Sync was run recently.');
+                break;
+            }
+        
+            $this->addToLog($instance->id, $courseid, 'i', 'Syncing with SITS...');
+            $this->syncEnrolInstance($instance);
+            $this->updateInstanceTime($instance);
         }
     }
     
@@ -722,7 +733,7 @@ class enrol_sits_plugin extends enrol_plugin {
      */
     public function update_instance($instance, $data) {
         global $DB;
-
+        /*
         // Needed data.
         $course = $this->get_course($instance);
         list($codeclasses, $coursedescriptions) = $this->get_coursedescriptions($course, $instance);
@@ -755,7 +766,7 @@ class enrol_sits_plugin extends enrol_plugin {
 
         // Update enrolments.
         $this->course_updated(false, $course, null);
-
+        */
         return parent::update_instance($instance, $data);
     }
     
