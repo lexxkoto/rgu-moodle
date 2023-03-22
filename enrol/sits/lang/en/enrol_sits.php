@@ -39,6 +39,12 @@ $string['sits_db_username_desc'] = 'The username that will be used to connect to
 $string['sits_db_password'] = 'Password';
 $string['sits_db_password_desc'] = 'The password that will be used to connect to the SITS database.';
 
+$string['page_parameters'] = 'SITS Sync Database Parameters';
+$string['sits_current_year'] = 'Current SITS Year';
+$string['sits_current_year_desc'] = 'The current year to use when querying SITS. This will be updated when the rollover happens each summer.';
+$string['sits_allowed_codes'] = 'Allowed Status Codes';
+$string['sits_allowed_codes_desc'] = 'For enrolment rules that talk to SITS, this is the list of status codes that are allowed to be enrolled.';
+
 $string['option_on'] = 'Enabled';
 $string['option_off'] = 'Disabled';
 

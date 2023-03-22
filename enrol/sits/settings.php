@@ -72,6 +72,22 @@ if ($hassiteconfig) {
 
     $page->add($setting);
     
+    $page->add(new admin_setting_heading('enrol_sits/parameters_title', get_string('page_parameters', 'enrol_sits'), ''));
+    
+    $name = 'enrol_sits/sits_current_year';
+    $title = get_string('sits_current_year', 'enrol_sits');
+    $desc = get_string('sits_current_year_desc', 'enrol_sits');
+    $setting = new admin_setting_configtext($name, $title, $desc, '2022', PARAM_TEXT);
+
+    $page->add($setting);
+    
+    $name = 'enrol_sits/allowed_codes';
+    $title = get_string('sits_allowed_codes', 'enrol_sits');
+    $desc = get_string('sits_allowed_codes_desc', 'enrol_sits');
+    $setting = new admin_setting_configtext($name, $title, $desc, '"C","PF","AC","PL","PWR","R","COM","PM"', PARAM_TEXT);
+
+    $page->add($setting);
+    
     $page->add(new admin_setting_heading('enrol_sits/cron_title', get_string('page_cron', 'enrol_sits'), ''));
     
     $name = 'enrol_sits/cron_num_courses';                       

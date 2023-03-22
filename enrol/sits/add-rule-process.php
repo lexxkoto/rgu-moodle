@@ -50,27 +50,81 @@ $context = context_course::instance($course->id, MUST_EXIST);
 
 require_capability('enrol/sits:manage', $context);
 
+//echo '<pre>'.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL; var_dump($_POST); echo '</pre>';
+
 $record = new stdClass();
 $record->instanceid = $instanceID;
 $record->type = $rule;
-$record->code = ifPosted('code');
 $record->modes = ifPosted('modes');
 $record->status = ifPosted('status');
 $record->course = ifPosted('course');
 $record->start = ifPosted('start');
-$record->blocks = ifPosted('blocks');
 $record->occurrence = ifPosted('occurrence');
 $record->period = ifPosted('period');
 $record->timeadded = time();
 
+$levels = Array(
+    'level_1'  => '1',
+    'level_2'  => '2',
+    'level_3'  => '3',
+    'level_4'  => '4',
+    'level_5'  => '5',
+    'level_PG' => 'PG'
+);
+
+$usingLevels = false;
+$postedLevels = Array();
+
+foreach($levels as $level=>$code) {
+    if(isset($_POST[$level])) {
+        $postedLevels[] = $code;
+        $usingLevels = true;
+    }
+}
+
+$record->levels = '';
+
+if($usingLevels) {
+    $record->levels = implode(':', $postedLevels);
+}
+
+if(isset($_POST['blocks'])) {
+    $exploded = explode(',', $_POST['blocks']);
+    $cleanBlocks = array();
+    foreach($exploded as $block) {
+        $cleanBlocks[] = trim($block);
+    }
+    $record->blocks = implode(':', $cleanBlocks);
+}
+
 switch($rule) {
     case 'all-students':
         require_capability('enrol/sits:bulk', $context);
+        $DB->insert_record('enrol_sits_code', $record);
         break;
     case 'dept-staff':
         $record->code = ifPosted('dept', true);
+        $DB->insert_record('enrol_sits_code', $record);
+        break;
+    case 'school':
+        $record->code = ifPosted('dept', true);
+        $DB->insert_record('enrol_sits_code', $record);
+        break;
+    case 'course':
+        $code = ifPosted('code', true);
+        $codeArray = explode(',', $code);
+        
+        $codes = Array();
+        foreach($codeArray as $cleanCode) {
+            $codes[] = trim($cleanCode);
+        }
+        
+        foreach($codes as $code) {
+            $record->code = $code;
+            $DB->insert_record('enrol_sits_code', $record);
+        }
 }
 
-$DB->insert_record('enrol_sits_code', $record);
+
 
 header('Location: rules.php?id='.$course->id);

@@ -73,6 +73,11 @@ class enrol_sits_renderer extends plugin_renderer_base {
      * Print legacy codes
      */
     public function print_codes($codes) {
+        
+        $plugin = enrol_get_plugin('sits');
+        $courses = $plugin->getAllCourses();
+        $modules = $plugin->getAllModules();
+        
         $html = '';
         
         if(count($codes) == 0) {
@@ -92,6 +97,40 @@ class enrol_sits_renderer extends plugin_renderer_base {
                     case 'dept-staff':
                         echo '<h4>All Staff in a Department</h4>';
                         echo '<p>Department: <strong>'.$code->code.'</strong></p>';
+                        break;
+                    case 'school':
+                        echo '<h4>All Students by School</h4>';
+                        echo '<p>School: <strong>';
+                        if(isset(enrol_sits_plugin::$schools[$code->code])) {
+                            echo enrol_sits_plugin::$schools[$code->code];
+                        } else {
+                            echo 'Unknown School';
+                        }
+                        echo '</strong></p>';
+                        if(!empty($code->levels)) {
+                            echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->levels).'</strong></p>';
+                        }
+                        if(!empty($code->blocks)) {
+                            echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
+                        }
+                        break;
+                    case 'course':
+                        case 'school':
+                        echo '<h4>Students by Course</h4>';
+                        echo '<p>Course: <strong>';
+                        echo $code->code.' - ';
+                        if(isset($courses[$code->code])) {
+                            echo $plugin->fixModuleName($courses[$code->code]);
+                        } else {
+                            echo 'Course Code Not Recognised';
+                        }
+                        echo '</strong></p>';
+                        if(!empty($code->levels)) {
+                            echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->levels).'</strong></p>';
+                        }
+                        if(!empty($code->blocks)) {
+                            echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
+                        }
                 }
                 echo '</span></div>';
             }
@@ -182,15 +221,57 @@ class enrol_sits_renderer extends plugin_renderer_base {
         echo '</div>';
     }
     
-    function print_staff_depts($name='dept') {
+    function print_staff_depts($name='dept', $selected='') {
         global $DB;
         
         $depts = $DB->get_records_sql('SELECT DISTINCT department FROM {user} WHERE institution="staff" AND deleted=0 ORDER BY department');
         
         echo '<select class="form-control" name="'.$name.'" id="'.$name.'">';
         foreach ($depts as $dept) {
-            echo '<option value="'.$dept->department.'">'.$dept->department.'</div>';
+            echo '<option value="'.$dept->department.'"';
+            if($dept->department == $selected) {
+                echo ' selected="selected"';
+            }
+            echo'>'.$dept->department.'</option>';
         }
         echo '</select>';
+    }
+    
+    function print_schools($name='dept', $selected='') {
+        global $DB;
+        
+        $depts =enrol_sits_plugin::$schools;
+        
+        echo '<select class="form-control" name="'.$name.'" id="'.$name.'">';
+        foreach($depts as $code=>$name) {
+            echo '<option value="'.$code.'"';
+                if($code == $selected) {
+                    echo ' selected="selected"';
+                }
+                echo'>'.$name.'</option>';
+            }
+        echo '</select>';
+    }
+    
+    function print_levels($selected=Array()) {
+        global $DB;
+        
+        $depts = Array(
+            '1'  => 'Undergraduate Year 1',
+            '2'  => 'Undergraduate Year 2',
+            '3'  => 'Undergraduate Year 3',
+            '4'  => 'Undergraduate Year 4',
+            '5'  => 'Undergraduate Year 5',
+            'PG' => 'Postgraduate (All Years)'
+        );
+        
+        foreach($depts as $code=>$name) {
+            echo '<div class="form-check mb-1">';
+            echo '<input class="form-check-input" type="checkbox" id="level_'.$code.'" name="level_'.$code.'"';
+            if(empty($selected) || isset($selected[$code])) {
+                echo ' checked="checked"';
+            }
+            echo' /><label class="form-check-label" for="level_'.$code.'">'.$name.'</label></div>';
+        }
     }
 }

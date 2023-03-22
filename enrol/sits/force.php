@@ -15,17 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Database enrolment plugin version specification.
+ * This page shows all course enrolment options for current user.
  *
- * @package    enrol
- * @subpackage sits
- * @copyright  2023 Alex Walker
+ * @package    core_enrol
+ * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require('../../config.php');
 
-$plugin->version   = 2023021114;
-$plugin->requires  = 2018051700;
-$plugin->component = 'enrol_sits';
-$plugin->maturity = MATURITY_STABLE;
+require_login();
+
+$courseID = required_param('id', PARAM_INT);
+$course = $DB->get_record('course', array('id'=>$courseID));
+
+require_login();
+
+$context = context_course::instance($course->id, MUST_EXIST);
+require_capability('enrol/sits:manage', $context);
+
+echo '<pre>';
+$plugin = enrol_get_plugin('sits');
+$plugin->syncCourse($courseID, true);
+echo '</pre>';

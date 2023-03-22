@@ -85,6 +85,8 @@
 @include message-box(enrol-all-students, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f055");
 @include message-box(enrol-all-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f2c1");
 @include message-box(enrol-dept-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f0c0");
+@include message-box(enrol-school, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f19c");
+@include message-box(enrol-course, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f19d");
 
 @mixin nonclass-message-box ($name, $text, $background, $backgroundtype, $border, $glyph) {
 	#{$name} {
@@ -142,5 +144,9 @@ pre {
 
 .enrolment-rule h4 {
     font-size: 1em;
+    margin-bottom: 0;
+}
+
+.enrolment-rule p {
     margin-bottom: 0;
 }

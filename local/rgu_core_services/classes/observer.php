@@ -121,6 +121,10 @@
                 return false;
             }
             
+            if(!preg_match('/^[0-9]{7}$/', $user->idnumber)) {
+                return false;
+            }
+            
             $profileFields = profile_user_record($userid);
             $profileFields->id = $userid;
             
@@ -151,32 +155,37 @@
 		                'and SCE_STUC = '.$user->idnumber.
 		                ' order by SCE_SCJC';
 		                
+		                mtrace($sql);
+		                
 		                $result = local_rgu_core_services_observer::sendQueryToSITS($sql);
 		                
 		                // We want to deal with the last record
 		                
-		                $records = array_slice($result, -1);
-		                $record = $records[0];
+		                if(count($result) !== 0) {
 		                
-		                $profileFields->profile_field_rgu_coursecode = $record->SCE_CRSC;
-		                $profileFields->profile_field_rgu_coursename = $record->CRS_NAME;
+    		                $records = array_slice($result, -1);
+    		                $record = $records[0];
 		                
-		                if(isset(local_rgu_core_services_observer::$schools[$record->SCE_DPTC])) {
-		                    $profileFields->profile_field_rgu_school = local_rgu_core_services_observer::$schools[$record->SCE_DPTC];
-		                } else {
-		                    $profileFields->profile_field_rgu_school = 'Unknown Department: ('.$record->SCE_DPTC.')';
-		                }
-		                
-		                $courseType = substr($record->SCE_CRSC, 0, 1);
-		                
-		                switch($courseType) {
-		                    case 'P':
-		                    case 'R':
-		                        $profileFields->profile_field_rgu_stage = 'Postgraduate';
-		                        break;
-		                    default:
-		                        $profileFields->profile_field_rgu_stage = 'Undergraduate Level '.$courseType;
-		                }
+    		                $profileFields->profile_field_rgu_coursecode = $record->SCE_CRSC;
+    		                $profileFields->profile_field_rgu_coursename = $record->CRS_NAME;
+    		                
+    		                if(isset(local_rgu_core_services_observer::$schools[$record->SCE_DPTC])) {
+    		                    $profileFields->profile_field_rgu_school = local_rgu_core_services_observer::$schools[$record->SCE_DPTC];
+    		                } else {
+    		                    $profileFields->profile_field_rgu_school = 'Unknown Department: ('.$record->SCE_DPTC.')';
+    		                }
+    		                
+    		                $courseType = substr($record->SCE_CRSC, 0, 1);
+    		                
+    		                switch($courseType) {
+    		                    case 'P':
+    		                    case 'R':
+    		                        $profileFields->profile_field_rgu_stage = 'Postgraduate';
+    		                        break;
+    		                    default:
+    		                        $profileFields->profile_field_rgu_stage = 'Undergraduate Level '.$courseType;
+    		                }
+                        }
 		                
 		                $sql = 'select distinct SCJ_STUC, SCJ_PRSC '.
 					    'from INTUIT.SRS_SCJ '.
@@ -220,7 +229,7 @@
                     // Update the user's profile picture
                     
                     if($shouldSyncAvatars) {
-                        if($profileFields->rgu_nophoto == 0) {
+                        if(isset($profileFields->rgu_nophoto) && $profileFields->rgu_nophoto == 0) {
                             if($user->picture == 0) {
                                 $ftpserver = get_config('local_rgu_core_services', 'avatar_host');
                                 $ftpport = get_config('local_rgu_core_services', 'avatar_port');

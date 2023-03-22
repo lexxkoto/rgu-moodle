@@ -105,7 +105,7 @@
         $name = 'local_rgu_core_services/sits_current_year';
         $title = get_string('sits_current_year', 'local_rgu_core_services');
         $desc = get_string('sits_current_year_desc', 'local_rgu_core_services');
-        $setting = new admin_setting_configtext($name, $title, $desc, '22', PARAM_TEXT);
+        $setting = new admin_setting_configtext($name, $title, $desc, '2022', PARAM_TEXT);
     
         $page->add($setting);
         

@@ -178,12 +178,12 @@ class enrol_sits_plugin extends enrol_plugin {
         $course = $DB->get_record('course', array('id'=>$courseid));
         
         // Get all instances in this course.
-        $instances = enrol_get_instances($courseid, true);
+        $instances = enrol_get_instances($courseid, false);
 
         // Search for this one.
         $found = false;
         foreach ($instances as $instance) {
-            if ($instance->enrol == $this->get_name()) {
+            if ($instance->enrol == 'sits') {
                 $found = true;
                 $instanceid = $instance->id;
                 $this->addToLog($instanceid, $courseid, 'd', 'Found SITS Sync on course.');
@@ -253,7 +253,7 @@ class enrol_sits_plugin extends enrol_plugin {
         return $errors;
     }
     
-    private static $schools = Array(
+    public static $schools = Array(
         'MBS'=>'Aberdeen Business School',
 		'RGU'=>'RGU Professional', 
 		'BUS'=>'Aberdeen Business School',
@@ -264,7 +264,6 @@ class enrol_sits_plugin extends enrol_plugin {
 		'DAA'=>'Gray\'s School of Art',
 		'HSS'=>'School of Applied Social Studies',
 		'DCD'=>'School of Computing', 
-		'DCO'=>'School of Computing',
 		'DEN'=>'School of Engineering',
 		'HHS'=>'School of Health Sciences',
 		'HPL'=>'School of Pharmacy and Life Sciences',
@@ -336,13 +335,13 @@ class enrol_sits_plugin extends enrol_plugin {
         global $DB;
         
         
-        $instances = $DB->get_records('enrol', array('enrol'=>'sits','status'=>'0','courseid'=>$courseid));
+        $instances = $DB->get_records('enrol', array('enrol'=>'sits', 'courseid'=>$courseid));
         
         return $instances;
     }
     
     function getAllModules() {
-        $mods = sendQueryToSITS('SELECT mod_code,mod_name FROM INS_MOD WHERE mod_iuse = "Y" ORDER BY mod_name');
+        $mods = $this->sendQueryToSITS('SELECT mod_code,mod_name FROM INS_MOD WHERE mod_iuse = "Y" ORDER BY mod_name');
         
         $modules = Array();
         
@@ -354,7 +353,7 @@ class enrol_sits_plugin extends enrol_plugin {
     }
     
     function checkModCode($code) {
-        $mods = sendQueryToSITS('SELECT mod_code,mod_name FROM INS_MOD WHERE mod_code="'.$code.'" AND mod_iuse = "Y"');
+        $mods = $this->sendQueryToSITS('SELECT mod_code,mod_name FROM INS_MOD WHERE mod_code="'.$code.'" AND mod_iuse = "Y"');
         if(count($mods) === 1) {
             return $mods;
         } else {
@@ -363,7 +362,7 @@ class enrol_sits_plugin extends enrol_plugin {
     }
     
     function getAllCourses() {
-        $crss = sendQueryToSITS('SELECT crs_code,crs_name FROM srs_crs ORDER BY crs_name');
+        $crss = $this->sendQueryToSITS('SELECT crs_code,crs_name FROM srs_crs ORDER BY crs_name');
         
         $courses = Array();
         
@@ -384,7 +383,7 @@ class enrol_sits_plugin extends enrol_plugin {
     }
     
     function fixModuleName($name) {
-        if($name != ucase($name)) {
+        if($name != strtoupper($name)) {
             return $name;
         }
         
@@ -437,7 +436,7 @@ class enrol_sits_plugin extends enrol_plugin {
 		    if(isset($fixWords[$word])) {
 		        $newWords[] = $fixWords[$word];
 		    } else {
-		        $newWords[] = ucwords($word);
+		        $newWords[] = mb_convert_case($word, MB_CASE_TITLE);
 		    }
 		}
 		
@@ -457,23 +456,32 @@ class enrol_sits_plugin extends enrol_plugin {
     }
     
     function syncCourse($courseid, $force=false) {
+        global $DB;
+        if(get_config('enrol_sits', 'sits_db_enabled') !== 'enabled') {
+            $this->addToLog(-1, $courseid, 'i', 'Not syncing. SITS Sync is switched off system-wide.');
+            return false;
+        }
+        
         $limit = get_config('enrol_sits', 'trigger_inactive_time');
         $courseDetails = $DB->get_record('course', array('id'=>$courseid));
         
         if($courseDetails->startdate != 0 && $courseDetails->startdate > time()) {
             $this->addToLog(-1, $courseid, 'i', 'Not syncing. Course start date is in the future.');
+            return false;
         }
         if($courseDetails->enddate != 0 && $courseDetails->enddate < time()) {
             $this->addToLog(-1, $courseid, 'i', 'Not syncing. Course end date is in the past.');
+            return false;
         }
         if($courseDetails->visible != 1) {
             $this->addToLog(-1, $courseid, 'i', 'Not syncing. Course is hidden from students.');
+            return false;
         }
         
         $instances = $this->getEnrolInstancesForCourse($courseid);
         foreach($instances as $instance) {
-            if($instance->status !== 0) {
-                $this->addToLog($instance->id, $courseid, 'i', 'Not syncing. Sync users is set to off.');
+            if($instance->status != 0) {
+                $this->addToLog($instance->id, $courseid, 'i', 'Not syncing. Sync users is set to off ('.$instance->status.').');
                 break;
             }
             if($instance->customint8 > (time()-$limit) && !$force) {
@@ -507,17 +515,9 @@ class enrol_sits_plugin extends enrol_plugin {
         // Now we add the users who belong
         
         foreach($codes as $code) {
+            //var_dump($code);
             $usersAdded = Array();
             switch($code->type) {
-                case 'module':
-                
-                    break;
-                case 'course':
-                
-                    break;
-                case 'school':
-                
-                    break;
                 case 'all-students':
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all students to course.');
                     $students = $DB->get_records('user', array('institution'=>'student', 'deleted'=>'0'));
@@ -552,7 +552,7 @@ class enrol_sits_plugin extends enrol_plugin {
                         $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.$this->s(count($staff).' in '.$dept).'.');
                         foreach($staff as $user) {
                             $usersWhoBelong[$user->id] = $user->id;
-                            if(createEnrolmentRecord($instance->id, $user->id)) {
+                            if($this->createEnrolmentRecord($instance->id, $user->id)) {
                                 $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$user->firstname.' '.$user->lastname.' to the course.');
                                 $usersAdded[$user->id] = $user->id;
                             }
@@ -562,13 +562,128 @@ class enrol_sits_plugin extends enrol_plugin {
                         $this->addToLog($instance->id, $instance->courseid, 'e', 'The department "'.$code->code.'" doesn\'t seem to exist.');
                     }
                     break;
+                case 'school':
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all students in '.enrol_sits_plugin::$schools[$code->code]);
+                    $currentYear = get_config('enrol_sits', 'sits_current_year');
+                    $allowedCodes = get_config('enrol_sits', 'allowed_codes');
+                    $sql = 'SELECT sce_stuc, sce_blok FROM INTUIT.srs_sce WHERE sce_dptc LIKE "'.$code->code.'%" AND sce_ayrc = '.$currentYear.' AND sce_stac IN ('.$allowedCodes.')';
+                    if(!empty($code->levels)) {
+                        $levels = explode(':', $code->levels);
+                        $levelsSQL = Array();
+                        foreach($levels as $level) {
+                            if($level == 'PG') {
+                                $levelsSQL[] = '(sce_crsc LIKE "P%")';
+                            } else {
+                                $levelsSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
+                            }
+                        }
+                    }
+                    
+                    if(!empty($levelsSQL)) {
+                        $sql .= ' AND ('.implode(' OR ', $levelsSQL).')';
+                    }
+                    
+                    if(!empty($code->blocks)) {
+                        $blocks = explode(':', $code->blocks);
+                        $blocksSQL = Array();
+                        foreach($blocks as $block) {
+                            $blocksSQL[] = '(sce_blok LIKE "'.$block.'")';
+                        }
+                    }
+                    
+                    if(!empty($blocksSQL)) {
+                        $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
+                    }
+                    
+                    //var_dump($sql);
+                    
+                    $users = $this->sendQueryToSITS($sql);
+                    
+                    //var_dump($users);
+                    
+                    foreach($users as $user) {
+                        $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
+                        if(isset($realUser->id)) {
+                            $usersWhoBelong[$realUser->id] = $realUser->id;
+                            if($this->createEnrolmentRecord($instance->id, $realUser->id)) {
+                                $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$realUser->firstname.' '.$realUser->lastname.' to the course.');
+                                $usersAdded[$realUser->id] = $realUser->id;
+                            }
+                        } else {
+                            $this->addToLog($instance->id, $instance->courseid, 'a', 'Student ID '.$user->sce_stuc.' does not exist in Moodle.');
+                        }
+                    }
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.$this->s(count($usersAdded)).' to the course.');
+                    break;
+                case 'course':
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all students in course code '.$code->code);
+                    $currentYear = get_config('enrol_sits', 'sits_current_year');
+                    $allowedCodes = get_config('enrol_sits', 'allowed_codes');
+                    $sql = 'SELECT sce_stuc, sce_blok FROM INTUIT.srs_sce WHERE sce_ayrc = '.$currentYear.' AND sce_stac IN ('.$allowedCodes.')';
+                    if(strpos($code->code, '*') === false) {
+                        $sql .= ' AND sce_crsc="'.$code->code.'"';
+                    } else {
+                        $sql .= ' AND sce_crsc LIKE "'.str_replace('*', '%', $code->code).'"';
+                    }
+                    if(!empty($code->levels)) {
+                        $levels = explode(':', $code->levels);
+                        $levelsSQL = Array();
+                        foreach($levels as $level) {
+                            if($level == 'PG') {
+                                $levelsSQL[] = '(sce_crsc LIKE "P%")';
+                            } else {
+                                $levelsSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
+                            }
+                        }
+                    }
+                    
+                    if(!empty($levelsSQL)) {
+                        $sql .= ' AND ('.implode(' OR ', $levelsSQL).')';
+                    }
+                    
+                    if(!empty($code->blocks)) {
+                        $blocks = explode(':', $code->blocks);
+                        $blocksSQL = Array();
+                        foreach($blocks as $block) {
+                            $blocksSQL[] = '(sce_blok LIKE "'.$block.'")';
+                        }
+                    }
+                    
+                    if(!empty($blocksSQL)) {
+                        $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
+                    }
+                    
+                    //var_dump($sql);
+                    
+                    $users = $this->sendQueryToSITS($sql);
+                    
+                    //var_dump($users);
+                    
+                    foreach($users as $user) {
+                        $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
+                        if(isset($realUser->id)) {
+                            $usersWhoBelong[$realUser->id] = $realUser->id;
+                            if($this->createEnrolmentRecord($instance->id, $realUser->id)) {
+                                $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$realUser->firstname.' '.$realUser->lastname.' to the course.');
+                                $usersAdded[$realUser->id] = $realUser->id;
+                            }
+                        } else {
+                            $this->addToLog($instance->id, $instance->courseid, 'a', 'Student ID '.$user->sce_stuc.' does not exist in Moodle.');
+                        }
+                    }
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.$this->s(count($usersAdded)).' to the course.');
+                    break;
+                
+                default:
+                    addToLog($instance->id, $instance->courseid, 'e', 'Unknown enrolment rule: '.$code->type);
+                    break;
             }
         }
         
         // Get the users who don't belong and decide what to do with them
         
         if(count($usersWhoBelong)) {
-            $deletions = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE instanceid='.$instance->id.' AND userid NOT IN ('.implode(',', $usersWhoBelong).')');
+            $deletions = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE instanceid='.$instance->id.' AND frozen=0 AND userid NOT IN ('.implode(',', $usersWhoBelong).')');
         } else {
             // Nobody belongs. Remove everyone? Do nothing for safety?
             $deletions = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE instanceid='.$instance->id);
@@ -653,7 +768,7 @@ class enrol_sits_plugin extends enrol_plugin {
         }
         
         $exists = $DB->get_record('user_enrolments', array('enrolid'=>$instanceid, 'userid'=>$userid));
-        if($exists && $record->status != ENROL_USER_ACTIVE) {
+        if($exists && $exists->status != ENROL_USER_ACTIVE) {
             // Users was enrolled before and needs to be re-added. Unsuspend.
             $record = $exists;
             $record->status = ENROL_USER_ACTIVE;
@@ -669,7 +784,7 @@ class enrol_sits_plugin extends enrol_plugin {
             $record->userid = $userid;
             $record->modifierid = 2;
             $record->timecreated = time();
-            $reeord->timemodified = time();
+            $record->timemodified = time();
             $DB->insert_record('user_enrolments', $record);
             $touched = true;
         }

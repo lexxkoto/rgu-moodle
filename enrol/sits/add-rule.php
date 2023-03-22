@@ -57,29 +57,76 @@ echo '<form method="post" action="add-rule-process.php">';
 echo '<input type="hidden" name="instance" value="'.$instanceID.'" />';
 echo '<input type="hidden" name="type" value="'.$rule.'" />';
 switch($rule) {
+        case 'module':
+        echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
+        echo '<h3 class="mt-4 mb-4">Add Students by Module</h3>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Module Code:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="code" id="code" />';
+        echo '<p class="text-dimmed">You can type multiple module codes with a comma between them.</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Levels:</div><div class="col-sm-9">';
+        $output->print_levels();
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Blocks:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="blocks" id="blocks" />';
+        echo '<p class="text-dimmed">You can type multiple block codes with commas between them. If you type something here, only students in those blocks will be enrolled. If you leave this blank, everyone will be enrolled.</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        break;
+    case 'course':
+        echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
+        echo '<h3 class="mt-4 mb-4">Add Students by Course</h3>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Course Code:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="code" id="code" />';
+        echo '<p class="text-dimmed">You can type multiple course codes with a comma between them.</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Levels:</div><div class="col-sm-9">';
+        $output->print_levels();
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Blocks:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="blocks" id="blocks" />';
+        echo '<p class="text-dimmed">You can type multiple block codes with commas between them. If you type something here, only students in those blocks will be enrolled. If you leave this blank, everyone will be enrolled.</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        break;
+    case 'school':
+        echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
+        echo '<h3 class="mt-4 mb-4">Add All Students in a School</h3>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">School:</div><div class="col-sm-9">';
+        $output->print_schools();
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Levels:</div><div class="col-sm-9">';
+        $output->print_levels();
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Blocks:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="blocks" id="blocks" />';
+        echo '<p class="text-dimmed">You can type multiple block codes with commas between them. If you type something here, only students in those blocks will be enrolled. If you leave this blank, everyone will be enrolled.</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        break;
     case 'all-students':
         require_capability('enrol/sits:bulk', $context);
         echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
-        echo '<h3>Add All Students to Course</h3>';
-        echo '<div class="row mb-2"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of students at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
+        echo '<h3 class="mt-4 mb-4">Add All Students to Course</h3>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of students at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
         echo '<p>Consider putting the information on the main University website or intranet instead.</p></div></div>';
-        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
     case 'all-staff':
         require_capability('enrol/sits:bulk', $context);
         echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
-        echo '<h3>Add All Staff to Course</h3>';
-        echo '<div class="row mb-2"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of staff at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
+        echo '<h3 class="mt-4 mb-4">Add All Staff to Course</h3>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><p><strong>Don\'t use this option unless you really need to.</strong> There are a lot of staff at the University, and adding them all to one Moodle course can make the course very slow and unpredictable.</p>';
         echo '<p>Consider putting the information on the main University website or intranet instead.</p></div></div>';
-        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
     case 'dept-staff':
         echo '<input type="hidden" name="token" value="'.md5('TheHandThatFeeds'.$instanceID.$rule).'" />';
-        echo '<h3>Add All Staff in a Department</h3>';
-        echo '<div class="row mb-2"><div class="col-sm-3 col-form-label">Department:</div><div class="col-sm-9">';
+        echo '<h3 class="mt-4 mb-4">Add All Staff in a Department</h3>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Department:</div><div class="col-sm-9">';
         $output->print_staff_depts();
         echo '</div></div>';
-        echo '<div class="row"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
 }
 
