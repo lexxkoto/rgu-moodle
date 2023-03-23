@@ -87,6 +87,7 @@
 @include message-box(enrol-dept-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f0c0");
 @include message-box(enrol-school, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f19c");
 @include message-box(enrol-course, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f19d");
+@include message-box(enrol-module, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f1b3");
 
 @mixin nonclass-message-box ($name, $text, $background, $backgroundtype, $border, $glyph) {
 	#{$name} {
