@@ -88,6 +88,92 @@ if($usingLevels) {
     $record->levels = implode(':', $postedLevels);
 }
 
+$modes = Array(
+    'mode_FT'  => 'FT',
+    'mode_PT'  => 'PT',
+    'mode_OD'  => 'OD',
+);
+
+$usingModes = false;
+$postedModes = Array();
+
+foreach($modes as $mode=>$code) {
+    if(isset($_POST[$mode])) {
+        $postedModes[] = $code;
+        $usingModes = true;
+    }
+}
+
+$record->modes = '';
+
+if($usingModes) {
+    $record->modes = implode(':', $postedModes);
+}
+
+$months = Array(
+    'month_JA'  => 'JA',
+    'month_FE'  => 'FE',
+    'month_MA'  => 'MA',
+    'month_AP'  => 'AP',
+    'month_MY'  => 'MY',
+    'month_JU'  => 'JU',
+    'month_JL'  => 'JL',
+    'month_AU'  => 'AU',
+    'month_SE'  => 'SE',
+    'month_OC'  => 'OC',
+    'month_NO'  => 'NO',
+    'month_DE'  => 'DE',
+);
+
+$usingMonths = false;
+$postedMonths = Array();
+
+foreach($months as $month=>$code) {
+    if(isset($_POST[$month])) {
+        $postedMonths[] = $code;
+        $usingMonths = true;
+    }
+}
+
+$record->start = '';
+
+if($usingMonths) {
+    $record->start = implode(':', $postedMonths);
+}
+
+$periods = Array(
+    'period_1'  => '1',
+    'period_2'  => '2',
+    'period_3'  => '3',
+    'period_YE' => 'YE'
+);
+
+$usingPeriods = false;
+$postedPeriods = Array();
+
+foreach($periods as $period=>$code) {
+    if(isset($_POST[$period])) {
+        $postedPeriods[] = $code;
+        $usingPeriods = true;
+    }
+}
+
+$record->period = '';
+
+if($usingPeriods) {
+    $record->period = implode(':', $postedPeriods);
+}
+
+
+if(isset($_POST['course'])) {
+    $exploded = explode(',', $_POST['course']);
+    $cleanCourse = array();
+    foreach($exploded as $aCourse) {
+        $cleanCourse[] = trim($aCourse);
+    }
+    $record->course = implode(':', $cleanCourse);
+}
+
 if(isset($_POST['blocks'])) {
     $exploded = explode(',', $_POST['blocks']);
     $cleanBlocks = array();
@@ -111,6 +197,8 @@ switch($rule) {
         $DB->insert_record('enrol_sits_code', $record);
         break;
     case 'course':
+    case 'module':
+        $record->year = ifPosted('year', false);
         $code = ifPosted('code', true);
         $codeArray = explode(',', $code);
         
@@ -123,6 +211,7 @@ switch($rule) {
             $record->code = $code;
             $DB->insert_record('enrol_sits_code', $record);
         }
+        break;
 }
 
 

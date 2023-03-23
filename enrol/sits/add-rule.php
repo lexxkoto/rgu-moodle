@@ -49,6 +49,8 @@ $PAGE->navbar->add(get_string('enrolmentoptions','enrol'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('addrule', 'enrol_sits'));
 
+$PAGE->requires->js_call_amd('enrol_sits/showfilters', 'init', array());
+
 $courserenderer = $PAGE->get_renderer('core', 'course');
 
 $output = $PAGE->get_renderer('enrol_sits');
@@ -64,13 +66,36 @@ switch($rule) {
         echo '<input type="text" class="form-control mb-2" name="code" id="code" />';
         echo '<p class="text-dimmed">You can type multiple module codes with a comma between them.</p>';
         echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Year:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="year" id="year" />';
+        echo '<p class="text-dimmed">This should be four digits (e.g. 2023).</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4" id="ruleFilterEnabler"><div class="col-sm-3 col-form-label">Filter Students:</div><div class="col-sm-9">';
+        echo '<a class="btn btn-secondary mb-2" href="#" id="showRuleFilterBox"><i class="fa fa-filter"></i> Show Filter Options</a> ';
+        echo '<p class="text-dimmed">If you want to filter students based on their mode of attendance, start month, block or any other option, use the button above. Otherwise, all students who match the module code above will be added.</p>';
+        echo '</div></div>';
+        echo '<div id="ruleFilterBox" class="hide">';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Modes of Attendance:</div><div class="col-sm-9">';
+        $output->print_modes();
+        echo '</div></div>';
         echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Levels:</div><div class="col-sm-9">';
         $output->print_levels();
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Filter By Course Code:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="course" id="course" />';
+        echo '<p class="text-dimmed">If you leave this blank, any student who matches the module codes above will be added. If you type a course code here, only students who are taking the module as part of this course will be added. You can type multiple course codes with a comma between them.</p>';
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Start Month:</div><div class="col-sm-9">';
+        $output->print_months();
+        echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Period:</div><div class="col-sm-9">';
+        $output->print_periods();
         echo '</div></div>';
         echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Blocks:</div><div class="col-sm-9">';
         echo '<input type="text" class="form-control mb-2" name="blocks" id="blocks" />';
         echo '<p class="text-dimmed">You can type multiple block codes with commas between them. If you type something here, only students in those blocks will be enrolled. If you leave this blank, everyone will be enrolled.</p>';
         echo '</div></div>';
+        echo '</div>';
         echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
     case 'course':

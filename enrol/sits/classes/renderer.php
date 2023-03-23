@@ -115,7 +115,6 @@ class enrol_sits_renderer extends plugin_renderer_base {
                         }
                         break;
                     case 'course':
-                        case 'school':
                         echo '<h4>Students by Course</h4>';
                         echo '<p>Course: <strong>';
                         echo $code->code.' - ';
@@ -127,6 +126,40 @@ class enrol_sits_renderer extends plugin_renderer_base {
                         echo '</strong></p>';
                         if(!empty($code->levels)) {
                             echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->levels).'</strong></p>';
+                        }
+                        if(!empty($code->blocks)) {
+                            echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
+                        }
+                        break;
+                    case 'module':
+                        echo '<h4>Students by Module</h4>';
+                        echo '<p>Module: <strong>';
+                        echo $code->code.' - ';
+                        if(isset($modules[$code->code])) {
+                            echo $plugin->fixModuleName($modules[$code->code]);
+                        } else {
+                            echo 'Module Code Not Recognised';
+                        }
+                        echo '</strong></p>';
+                        if(!empty($code->year)) {
+                            echo '<p>Academic Year: <strong>'.$code->year.'</strong></p>';
+                        } else {
+                            echo '<p>Academic Year: <strong>Continuous (Rolling)</strong></p>';
+                        }
+                        if(!empty($code->modes)) {
+                            echo '<p>Modes of Attendance: <strong>'.str_replace(Array(':', 'FT', 'PT', 'OD'), Array(', ', 'Full Time', 'Part Time', 'Online Distance'), $code->modes).'</strong></p>';
+                        }
+                        if(!empty($code->levels)) {
+                            echo '<p>Levels: <strong>'.str_replace(Array(':', '1', '2', '3', '4', '5', 'PG'), Array(', ', 'Undergraduate Level 1', 'Undergraduate Level 2', 'Undergraduate Level 3', 'Undergraduate Level 4', 'Undergraduate Level 5', 'Postgraduate'), $code->levels).'</strong></p>';
+                        }
+                        if(!empty($code->course)) {
+                            echo '<p>Course Code: <strong>'.str_replace(':', ', ', $code->course).'</strong></p>';
+                        }
+                        if(!empty($code->start)) {
+                            echo '<p>Start Month: <strong>'.str_replace(array(':', 'JA', 'FE', 'MA', 'AP', 'MY', 'JU', 'JL', 'AU', 'SE', 'OC', 'NO', 'DE'), array(', ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'), $code->start).'</strong></p>';
+                        }
+                        if(!empty($code->period)) {
+                            echo '<p>Period: <strong>'.str_replace(Array(':', '1', '2', '3', 'Y'), Array(', ', 'Semester 1', 'Semester 2', 'Semester 3', 'Year'), $code->period).'</strong></p>';
                         }
                         if(!empty($code->blocks)) {
                             echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
@@ -268,10 +301,77 @@ class enrol_sits_renderer extends plugin_renderer_base {
         foreach($depts as $code=>$name) {
             echo '<div class="form-check mb-1">';
             echo '<input class="form-check-input" type="checkbox" id="level_'.$code.'" name="level_'.$code.'"';
-            if(empty($selected) || isset($selected[$code])) {
+            if(!empty($selected) && isset($selected[$code])) {
                 echo ' checked="checked"';
             }
             echo' /><label class="form-check-label" for="level_'.$code.'">'.$name.'</label></div>';
+        }
+    }
+    
+    function print_modes($selected=Array()) {
+        global $DB;
+        
+        $depts = Array(
+            'FT' => 'Full Time',
+            'PT' => 'Part Time',
+            'OD' => 'Online Distance',
+        );
+        
+        foreach($depts as $code=>$name) {
+            echo '<div class="form-check mb-1">';
+            echo '<input class="form-check-input" type="checkbox" id="mode_'.$code.'" name="mode_'.$code.'"';
+            if(!empty($selected) && isset($selected[$code])) {
+                echo ' checked="checked"';
+            }
+            echo' /><label class="form-check-label" for="mode_'.$code.'">'.$name.'</label></div>';
+        }
+    }
+    
+    function print_months($selected=Array()) {
+        global $DB;
+        
+        $depts = Array(
+            'SE' => 'September',
+            'OC' => 'October',
+            'NO' => 'November',
+            'DE' => 'December',
+            'JA' => 'January',
+            'FE' => 'February',
+            'MA' => 'March',
+            'AP' => 'April',
+            'MY' => 'May',
+            'JU' => 'June',
+            'JL' => 'July',
+            'AU' => 'August'
+        );
+        
+        foreach($depts as $code=>$name) {
+            echo '<div class="form-check mb-1">';
+            echo '<input class="form-check-input" type="checkbox" id="month_'.$code.'" name="month_'.$code.'"';
+            if(!empty($selected) && isset($selected[$code])) {
+                echo ' checked="checked"';
+            }
+            echo' /><label class="form-check-label" for="month_'.$code.'">'.$name.'</label></div>';
+        }
+    }
+    
+    function print_periods($selected=Array()) {
+        global $DB;
+        
+        $depts = Array(
+            '1'  => 'Semester 1',
+            '2'  => 'Semester 2',
+            '3'  => 'Semester 3',
+            'YE' => 'Year',
+        );
+        
+        foreach($depts as $code=>$name) {
+            echo '<div class="form-check mb-1">';
+            echo '<input class="form-check-input" type="checkbox" id="period_'.$code.'" name="period_'.$code.'"';
+            if(!empty($selected) && isset($selected[$code])) {
+                echo ' checked="checked"';
+            }
+            echo' /><label class="form-check-label" for="period_'.$code.'">'.$name.'</label></div>';
         }
     }
 }
