@@ -55,7 +55,7 @@ $output = $PAGE->get_renderer('enrol_sits');
 
 $plugin = enrol_get_plugin('sits');
 
-echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link active" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link" href="log.php?id='.$courseID.'">View Logs</a></li></ul>';
+echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link active" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link" href="log.php?id='.$courseID.'">View Logs</a></li><li class="nav-item"><a class="nav-link" href="force.php?id='.$courseID.'">Force Re-Sync</a></li></ul>';
 
 foreach($instances as $instance) {
     if(!empty($instance->name)) {

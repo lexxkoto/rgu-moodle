@@ -45,7 +45,7 @@ $PAGE->navbar->add(get_string('viewlog','enrol_sits'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('viewlog', 'enrol_sits'));
 
-echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link active" href="log.php?id='.$courseID.'">View Logs</a></li></ul>';
+echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link active" href="log.php?id='.$courseID.'">View Logs</a></li><li class="nav-item"><a class="nav-link" href="force.php?id='.$courseID.'">Force Re-Sync</a></li></ul>';
 
 $logentries = $DB->get_records('enrol_sits_log', array('courseid'=>$course->id));
 

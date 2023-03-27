@@ -24,6 +24,9 @@
 
 require('../../config.php');
 
+$CFG->debug = 0;
+$CFG->debugdisplay = 0;
+
 require_login();
 
 $courseID = required_param('id', PARAM_INT);

@@ -594,13 +594,9 @@ class enrol_sits_plugin extends enrol_plugin {
                     if(!empty($blocksSQL)) {
                         $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
                     }
-                    
-                    //var_dump($sql);
-                    
+                                        
                     $users = $this->sendQueryToSITS($sql);
-                    
-                    //var_dump($users);
-                    
+                                        
                     foreach($users as $user) {
                         $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
                         if(isset($realUser->id)) {
@@ -635,10 +631,9 @@ class enrol_sits_plugin extends enrol_plugin {
                                 $levelsSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
                             }
                         }
-                    }
-                    
-                    if(!empty($levelsSQL)) {
-                        $sql .= ' AND ('.implode(' OR ', $levelsSQL).')';
+                        if(!empty($levelsSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $levelsSQL).')';
+                        }
                     }
                     
                     if(!empty($code->blocks)) {
@@ -647,18 +642,170 @@ class enrol_sits_plugin extends enrol_plugin {
                         foreach($blocks as $block) {
                             $blocksSQL[] = '(sce_blok LIKE "'.$block.'")';
                         }
+                        if(!empty($blocksSQL)) {
+                            $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
+                        }
                     }
-                    
-                    if(!empty($blocksSQL)) {
-                        $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
-                    }
-                    
-                    //var_dump($sql);
-                    
+                                        
                     $users = $this->sendQueryToSITS($sql);
+                                        
+                    foreach($users as $user) {
+                        $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
+                        if(isset($realUser->id)) {
+                            $usersWhoBelong[$realUser->id] = $realUser->id;
+                            if($this->createEnrolmentRecord($instance->id, $realUser->id)) {
+                                $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$realUser->firstname.' '.$realUser->lastname.' to the course.');
+                                $usersAdded[$realUser->id] = $realUser->id;
+                            }
+                        } else {
+                            $this->addToLog($instance->id, $instance->courseid, 'a', 'Student ID '.$user->sce_stuc.' does not exist in Moodle.');
+                        }
+                    }
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Added '.count($usersAdded).' new user'.$this->s(count($usersAdded)).' to the course.');
+                    break;
+                case 'module':
+                    $this->addToLog($instance->id, $instance->courseid, 'i', 'Adding all students in module '.$code->code.'.');
+                    if(!empty($code->year)) {
+                        $year = $code->year;
+                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Year specified: '.$year.'.');
+                    } else {
+                        if(date('n') < 8) {
+                            $year = date('Y')-1;
+                        } else {
+                            $year = date('Y');
+                        }
+                        $this->addToLog($instance->id, $instance->courseid, 'i', 'Year not specified, using '.$year.'.');
+                    }
                     
-                    //var_dump($users);
+                    $currentYear = get_config('enrol_sits', 'sits_current_year');
+                    $allowedCodes = get_config('enrol_sits', 'allowed_codes');
+                    $sql = 'select INTUIT.srs_sce.sce_stuc,
+INTUIT.srs_sce.sce_crsc,
+INTUIT.srs_sce.sce_blok,
+INTUIT.srs_sce.sce_occl,
+INTUIT.srs_sce.sce_stad,
+INTUIT.cam_smo.mav_occur,
+INTUIT.cam_smo.psl_code
+from INTUIT.cam_smo
+inner join INTUIT.srs_sce ON INTUIT.cam_smo.spr_code = INTUIT.srs_sce.sce_scjc
+inner join INTUIT.ins_stu on INTUIT.srs_sce.sce_stuc = INTUIT.ins_stu.stu_code
+inner join INTUIT.cam_mav
+on INTUIT.cam_smo.mod_code = INTUIT.cam_mav.mod_code
+AND INTUIT.cam_smo.mav_occur = INTUIT.cam_mav.mav_occur
+AND INTUIT.cam_smo.ayr_code = INTUIT.cam_mav.ayr_code
+AND INTUIT.cam_smo.psl_code = INTUIT.cam_mav.psl_code
+where INTUIT.cam_mav.mod_code = "'.$code->code.'"
+and INTUIT.srs_sce.sce_ayrc = "'.$year.'"
+and INTUIT.cam_smo.ayr_code = "'.$year.'"
+AND
+INTUIT.srs_sce.sce_stac IN ('.$allowedCodes.')
+and INTUIT.cam_mav.mav_begp = "Y"';
                     
+                    if(!empty($code->levels)) {
+                        $levels = explode(':', $code->levels);
+                        $levelsSQL = Array();
+                        foreach($levels as $level) {
+                            if($level == 'PG') {
+                                $levelsSQL[] = '(sce_crsc LIKE "P%")';
+                            } else {
+                                $levelsSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
+                            }
+                        }
+                        if(!empty($levelsSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $levelsSQL).')';
+                        }
+                    }
+                    
+                    if(!empty($code->blocks)) {
+                        $blocks = explode(':', $code->blocks);
+                        $blocksSQL = Array();
+                        foreach($blocks as $block) {
+                            // Support for putting levels in as block codes (old system)
+                            if($block == 'PG') {
+                                $levelsSQL[] = '(sce_crsc LIKE "P%")';
+                                break;
+                            }
+                            if(in_array($block, [1, 2, 3, 4, 5])) {
+                                $levelsSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
+                                break;
+                            }
+                            $blocksSQL[] = '(sce_blok LIKE "'.$block.'")';
+                        }
+                        if(!empty($blocksSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $blocksSQL).')';
+                        }
+                    }
+                    
+                    if(!empty($code->start)) {
+                        $starts = explode(':', $code->start);
+                        $startSQL = Array();
+                        foreach($starts as $start) {
+                            $startSQL[] = '(sce_occl="'.$start.'")';
+                        }
+                        if(!empty($startSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $startSQL).')';
+                        }
+                    }
+                    
+                    if(!empty($code->occurrence)) {
+                        $occs = explode(':', $code->occurrence);
+                        $occSQL = Array();
+                        foreach($occs as $occ) {
+                            $occSQL[] = '(mav_occur="'.$start.'")';
+                        }
+                        if(!empty($occSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $occSQL).')';
+                        }
+                    }
+                    
+                    if(!empty($code->period)) {
+                        $periods = explode(':', $code->period);
+                        $periodSQL = Array();
+                        foreach($periods as $period) {
+                            if($period=='YE') {
+                                $periodSQL[] = '(cam_smo.psl_code="YEAR")';
+                            } else {
+                                $periodSQL[] = '(cam_smo.psl_code="SEM'.$period.'")';
+                            }
+                        }
+                        if(!empty($periodSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $periodSQL).')';
+                        }
+                    }
+                    
+                    $allModes = Array(
+                        'FT' =>Array(
+                            'FT'
+                        ),
+                        'PT' => Array(
+                            'PT',
+                            'PE',
+                            'PY',
+                            'PP',
+                        ),
+                        'OD' => Array(
+                            'PD',
+                            'FD'
+                        )
+                    );
+                    
+                    if(!empty($code->modes)) {
+                        $modes = explode(':', $code->modes);
+                        $modeSQL = Array();
+                        foreach($modes as $mode) {
+                            if(isset($allModes[$mode])) {
+                                foreach($allModes[$mode] as $possibility) {
+                                    $modeSQL[] = '(sce_crsc LIKE "___'.$possibility.'%")';
+                                }
+                            }
+                        }
+                        if(!empty($modeSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $modeSQL).')';
+                        }
+                    }
+
+                    $users = $this->sendQueryToSITS($sql);
+                                        
                     foreach($users as $user) {
                         $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
                         if(isset($realUser->id)) {
