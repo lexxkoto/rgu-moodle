@@ -61,12 +61,15 @@ class enrol_sits_observer {
         
         $courseid = $event->courseid;
         
-        $plugin = enrol_get_plugin('sits');
-        $plugin->check_instance($courseid);
+        if($courseid > 1) {
         
-        $sync = new \enrol_sits\task\sync_course();
-        $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course view'));
-        \core\task\manager::queue_adhoc_task($sync);
+            $plugin = enrol_get_plugin('sits');
+            $plugin->check_instance($courseid);
+            
+            $sync = new \enrol_sits\task\sync_course();
+            $sync->set_custom_data(array('courseid'=>$courseid, 'reason'=>'course view'));
+            \core\task\manager::queue_adhoc_task($sync);
+        }
     }
     
     public static function enrol_instance_updated(\core\event\enrol_instance_updated $event) {

@@ -122,6 +122,7 @@
             }
             
             if(!preg_match('/^[0-9]{7}$/', $user->idnumber)) {
+                mtrace('Doesn\'t look like a real student number: '.$user->idnumber);
                 return false;
             }
             
@@ -138,8 +139,13 @@
                             if(!empty($user->idnumber)) {
                                 $user->lastname = $user->lastname.' ('.$user->idnumber.')';
                                 $update = true;
+                                mtrace('Student number added to last name.');
+                            } else {
+                                mtrace('This student doesn\'t have a student number.');
                             }
                         }
+                    } else {
+                        mtrace('Appending student numbers is switched off.');
                     }
                     
                     // Custom profile fields
@@ -155,7 +161,7 @@
 		                'and SCE_STUC = '.$user->idnumber.
 		                ' order by SCE_SCJC';
 		                
-		                mtrace($sql);
+		                //mtrace($sql);
 		                
 		                $result = local_rgu_core_services_observer::sendQueryToSITS($sql);
 		                
@@ -185,6 +191,8 @@
     		                    default:
     		                        $profileFields->profile_field_rgu_stage = 'Undergraduate Level '.$courseType;
     		                }
+                        } else {
+                            mtrace('No student record from SITS.');
                         }
 		                
 		                $sql = 'select distinct SCJ_STUC, SCJ_PRSC '.
@@ -219,17 +227,21 @@
 					        $tutorText .= '</ul>';
 					        
 					        $profileFields->profile_field_rgu_tutors = $tutorText;
-					    }
+					    } else {
+                            mtrace('No tutor record from SITS.');
+                        }
 		                
 		                $profileFields->profile_field_rgu_lastupdate = time();
 		                
 		                profile_save_data($profileFields);
+                    } else {
+                        mtrace('Syncing with SITS is switched off.');
                     }
                     
                     // Update the user's profile picture
                     
                     if($shouldSyncAvatars) {
-                        if(isset($profileFields->rgu_nophoto) && $profileFields->rgu_nophoto == 0) {
+                        if(isset($profileFields->profile_field_rgu_nophoto) && $profileFields->profile_field_rgu_nophoto == 0) {
                             if($user->picture == 0) {
                                 $ftpserver = get_config('local_rgu_core_services', 'avatar_host');
                                 $ftpport = get_config('local_rgu_core_services', 'avatar_port');
@@ -274,6 +286,8 @@
                             }
                             $DB->set_field('user', 'picture', '0', array('id'=>$userid));
                         }
+                    } else {
+                        mtrace('Syncing photos is switched off.');
                     }
                     break;
                 default:
