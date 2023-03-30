@@ -479,6 +479,7 @@ class enrol_sits_plugin extends enrol_plugin {
         }
         
         $instances = $this->getEnrolInstancesForCourse($courseid);
+        $this->addToLog(-1, $courseid, 'i', 'Found '.count($instances).$this->s(count($instances), ' copy ', ' copies ').'of SITS Sync on this course.');
         foreach($instances as $instance) {
             if($instance->status != 0) {
                 $this->addToLog($instance->id, $courseid, 'i', 'Not syncing. Sync users is set to off ('.$instance->status.').');
@@ -505,7 +506,7 @@ class enrol_sits_plugin extends enrol_plugin {
     function syncEnrolInstance($instance) {
         global $DB;
         
-        //addToLog($instance->id, $instance->courseid, 'i', 'Syncing enrolments for this copy of the plugin');
+        $this->addToLog($instance->id, $instance->courseid, 'i', 'Syncing this copy of SITS Sync');
         
         $codes = $this->getCodesForInstance($instance->id);
         
@@ -827,6 +828,10 @@ and INTUIT.cam_mav.mav_begp = "Y"';
             }
         }
         
+        $this->addToLog($instance->id, $instance->courseid, 'i', 'Finished adding students to the course.');
+        $this->addToLog($instance->id, $instance->courseid, 'i', 'There are '.count($usersWhoBelong).' user'.$this->s(count($usersWhoBelong)).' who meet a SITS Sync rule.');
+        
+        
         // Get the users who don't belong and decide what to do with them
         
         if(count($usersWhoBelong)) {
@@ -834,7 +839,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
         } else {
             // Nobody belongs. Remove everyone? Do nothing for safety?
             $deletions = $DB->get_records_sql('SELECT * FROM {enrol_sits_users} WHERE instanceid='.$instance->id);
-            $this->addToLog($instance->id, $instance->courseid, 'd', 'This enrolment rule has selected nobody. Rollover? Nasty Bug?');
+            $this->addToLog($instance->id, $instance->courseid, 'd', 'This enrolment rule has selected nobody. Rollover? Nasty Bug? Filter that doesn\'t exist?');
         }
         
         $usersToDelete = Array();
@@ -883,6 +888,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                     break;
             }              
         }
+        $this->addToLog($instance->id, $instance->courseid, 'i', 'Finished syncing this copy of SITS Sync.');
     }
     
     function createEnrolmentRecord($instanceid, $userid, $usernumber="") {

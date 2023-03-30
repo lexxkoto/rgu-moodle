@@ -105,6 +105,11 @@ switch($rule) {
         echo '<input type="text" class="form-control mb-2" name="code" id="code" />';
         echo '<p class="text-dimmed">You can type multiple course codes with a comma between them.</p>';
         echo '</div></div>';
+        echo '<div class="row mb-4" id="ruleFilterEnabler"><div class="col-sm-3 col-form-label">Filter Students:</div><div class="col-sm-9">';
+        echo '<a class="btn btn-secondary mb-2" href="#" id="showRuleFilterBox"><i class="fa fa-filter"></i> Show Filter Options</a> ';
+        echo '<p class="text-dimmed">If you want to filter students based on their mode of attendance, start month, block or any other option, use the button above. Otherwise, all students who match the module code above will be added.</p>';
+        echo '</div></div>';
+        echo '<div id="ruleFilterBox" class="hide">';
         echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Levels:</div><div class="col-sm-9">';
         $output->print_levels();
         echo '</div></div>';
@@ -112,6 +117,7 @@ switch($rule) {
         echo '<input type="text" class="form-control mb-2" name="blocks" id="blocks" />';
         echo '<p class="text-dimmed">You can type multiple block codes with commas between them. If you type something here, only students in those blocks will be enrolled. If you leave this blank, everyone will be enrolled.</p>';
         echo '</div></div>';
+        echo '</div>';
         echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
     case 'school':
@@ -120,6 +126,11 @@ switch($rule) {
         echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">School:</div><div class="col-sm-9">';
         $output->print_schools();
         echo '</div></div>';
+        echo '<div class="row mb-4" id="ruleFilterEnabler"><div class="col-sm-3 col-form-label">Filter Students:</div><div class="col-sm-9">';
+        echo '<a class="btn btn-secondary mb-2" href="#" id="showRuleFilterBox"><i class="fa fa-filter"></i> Show Filter Options</a> ';
+        echo '<p class="text-dimmed">If you want to filter students based on their mode of attendance, start month, block or any other option, use the button above. Otherwise, all students who match the module code above will be added.</p>';
+        echo '</div></div>';
+        echo '<div id="ruleFilterBox" class="hide">';
         echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Academic Levels:</div><div class="col-sm-9">';
         $output->print_levels();
         echo '</div></div>';
@@ -127,6 +138,7 @@ switch($rule) {
         echo '<input type="text" class="form-control mb-2" name="blocks" id="blocks" />';
         echo '<p class="text-dimmed">You can type multiple block codes with commas between them. If you type something here, only students in those blocks will be enrolled. If you leave this blank, everyone will be enrolled.</p>';
         echo '</div></div>';
+        echo '</div>';
         echo '<div class="row mb-4"><div class="col-sm-3"></div><div class="col-sm-9"><button type="submit" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Rule</button></div></div>';
         break;
     case 'all-students':
