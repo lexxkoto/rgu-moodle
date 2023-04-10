@@ -525,7 +525,7 @@ class enrol_sits_plugin extends enrol_plugin {
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($students)).' user'.$this->s(count($students)));
                     foreach($students as $student) {
                         $usersWhoBelong[$student->id] = $student->id;
-                        if($this->createEnrolmentRecord($instance->id, $student->id)) {
+                        if($this->createEnrolmentRecord($instance, $student->id, $instance->roleid)) {
                             $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$student->firstname.' '.$student->lastname.' - User ID '.$student->idnumber);
                             $usersAdded[$student->id] = $student->id;
                         }
@@ -538,7 +538,7 @@ class enrol_sits_plugin extends enrol_plugin {
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.$this->s(count($staff)).'.');
                     foreach($staff as $user) {
                         $usersWhoBelong[$user->id] = $user->id;
-                        if($this->createEnrolmentRecord($instance->id, $user->id)) {
+                        if($this->createEnrolmentRecord($instance, $user->id, $instance->roleid)) {
                             $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$user->firstname.' '.$user->lastname.' to the course.');
                             $usersAdded[$user->id] = $user->id;
                         }
@@ -553,7 +553,7 @@ class enrol_sits_plugin extends enrol_plugin {
                         $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.number_format(count($staff)).' user'.$this->s(count($staff).' in '.$dept).'.');
                         foreach($staff as $user) {
                             $usersWhoBelong[$user->id] = $user->id;
-                            if($this->createEnrolmentRecord($instance->id, $user->id)) {
+                            if($this->createEnrolmentRecord($instance, $user->id, $instance->roleid)) {
                                 $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$user->firstname.' '.$user->lastname.' to the course.');
                                 $usersAdded[$user->id] = $user->id;
                             }
@@ -602,7 +602,7 @@ class enrol_sits_plugin extends enrol_plugin {
                         $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
                         if(isset($realUser->id)) {
                             $usersWhoBelong[$realUser->id] = $realUser->id;
-                            if($this->createEnrolmentRecord($instance->id, $realUser->id)) {
+                            if($this->createEnrolmentRecord($instance, $realUser->id, $instance->roleid)) {
                                 $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$realUser->firstname.' '.$realUser->lastname.' to the course.');
                                 $usersAdded[$realUser->id] = $realUser->id;
                             }
@@ -654,7 +654,7 @@ class enrol_sits_plugin extends enrol_plugin {
                         $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
                         if(isset($realUser->id)) {
                             $usersWhoBelong[$realUser->id] = $realUser->id;
-                            if($this->createEnrolmentRecord($instance->id, $realUser->id)) {
+                            if($this->createEnrolmentRecord($instance, $realUser->id, $instance->roleid)) {
                                 $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$realUser->firstname.' '.$realUser->lastname.' to the course.');
                                 $usersAdded[$realUser->id] = $realUser->id;
                             }
@@ -811,7 +811,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                         $realUser = $DB->get_record('user', array('idnumber'=>$user->sce_stuc, 'deleted'=>0));
                         if(isset($realUser->id)) {
                             $usersWhoBelong[$realUser->id] = $realUser->id;
-                            if($this->createEnrolmentRecord($instance->id, $realUser->id)) {
+                            if($this->createEnrolmentRecord($instance, $realUser->id, $instance->roleid)) {
                                 $this->addToLog($instance->id, $instance->courseid, 'a', 'Added '.$realUser->firstname.' '.$realUser->lastname.' to the course.');
                                 $usersAdded[$realUser->id] = $realUser->id;
                             }
@@ -873,32 +873,34 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                     break;
                 case 1:
                     $this->addToLog($instance->id, $instance->courseid, 'r', $userDetails->firstname.' '.$userDetails->lastname.' has expired. Suspending them.');
-                    $record = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$victim));
-                    $record->status = ENROL_USER_SUSPENDED;
-                    $DB->update_record('user_enrolments', $record);
+                    //$record = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$victim));
+                    //$record->status = ENROL_USER_SUSPENDED;
+                    //$DB->update_record('user_enrolments', $record);
+                    $this->update_user_enrol($instance, $userDetails->id, ENROL_USER_SUSPENDED);
                     break;
                 case 2:
                     $this->addToLog($instance->id, $instance->courseid, 'r', $userDetails->firstname.' '.$userDetails->lastname.' has expired. Removing them from the course.');
                     // We suspend them now, so they're hidden. We don't delete
                     // them now for safety - we schedule an ad-hoc task in the
                     // future to delete them if they're still frozen.
-                    $record = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$victim));
-                    $record->status = ENROL_USER_SUSPENDED;
-                    $DB->update_record('user_enrolments', $record);
+                    //$record = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$victim));
+                    //$record->status = ENROL_USER_SUSPENDED;
+                    //$DB->update_record('user_enrolments', $record);
+                    $this->update_user_enrol($instance, $userDetails->id, ENROL_USER_SUSPENDED);
                     break;
             }              
         }
         $this->addToLog($instance->id, $instance->courseid, 'i', 'Finished syncing this copy of SITS Sync.');
     }
     
-    function createEnrolmentRecord($instanceid, $userid, $usernumber="") {
+    function createEnrolmentRecord($instance, $userid, $role) {
         global $DB;
-        
+                
         // This function returns true if we create a record or unsuspend a
         // suspended user.
         $touched = false;
         
-        $exists = $DB->get_record('enrol_sits_users', array('instanceid'=>$instanceid, 'userid'=>$userid));
+        $exists = $DB->get_record('enrol_sits_users', array('instanceid'=>$instance->id, 'userid'=>$userid));
         
         if($exists && $exists->frozen==1) {
             // User was enrolled before and needs to be re-added. Unfreeze record.
@@ -911,7 +913,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
         if(!$exists) {
             // User was never added. This is a new enrolment.
             $record = new stdClass;
-            $record->instanceid = $instanceid;
+            $record->instanceid = $instance->id;
             $record->userid = $userid;
             $record->studentno = $usernumber;
             $record->timeupdated = time();
@@ -920,25 +922,27 @@ and INTUIT.cam_mav.mav_begp = "Y"';
             $touched = true;
         }
         
-        $exists = $DB->get_record('user_enrolments', array('enrolid'=>$instanceid, 'userid'=>$userid));
+        $exists = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$userid));
         if($exists && $exists->status != ENROL_USER_ACTIVE) {
             // Users was enrolled before and needs to be re-added. Unsuspend.
-            $record = $exists;
+            /*$record = $exists;
             $record->status = ENROL_USER_ACTIVE;
             $record->timemodified = time();
-            $DB->update_record('user_enrolments', $record);
+            $DB->update_record('user_enrolments', $record);*/
+            $this->update_user_enrol($instance, $userid, ENROL_USER_ACTIVE);
             $touched = true;
         }
         if(!$exists) {
             // User was never added. This is a new enrolment.
-            $record = new stdClass;
+            /*$record = new stdClass;
             $record->status = ENROL_USER_ACTIVE;
             $record->enrolid = $instanceid;
             $record->userid = $userid;
             $record->modifierid = 2;
             $record->timecreated = time();
             $record->timemodified = time();
-            $DB->insert_record('user_enrolments', $record);
+            $DB->insert_record('user_enrolments', $record);*/
+            $this->enrol_user($instance, $userid, $role);
             $touched = true;
         }
         

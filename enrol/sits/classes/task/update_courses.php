@@ -62,7 +62,8 @@ class update_courses extends \core\task\scheduled_task {
             $plugin->addToLog($instance->id, $instance->courseid, 'r', 'Deleting '.$user->firstname.' '.$user->lastname.' from the course.');
             
             $DB->delete_records('enrol_sits_users', array('id'=>$victim->id));
-            $DB->delete_records('user_enrolments', array('enrolid'=>$victim->instanceid,$userid=>$victim->userid));
+            //$DB->delete_records('user_enrolments', array('enrolid'=>$victim->instanceid,$userid=>$victim->userid));
+            $plugin->unenrol_user($instance->id, $user->id);
         }
         
         $DB->delete_records_select('enrol_sits_log', 'timeadded < '.$expirytime);
