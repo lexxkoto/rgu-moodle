@@ -29,7 +29,8 @@ $bodyattributes = $OUTPUT->body_attributes();
 $templatecontext = [
     'sitename' => format_string($SITE->shortname, true, ['context' => context_course::instance(SITEID), "escape" => false]),
     'output' => $OUTPUT,
-    'bodyattributes' => $bodyattributes
+    'bodyattributes' => $bodyattributes,
+    'oidcurl' => $CFG->wwwroot.'/auth/oidc'
 ];
 
 $PAGE->requires->js_call_amd('theme_garthdee/loginpage', 'init', array());
