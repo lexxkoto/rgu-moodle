@@ -26,10 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $page = new admin_settingpage('enrol_enrol_sits', get_string('configtitle', 'enrol_sits'));
-    $ADMIN->add('enrolments', $page);
 
-    $page->add(new admin_setting_heading('enrol_sits/sitsdb_title', get_string('page_sits_db', 'enrol_sits'), ''));
+    $settings->add(new admin_setting_heading('enrol_sits/sitsdb_title', get_string('page_sits_db', 'enrol_sits'), ''));
         
     $name = 'enrol_sits/sits_db_enabled';                                                                                                   
     $title = get_string('sits_db_enabled', 'enrol_sits');                                                                                   
@@ -42,53 +40,53 @@ if ($hassiteconfig) {
     $default = 'disabled';
     
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);                                                                                                                                                                                     
-    $page->add($setting);
+    $settings->add($setting);
             
     $name = 'enrol_sits/sits_db_host';
     $title = get_string('sits_db_host', 'enrol_sits');
     $desc = get_string('sits_db_host_desc', 'enrol_sits');
-    $setting = new admin_setting_configtext($name, $title, $desc, 'sits-db-mood-01.rgu.ac.uk', PARAM_TEXT);
+    $setting = new admin_setting_configtext($name, $title, $desc, 'sits-mood-db-01.rgu.ac.uk', PARAM_TEXT);
 
-    $page->add($setting);
+    $settings->add($setting);
     
     $name = 'enrol_sits/sits_db_username';
     $title = get_string('sits_db_username', 'enrol_sits');
     $desc = get_string('sits_db_username_desc', 'enrol_sits');
     $setting = new admin_setting_configtext($name, $title, $desc, 'moodlero', PARAM_TEXT);
 
-    $page->add($setting);
+    $settings->add($setting);
     
     $name = 'enrol_sits/sits_db_password';
     $title = get_string('sits_db_password', 'enrol_sits');
     $desc = get_string('sits_db_password_desc', 'enrol_sits');
     $setting = new admin_setting_configpasswordunmask($name, $title, $desc, '', PASSWORD_LOWER);
 
-    $page->add($setting);
+    $settings->add($setting);
     
     $name = 'enrol_sits/sits_db_database';
     $title = get_string('sits_db_database', 'enrol_sits');
     $desc = get_string('sits_db_database_desc', 'enrol_sits');
     $setting = new admin_setting_configtext($name, $title, $desc, 'intuit', PARAM_TEXT);
 
-    $page->add($setting);
+    $settings->add($setting);
     
-    $page->add(new admin_setting_heading('enrol_sits/parameters_title', get_string('page_parameters', 'enrol_sits'), ''));
+    $settings->add(new admin_setting_heading('enrol_sits/parameters_title', get_string('page_parameters', 'enrol_sits'), ''));
     
     $name = 'enrol_sits/sits_current_year';
     $title = get_string('sits_current_year', 'enrol_sits');
     $desc = get_string('sits_current_year_desc', 'enrol_sits');
     $setting = new admin_setting_configtext($name, $title, $desc, '2022', PARAM_TEXT);
 
-    $page->add($setting);
+    $settings->add($setting);
     
     $name = 'enrol_sits/allowed_codes';
     $title = get_string('sits_allowed_codes', 'enrol_sits');
     $desc = get_string('sits_allowed_codes_desc', 'enrol_sits');
     $setting = new admin_setting_configtext($name, $title, $desc, '"C","PF","AC","PL","PWR","R","COM","PM"', PARAM_TEXT);
 
-    $page->add($setting);
+    $settings->add($setting);
     
-    $page->add(new admin_setting_heading('enrol_sits/cron_title', get_string('page_cron', 'enrol_sits'), ''));
+    $settings->add(new admin_setting_heading('enrol_sits/cron_title', get_string('page_cron', 'enrol_sits'), ''));
     
     $name = 'enrol_sits/cron_num_courses';                       
     $title = get_string('cron_num_courses', 'enrol_sits');                                                                                   
@@ -104,7 +102,7 @@ if ($hassiteconfig) {
     $default = '10';
     
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);                                                                                                                                                                                     
-    $page->add($setting);
+    $settings->add($setting);
     
     $name = 'enrol_sits/cron_inactive_time';                       
     $title = get_string('cron_inactive_time', 'enrol_sits');                                                                                   
@@ -123,7 +121,7 @@ if ($hassiteconfig) {
     $default = '2419200';
     
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);                                                                                                                                                                               
-    $page->add($setting);
+    $settings->add($setting);
     
     $name = 'enrol_sits/trigger_inactive_time';                       
     $title = get_string('trigger_inactive_time', 'enrol_sits');                                                                                   
@@ -144,6 +142,6 @@ if ($hassiteconfig) {
     
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);     
     
-    $page->add($setting);
-
+    $settings->add($setting);
+    
 }

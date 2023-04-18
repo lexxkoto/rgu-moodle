@@ -24,7 +24,7 @@
 
 $string['pluginname'] = 'RGU SITS Sync';
 $string['pluginname_desc'] = 'Lets you add an entire class of students from SITS and keep them in sync. This replaces the old AutoEnrol system.';
-$string['configtitle'] = 'RGU Sits Sync';
+$string['configtitle'] = 'RGU SITS Sync';
 $string['backgroundrefresh'] = 'RGU SITS Background Refresh';
 
 $string['page_sits_db'] = 'SITS Database';
