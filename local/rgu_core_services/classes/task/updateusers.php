@@ -46,7 +46,7 @@ class updateusers extends \core\task\scheduled_task {
         );
 
         foreach ($users as $thisuser) {
-            mtrace('Updating user '.$thisuser->id.' - Student ID '.$thisuser->idnumber);
+            //mtrace('Updating user '.$thisuser->id.' - Student ID '.$thisuser->idnumber);
             \local_rgu_core_services_observer::update_user($thisuser->id);
         }
     }
