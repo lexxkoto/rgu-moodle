@@ -39,7 +39,7 @@ class updateusers extends \core\task\scheduled_task {
         $limit = get_config('local_rgu_core_services', 'cron_num_users');
 
         $users = $DB->get_records_sql(
-            'select id, idnumber from mdl_user u where id not in (select d.userid from mdl_user_info_field f join mdl_user_info_data d on f.id = d.fieldid where f.shortname="rgu_lastupdate" and d.data > :inactivetime) and u.institution="Student"',
+            'select id, idnumber from mdl_user u where id not in (select d.userid from mdl_user_info_field f join mdl_user_info_data d on f.id = d.fieldid where f.shortname="rgu_lastupdate" and d.data > :inactivetime) and u.institution="Student" and u.deleted=0',
             ['inactivetime' => (time() - ( $days))],
             0,
             $limit
