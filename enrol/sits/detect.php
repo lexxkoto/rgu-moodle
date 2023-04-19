@@ -24,35 +24,24 @@
 
 require('../../config.php');
 
+$CFG->debug = 0;
+$CFG->debugdisplay = 0;
+
+require_login();
+
 $courseID = required_param('id', PARAM_INT);
 $course = $DB->get_record('course', array('id'=>$courseID));
 
 require_login();
 
 $context = context_course::instance($course->id, MUST_EXIST);
-
 require_capability('enrol/sits:manage', $context);
 
-$PAGE->set_course($course);
-$PAGE->set_pagelayout('incourse');
-$PAGE->add_body_class('limitedwidth');
-$PAGE->set_url('/enrol/sits/rules.php', array('id'=>$course->id));
-
-$PAGE->set_title(get_string('viewlog', 'enrol_sits'));
-$PAGE->set_heading($course->fullname);
-$PAGE->navbar->add(get_string('viewlog','enrol_sits'));
-
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('viewlog', 'enrol_sits'));
-
-echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link active" href="log.php?id='.$courseID.'">View Logs</a></li><li class="nav-item"><a class="nav-link" href="detect.php?id='.$courseID.'">Detect Rules</a></li><li class="nav-item"><a class="nav-link" href="force.php?id='.$courseID.'">Force Re-Sync</a></li></ul>';
-
-$logentries = $DB->get_records('enrol_sits_log', array('courseid'=>$course->id));
-
-$courserenderer = $PAGE->get_renderer('core', 'course');
-
-$output = $PAGE->get_renderer('enrol_sits');
-
-echo $output->print_log_entries($logentries);
-
-echo $OUTPUT->footer();
+echo '<pre>';
+echo 'Detecting Rules'.PHP_EOL;
+echo $course->shortname;
+$plugin = enrol_get_plugin('sits');
+$instance = $plugin->check_instance($courseID);
+$plugin->sniffCourseRules($course->id, $instance);
+echo PHP_EOL.'Done.';
+echo '</pre>';
