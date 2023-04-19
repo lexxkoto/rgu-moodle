@@ -44,8 +44,8 @@ if (!enrol_is_enabled('sits')) {
 
 $plugin = enrol_get_plugin('sits');
 
-//$courses = $DB->get_records('course');
-$courses = $DB->get_records_sql('select * from becourse');
+$courses = $DB->get_records('course');
+//$courses = $DB->get_records_sql('select * from {course}');
 
 $numCourses = count($courses);
 out('Migrating '.$numCourses.' course'.$plugin->s($numCourses), '+');
@@ -54,15 +54,18 @@ $i = 1;
 
 foreach($courses as $course) {
     
-    out($i.'/'.$numCourses.' - '.$course->fullname.' - '.$course->id, '+');
+    out($i.'/'.$numCourses.' - '.$course->fullname.' - '.$course->shortname.' - '.$course->id, '+');
     
     if($course->id > 1) {
         $instance = $plugin->check_instance($course->id);
         
+        $record = new stdClass();
+        $record->instanceid = $instance;
+        
         if((strpos(strtolower($course->shortname), 'module study area') !== false) || (strpos(strtolower($course->shortname), 'module') !== false)) {
             out('Creating a SITS Sync rule for "module"');
             
-            $record = new stdClass();
+            
             $record->type = 'module';
             
             // Get the year
@@ -101,7 +104,7 @@ foreach($courses as $course) {
                 
                 // Is this a block filter?
                 
-                $match = preg_match('/Block [0-9]+/i');
+                $match = preg_match('/Block [0-9]+/i', $value);
                 if($match) {
                     $matches = Array();
                     preg_match('/Block ([0-9, ]+)/i', $value, $matches);
@@ -110,17 +113,16 @@ foreach($courses as $course) {
                         $blocks = Array();
                         $dirtyBlocks = explode(',', $blocks);
                         foreach($dirtyBlocks as $block) {
-                            $blocks[] = trim($block);
+                            $blocks[] = trim(strtoupper($block));
                         }
                         $record->blocks = implode(':', $blocks);
                     }
                     break;
                 }
-                
-                
+                  
                 // Is this an occurrence?
                 
-                $match = preg_match('/Occurrence ([a-zA-Z0-9, ]+)/i');
+                $match = preg_match('/Occurrence ([a-zA-Z0-9, ]+)/i', $value);
                 if($match) {
                     $matches = Array();
                     preg_match('/Block ([0-9, ]+)/i', $value, $matches);
@@ -129,15 +131,16 @@ foreach($courses as $course) {
                         $occs = Array();
                         foreach($cleanMatches as $cleanMatch) {
                             out('Occurrence match: '.$cleanMatch);
-                            $occs[] = trim($cleanMatch);
+                            $occs[] = trim(strtoupper($cleanMatch));
                             $record->occurrence = implode(':', $occs);
                         }
+                    }
                     break;
                 }
                 
                 // Does this look like months of the year?
                 
-                $match = preg_match('/ja(?:nuary){0,1}|fe(?:bruary){0,1}|ma(?:rch){0,1}|ap(?:ril){0,1}|m(?:a){0,1}y|ju(?:ne){0,1}|j(?:u){0,1}l(?:y){0,1}|au(?:gust){0,1}|se(?:ptember){0,1}|oc(?!cur)(?:tober){0,1}|no(?:vember){0,1}|de(?:cember)/gi', $course->shortname);
+                $match = preg_match('/ja(?:nuary){0,1}|fe(?:bruary){0,1}|ma(?:rch){0,1}|ap(?:ril){0,1}|m(?:a){0,1}y|ju(?:ne){0,1}|j(?:u){0,1}l(?:y){0,1}|au(?:gust){0,1}|se(?:ptember){0,1}|oc(?!cur)(?:tober){0,1}|no(?:vember){0,1}|de(?:cember)/i', $value);
                 if($match) {
                     $months = Array();
                     
@@ -160,7 +163,7 @@ foreach($courses as $course) {
                         $matches = Array();
                         preg_match($pattern, $value, $matches);
                         if(count($matches) > 1) {
-                            out('Matched an occurrence month: '.$code);
+                            out('Matched a month: '.$code);
                             $months[] = $code;
                         }
                     }
@@ -176,7 +179,7 @@ foreach($courses as $course) {
                 // Let's hope that no occurrences or blocks have 'OD' in them.
                 // Maybe check this one last and use a 'break'?
                 
-                $match = preg_match('/(F(ull){0,1}[ -]{0,1}T)|(P(art){0,1}[ -]{0,1}T)|(O(nline){0,1}[ -]{0,1}D(istance){0,1}[ -]{0,1}L{0,1})/gi', $course->shortname);
+                $match = preg_match('/(F(ull){0,1}[ -]{0,1}T)|(P(art){0,1}[ -]{0,1}T)|(O(nline){0,1}[ -]{0,1}D(istance){0,1}[ -]{0,1}L{0,1})/i', $value);
                 if($match) {
                     $modes = Array();
                     
@@ -200,11 +203,31 @@ foreach($courses as $course) {
                     }
                     break;  
                 }
+            
+                // Does this look like one or more course codes?
+            
+                $match = preg_match('/([A-Z]{9,10})/gi', $value);
+                
+                if($match) {
+                    $courseCodes = Array();
+                    preg_match('/([A-Z]{9,10})/gi', $value, $matches);
+                    if(count($matches) > 1) {
+                        $foundCodes = array_slice($matches, 1);
+                        foreach($foundCodes as $foundCode) {
+                            $courseCodes[] = trim(strtoupper($foundCode));
+                        }
+                        $record->course = implode(':', $courseCodes);
+                    }
+                    break;
+                }
             }
+            $DB->insert_record('enrol_sits_code', $record);
         }
         
         if(strpos(strtolower($course->shortname), 'course study area') !== false) {
             out('Creating a SITS Sync rule for "course"');
+            
+            $record->type = 'course';
             
             $parts = explode('-', $course->shortname);
             
@@ -217,7 +240,7 @@ foreach($courses as $course) {
             $parts = explode('-', $course->shortname);
             $courseCodes = explode(',', $parts[1]);
             
-            $filters = array_slice($parts, 2);
+            $filters = array_slice($parts, 1);
             foreach($filters as $filter) {
                 $value = trim($filter);
                 
@@ -241,7 +264,7 @@ foreach($courses as $course) {
                 
                 // Does this look like months of the year?
                 
-                $match = preg_match('/ja(?:nuary){0,1}|fe(?:bruary){0,1}|ma(?:rch){0,1}|ap(?:ril){0,1}|m(?:a){0,1}y|ju(?:ne){0,1}|j(?:u){0,1}l(?:y){0,1}|au(?:gust){0,1}|se(?:ptember){0,1}|oc(?!cur)(?:tober){0,1}|no(?:vember){0,1}|de(?:cember)/gi', $course->shortname);
+                $match = preg_match('/ja(?:nuary){0,1}|fe(?:bruary){0,1}|ma(?:rch){0,1}|ap(?:ril){0,1}|m(?:a){0,1}y|ju(?:ne){0,1}|j(?:u){0,1}l(?:y){0,1}|au(?:gust){0,1}|se(?:ptember){0,1}|oc(?!cur)(?:tober){0,1}|no(?:vember){0,1}|de(?:cember)/i', $course->shortname);
                 if($match) {
                     $months = Array();
                     
@@ -280,7 +303,7 @@ foreach($courses as $course) {
                 // Let's hope that no occurrences or blocks have 'OD' in them.
                 // Maybe check this one last and use a 'break'?
                 
-                $match = preg_match('/(F(ull){0,1}[ -]{0,1}T)|(P(art){0,1}[ -]{0,1}T)|(O(nline){0,1}[ -]{0,1}D(istance){0,1}[ -]{0,1}L{0,1})/gi', $course->shortname);
+                $match = preg_match('/(F(ull){0,1}[ -]{0,1}T)|(P(art){0,1}[ -]{0,1}T)|(O(nline){0,1}[ -]{0,1}D(istance){0,1}[ -]{0,1}L{0,1})/i', $value);
                 if($match) {
                     $modes = Array();
                     
@@ -309,9 +332,8 @@ foreach($courses as $course) {
             foreach($courseCodes as $code) {
                 if(preg_match('/[A-Z]{7,12}/', $code) || preg_match('/[A-Z]{3,9}\*([A-Z\*]){0-6}/', $code)) {
                     out('Matched course code '.trim($code));
-                    $record = new stdClass();
-                    $record->type = 'school';
                     $record->code = trim($code);
+                    $DB->insert_record('enrol_sits_code', $record);
                 } else {
                     out('Doesn\'t look like a real course code: '.trim($code));
                 }
@@ -321,21 +343,29 @@ foreach($courses as $course) {
         if(strpos(strtolower($course->shortname), 'school study area') !== false) {
             out('Creating a SITS Sync rule for "school"');
             
-            foreach($courseCodes as $code) {
-                if(preg_match('/[a-zA-Z]{5,10}/', trim($code))) {
-                    out('Matched course code '.trim($code));
-                    $record = new stdClass();
-                    $record->type = 'course';
-                    $record->code = trim($code);
-                } else {
-                    out('Doesn\'t look like a real course code: '.trim($code));
+            $record->type = 'school';
+            
+            $parts = explode('-', $course->shortname);
+            
+            if(count($parts) < 2) {
+                out('No school code found');
+            } else {
+                $courseCodes = explode(',', $parts[1]);
+                
+                foreach($courseCodes as $code) {
+                    if(preg_match('/[a-zA-Z]{5,10}/', trim($code))) {
+                        out('Matched course code '.trim($code));
+                        $record = new stdClass();
+                        $record->type = 'course';
+                        $record->code = trim($code);
+                    } else {
+                        out('Doesn\'t look like a real course code: '.trim($code));
+                    }
                 }
             }
+            $DB->insert_record('enrol_sits_code', $record);
         }
-        
-        $DB->insert_record('enrol_sits_code', $record);
     }
     $i++;
 }
 
-exit($result);
