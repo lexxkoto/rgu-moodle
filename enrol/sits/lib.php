@@ -518,7 +518,6 @@ class enrol_sits_plugin extends enrol_plugin {
         // Now we add the users who belong
         
         foreach($codes as $code) {
-            //var_dump($code);
             $usersAdded = Array();
             switch($code->type) {
                 case 'all-students':
@@ -1173,7 +1172,6 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                 if($match) {
                     $courseCodes = Array();
                     preg_match_all('/([A-Z]{9,10})/i', $value, $matches);
-                    var_dump($matches);
                     if(count($matches) > 1) {
                         $foundCodes = $matches[0];
                         foreach($foundCodes as $foundCode) {

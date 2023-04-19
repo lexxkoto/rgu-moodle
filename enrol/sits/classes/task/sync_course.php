@@ -43,8 +43,6 @@ class sync_course extends \core\task\adhoc_task {
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
             $plugin->addToLog(-1, $courseid, 'd', 'SITS sync triggered by '.$data->reason.'.');
             $plugin->syncCourse($courseid);
-        } else {
-            mtrace('enrol_sits: course does not exist: '.$courseid);
         }
     }
 }
