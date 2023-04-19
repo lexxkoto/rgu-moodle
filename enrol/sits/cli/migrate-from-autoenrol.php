@@ -57,7 +57,7 @@ foreach($courses as $course) {
     out($i.'/'.$numCourses.' - '.$course->fullname.' - '.$course->id, '+');
     
     if($course->id > 1) {
-        //$instance = $plugin->check_instance($course->id);
+        $instance = $plugin->check_instance($course->id);
         
         if((strpos(strtolower($course->shortname), 'module study area') !== false) || (strpos(strtolower($course->shortname), 'module') !== false)) {
             out('Creating a SITS Sync rule for "module"');
@@ -67,10 +67,16 @@ foreach($courses as $course) {
             
             // Get the year
             $matches = Array();
-            preg_match('/(20[0-9][0-9])\//', $course->shortname, $matches);
+            preg_match('/[^a-zA-Z](20[0-9][0-9])\//', $course->shortname, $matches);
             
-            $year = $matches[1];
-            out('Modules is from academic year '.$year);
+            if(count($matches) > 1) {
+                $year = $matches[1];
+                out('Modules is from academic year '.$year);
+                $record->year = $year;
+            } else {
+                out('Module has no academic year');
+            }
+            
             
             // Get the module code
             
@@ -84,6 +90,117 @@ foreach($courses as $course) {
             
             $code = trim($matches[1]);
             out('Module code is '.$code);
+            
+            $record->code = $code;
+            
+            
+            $parts = explode('-', $course->shortname);
+            $filters = array_slice($parts, 1);
+            foreach($filters as $filter) {
+                $value = trim($filter);
+                
+                // Is this a block filter?
+                
+                $match = preg_match('/Block [0-9]+/i');
+                if($match) {
+                    $matches = Array();
+                    preg_match('/Block ([0-9, ]+)/i', $value, $matches);
+                    if(count($matches) > 1) {
+                        out('Block match: '.$matches[1]);
+                        $blocks = Array();
+                        $dirtyBlocks = explode(',', $blocks);
+                        foreach($dirtyBlocks as $block) {
+                            $blocks[] = trim($block);
+                        }
+                        $record->blocks = implode(':', $blocks);
+                    }
+                    break;
+                }
+                
+                
+                // Is this an occurrence?
+                
+                $match = preg_match('/Occurrence ([a-zA-Z0-9, ]+)/i');
+                if($match) {
+                    $matches = Array();
+                    preg_match('/Block ([0-9, ]+)/i', $value, $matches);
+                    if(count($matches) > 1) {
+                        $cleanMatches = array_slice($matches, 1);
+                        $occs = Array();
+                        foreach($cleanMatches as $cleanMatch) {
+                            out('Occurrence match: '.$cleanMatch);
+                            $occs[] = trim($cleanMatch);
+                            $record->occurrence = implode(':', $occs);
+                        }
+                    break;
+                }
+                
+                // Does this look like months of the year?
+                
+                $match = preg_match('/ja(?:nuary){0,1}|fe(?:bruary){0,1}|ma(?:rch){0,1}|ap(?:ril){0,1}|m(?:a){0,1}y|ju(?:ne){0,1}|j(?:u){0,1}l(?:y){0,1}|au(?:gust){0,1}|se(?:ptember){0,1}|oc(?!cur)(?:tober){0,1}|no(?:vember){0,1}|de(?:cember)/gi', $course->shortname);
+                if($match) {
+                    $months = Array();
+                    
+                    $searches = Array(
+                        'ja' => '/ja(?:nuary){0,1/i',
+                        'fe' => '/fe(?:bruary){0,1}/i',
+                        'ma' => '/ma(?:rch){0,1}/i',
+                        'ap' => '/ap(?:ril){0,1}/i',
+                        'my' => '/m(?:a){0,1}y/i',
+                        'ju' => '/ju(?:ne){0,1}/i',
+                        'jl' => '/j(?:u){0,1}l(?:y){0,1}/i',
+                        'au' => '/au(?:gust){0,1}/i',
+                        'se' => '/se(?:ptember){0,1}/i',
+                        'oc' => '/oc(?!cur)(?:tober){0,1}/i',
+                        'no' => '/no(?:vember){0,1}/i',
+                        'de' => '/de(?:cember){0,1}/i'
+                    );
+                    
+                    foreach($searches as $code=>$pattern) {
+                        $matches = Array();
+                        preg_match($pattern, $value, $matches);
+                        if(count($matches) > 1) {
+                            out('Matched an occurrence month: '.$code);
+                            $months[] = $code;
+                        }
+                    }
+                    
+                    if(count($months) !== 0) {
+                        $record->start = strtoupper(implode(':', $months));
+                    }
+                    break;
+                }
+                
+                // is this a mode of delivery filter?
+                
+                // Let's hope that no occurrences or blocks have 'OD' in them.
+                // Maybe check this one last and use a 'break'?
+                
+                $match = preg_match('/(F(ull){0,1}[ -]{0,1}T)|(P(art){0,1}[ -]{0,1}T)|(O(nline){0,1}[ -]{0,1}D(istance){0,1}[ -]{0,1}L{0,1})/gi', $course->shortname);
+                if($match) {
+                    $modes = Array();
+                    
+                    $searches = Array(
+                        'ft' => '/(F(?:ull){0,1}[ -]{0,1}T)/i',
+                        'pt' => '/(P(?:art){0,1}[ -]{0,1}T)/i',
+                        'od' => '/(O(?:nline){0,1}[ -]{0,1}D(?:istance){0,1}[ -]{0,1}L{0,1})/i'
+                    );
+                    
+                    foreach($searches as $code=>$pattern) {
+                        $matches = Array();
+                        preg_match($pattern, $value, $matches);
+                        if(count($matches) > 1) {
+                            out('Matched a mode of attendance: '.$code);
+                            $modes[] = $code;
+                        }
+                    }
+                    
+                    if(count($modes) !== 0) {
+                        $record->modes = strtoupper(implode(':', $modes));
+                    }
+                    break;  
+                }
+            }
         }
         
         if(strpos(strtolower($course->shortname), 'course study area') !== false) {
@@ -106,7 +223,21 @@ foreach($courses as $course) {
                 
                 // Is this a block filter?
                 
-                $match = preg_match('/Block [0-9]{1,2}/i');
+                $match = preg_match('/Block [0-9]+/i');
+                if($match) {
+                    $matches = Array();
+                    preg_match('/Block ([0-9, ]+)/i', $value, $matches);
+                    if(count($matches) > 1) {
+                        out('Block match: '.$matches[1]);
+                        $blocks = Array();
+                        $dirtyBlocks = explode(',', $blocks);
+                        foreach($dirtyBlocks as $block) {
+                            $blocks[] = trim($block);
+                        }
+                        $record->blocks = implode(':', $blocks);
+                    }
+                    break;
+                }
                 
                 // Does this look like months of the year?
                 

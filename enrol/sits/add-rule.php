@@ -85,6 +85,10 @@ switch($rule) {
         echo '<input type="text" class="form-control mb-2" name="course" id="course" />';
         echo '<p class="text-dimmed">If you leave this blank, any student who matches the module codes above will be added. If you type a course code here, only students who are taking the module as part of this course will be added. You can type multiple course codes with a comma between them.</p>';
         echo '</div></div>';
+        echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Occurrence:</div><div class="col-sm-9">';
+        echo '<input type="text" class="form-control mb-2" name="occurrence" id="occurrence" />';
+        echo '<p class="text-dimmed">You can type multiple occurrences with a comma between them. If you leave this blank, students from every occurence will be enrolled.</p>';
+        echo '</div></div>';
         echo '<div class="row mb-4"><div class="col-sm-3 col-form-label">Start Month:</div><div class="col-sm-9">';
         $output->print_months();
         echo '</div></div>';
