@@ -915,7 +915,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
             $record = new stdClass;
             $record->instanceid = $instance->id;
             $record->userid = $userid;
-            $record->studentno = $usernumber;
+            $record->studentno = 0;
             $record->timeupdated = time();
             $record->frozen = '0';
             $DB->insert_record('enrol_sits_users', $record);

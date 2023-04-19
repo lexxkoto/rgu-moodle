@@ -15,17 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Database enrolment plugin version specification.
- *
- * @package    enrol
- * @subpackage sits
- * @copyright  2023 Alex Walker
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   enrol_sits
+ * @copyright 2023 Alex Walker
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023041800;
-$plugin->requires  = 2018051700;
-$plugin->component = 'enrol_sits';
-$plugin->maturity = MATURITY_STABLE;
+function xmldb_enrol_sits_upgrade($oldversion) {
+    global $DB, $CFG;
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2023041800) {
+        $table = new xmldb_table('enrol_sits_users');
+        $field = new xmldb_field('studentno', XMLDB_TYPE_CHAR, '7', XMLDB_UNSIGNED, null, null, null, 'instanceid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_notnull($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2023041800, 'enrol', 'sits');
+    }
+    return $result;
+}
