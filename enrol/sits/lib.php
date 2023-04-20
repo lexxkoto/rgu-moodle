@@ -1110,6 +1110,22 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                     }
                     continue;
                 }
+                
+                // Semester filter
+                
+                $match = preg_match('/Sem(ester){0,1}[ ]{0,1}([1-3])/i', $value);
+                if($match) {
+                    $matches = Array();
+                    preg_match('/Sem(?:ester){0,1}(?:[ ]{0,1})([1-3])/i', $value, $matches);
+                    if(count($matches) > 1) {
+                        $semesters = Array();
+                        $foundSems = array_slice($matches, 1);
+                        foreach($foundSems as $sem) {
+                            $semesters[] = $sem;
+                        }
+                        $record->period = implode(':',$semesters);
+                    }
+                }
                   
                 // Is this an occurrence?
                 
@@ -1238,7 +1254,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                 
                 // Is this a block filter?
                 
-                $match = preg_match('/Block [0-9]+/i');
+                $match = preg_match('/Block [0-9]+/i', $value);
                 if($match) {
                     $matches = Array();
                     preg_match('/Block ([0-9, ]+)/i', $value, $matches);

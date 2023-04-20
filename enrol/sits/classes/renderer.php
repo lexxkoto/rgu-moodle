@@ -159,7 +159,7 @@ class enrol_sits_renderer extends plugin_renderer_base {
                             echo '<p>Start Month: <strong>'.str_replace(array(':', 'JA', 'FE', 'MA', 'AP', 'MY', 'JU', 'JL', 'AU', 'SE', 'OC', 'NO', 'DE'), array(', ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'), $code->start).'</strong></p>';
                         }
                         if(!empty($code->period)) {
-                            echo '<p>Period: <strong>'.str_replace(Array(':', '1', '2', '3', 'Y'), Array(', ', 'Semester 1', 'Semester 2', 'Semester 3', 'Year'), $code->period).'</strong></p>';
+                            echo '<p>Period: <strong>'.str_replace(Array(':', '1', '2', '3', 'YE'), Array(', ', 'Semester 1', 'Semester 2', 'Semester 3', 'Year'), $code->period).'</strong></p>';
                         }
                         if(!empty($code->blocks)) {
                             echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
