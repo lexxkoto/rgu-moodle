@@ -107,8 +107,8 @@ class enrol_sits_renderer extends plugin_renderer_base {
                             echo 'Unknown School';
                         }
                         echo '</strong></p>';
-                        if(!empty($code->levels)) {
-                            echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->levels).'</strong></p>';
+                        if(!empty($code->level)) {
+                            echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->level).'</strong></p>';
                         }
                         if(!empty($code->blocks)) {
                             echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
@@ -124,8 +124,8 @@ class enrol_sits_renderer extends plugin_renderer_base {
                             echo 'Course Code Not Recognised';
                         }
                         echo '</strong></p>';
-                        if(!empty($code->levels)) {
-                            echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->levels).'</strong></p>';
+                        if(!empty($code->level)) {
+                            echo '<p>Levels: <strong>'.str_replace(':', ', ', $code->level).'</strong></p>';
                         }
                         if(!empty($code->blocks)) {
                             echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
@@ -149,8 +149,8 @@ class enrol_sits_renderer extends plugin_renderer_base {
                         if(!empty($code->modes)) {
                             echo '<p>Modes of Attendance: <strong>'.str_replace(Array(':', 'FT', 'PT', 'OD'), Array(', ', 'Full Time', 'Part Time', 'Online Distance'), $code->modes).'</strong></p>';
                         }
-                        if(!empty($code->levels)) {
-                            echo '<p>Levels: <strong>'.str_replace(Array(':', '1', '2', '3', '4', '5', 'PG'), Array(', ', 'Undergraduate Level 1', 'Undergraduate Level 2', 'Undergraduate Level 3', 'Undergraduate Level 4', 'Undergraduate Level 5', 'Postgraduate'), $code->levels).'</strong></p>';
+                        if(!empty($code->level)) {
+                            echo '<p>Levels: <strong>'.str_replace(Array(':', '1', '2', '3', '4', '5', 'PG'), Array(', ', 'Undergraduate Level 1', 'Undergraduate Level 2', 'Undergraduate Level 3', 'Undergraduate Level 4', 'Undergraduate Level 5', 'Postgraduate'), $code->level).'</strong></p>';
                         }
                         if(!empty($code->course)) {
                             echo '<p>Course Code: <strong>'.str_replace(':', ', ', $code->course).'</strong></p>';

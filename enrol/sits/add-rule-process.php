@@ -82,10 +82,10 @@ foreach($levels as $level=>$code) {
     }
 }
 
-$record->levels = '';
+$record->level = '';
 
 if($usingLevels) {
-    $record->levels = implode(':', $postedLevels);
+    $record->level = implode(':', $postedLevels);
 }
 
 $modes = Array(
