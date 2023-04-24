@@ -256,7 +256,6 @@ class enrol_sits_plugin extends enrol_plugin {
     }
     
     public static $schools = Array(
-        'MBS'=>'Aberdeen Business School',
 		'RGU'=>'RGU Professional', 
 		'BUS'=>'Aberdeen Business School',
 		'CIM'=>'School of Creative and Cultural Business',
@@ -270,7 +269,6 @@ class enrol_sits_plugin extends enrol_plugin {
 		'HHS'=>'School of Health Sciences',
 		'HPL'=>'School of Pharmacy and Life Sciences',
 		'HNU'=>'School of Nursing, Midwifery and Paramedic Practice',
-		'HPL'=>'School of Pharmacy & Life Sciences',
 		'DSC'=>'The Scott Sutherland School of Architecture and the Built Environment'
     );
     
@@ -724,11 +722,11 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                         foreach($blocks as $block) {
                             // Support for putting levels in as block codes (old system)
                             if($block == 'PG') {
-                                $levelsSQL[] = '(sce_crsc LIKE "P%")';
+                                $blocksSQL[] = '(sce_crsc LIKE "P%")';
                                 continue;
                             }
                             if(in_array($block, [1, 2, 3, 4, 5])) {
-                                $levelsSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
+                                $blocksSQL[] = '(sce_blok LIKE "'.$level.'%" AND sce_crsc LIKE "U%")';
                                 continue;
                             }
                             $blocksSQL[] = '(sce_blok LIKE "'.$block.'")';
