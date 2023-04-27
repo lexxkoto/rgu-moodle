@@ -592,9 +592,10 @@ class enrol_sits_plugin extends enrol_plugin {
                     }
                     
                     if(!empty($blocksSQL)) {
-                        $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
+                        $sql .= 'AND ('.implode(' OR ', $blocksSQL).')';
                     }
-                                        
+                    
+
                     $users = $this->sendQueryToSITS($sql);
                                         
                     foreach($users as $user) {
@@ -643,10 +644,25 @@ class enrol_sits_plugin extends enrol_plugin {
                             $blocksSQL[] = '(sce_blok LIKE "'.$block.'")';
                         }
                         if(!empty($blocksSQL)) {
-                            $sql .= 'AND ('.implode(' OR '.$blocksSQL).')';
+                            $sql .= 'AND ('.implode(' OR ', $blocksSQL).')';
                         }
                     }
-                                        
+                    
+                    if(!empty($code->period)) {
+                        $periods = explode(':', $code->period);
+                        $periodSQL = Array();
+                        foreach($periods as $period) {
+                            if($period=='YE') {
+                                $periodSQL[] = '(cam_smo.psl_code="YEAR")';
+                            } else {
+                                $periodSQL[] = '(cam_smo.psl_code="SEM'.$period.'")';
+                            }
+                        }
+                        if(!empty($periodSQL)) {
+                            $sql .= ' AND ('.implode(' OR ', $periodSQL).')';
+                        }
+                    }
+                    
                     $users = $this->sendQueryToSITS($sql);
                                         
                     foreach($users as $user) {
@@ -751,7 +767,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                         $occs = explode(':', $code->occurrence);
                         $occSQL = Array();
                         foreach($occs as $occ) {
-                            $occSQL[] = '(mav_occur="'.$start.'")';
+                            $occSQL[] = '(cam_mav.mav_occur="'.$occ.'")';
                         }
                         if(!empty($occSQL)) {
                             $sql .= ' AND ('.implode(' OR ', $occSQL).')';
