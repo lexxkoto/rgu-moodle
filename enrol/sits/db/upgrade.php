@@ -36,5 +36,5 @@ function xmldb_enrol_sits_upgrade($oldversion) {
 
         upgrade_plugin_savepoint(true, 2023041800, 'enrol', 'sits');
     }
-    return $result;
+    return true;
 }
