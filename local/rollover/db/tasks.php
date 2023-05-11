@@ -17,16 +17,21 @@
 /**
  * GUID Enrolment sync
  *
- * @package    local_rgu_core_services
+ * @package    local_backupcleaner
  * @copyright  2021 Alex Walker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2023050903;
-$plugin->requires = 2017051500;
-$plugin->release = '1.0.0';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_rollover';
-$plugin->description = 'Copies certain settings over from old courses to new courses.';
+$tasks = array(
+    array(
+        'classname' => 'local_rollover\task\migrate',
+        'blocking' => 0,
+        'minute' => '10',
+        'hour' => '4',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    )
+);

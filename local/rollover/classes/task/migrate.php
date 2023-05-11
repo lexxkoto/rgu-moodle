@@ -22,7 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_rgu_core_services\task;
+namespace local_rollover\task;
+
+use context_course;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -40,20 +42,28 @@ class migrate extends \core\task\scheduled_task {
         $limit = get_config('local_rollover', 'cron_num_courses');
 
         $courses = $DB->get_records_sql(
-            'select * from {course} where fullname like "%:newplaceholder%" and id not in (select newcourse from {local_rollover_processed})',
-            ['newplaceholder' => $new],
+            'select * from {course} where fullname like CONCAT("%", ?, "%") and id not in (select newcourse from {local_rollover_processed})',
+            [$new],
             0,
             $limit
         );
+        
+        mtrace('Considering '.count($courses).' courses for rollover...');
 
         foreach ($courses as $newCourse) {
+        
+            mtrace('Considering course '.$newCourse->id.' - '.$newCourse->fullname);
+        
             // Can we find an old course?
             
             $oldCourseName = str_replace($new, $old, $newCourse->fullname);
             
-            $oldCourse = $DB->get_record('course', array('fullname'=>$oldCourseName), 'u.id id, ', IGNORE_MISSING);
+            $oldCourse = $DB->get_record('course', array('fullname'=>$oldCourseName), '*', IGNORE_MISSING);
             
             if($oldCourse !== null) {
+            
+                mtrace('Found match in course '.$oldCourse->id.' - '.$oldCourse->fullname);
+            
                 $oldCourseID = $oldCourse->id;
                 $newCourseID = $newCourse->id;
                 
@@ -63,7 +73,8 @@ class migrate extends \core\task\scheduled_task {
                 // Make sure there's a manual enrolment instance
                 
                 $plugin = enrol_get_plugin('manual');
-                $enrolID = $plugin->add_default_instance($newCourseID);
+                $plugin->add_default_instance($newCourse);
+                $thisEnrolment = $DB->get_record('enrol', Array('courseid'=>$newCourseID, 'enrol'=>'manual'));
                 
                 // Move things over
                 
@@ -72,29 +83,77 @@ class migrate extends \core\task\scheduled_task {
                 // Anyone with this capability is rolled over to the new course
                 $users = get_enrolled_users($oldCourseContext, 'local/rollover:include', 0, '*');
                 
-                $allowedRoles = array_flip(get_roles_with_cap_in_context($oldCourseContext, 'local/rollover:include'));
+                $allowedRoles = get_roles_with_cap_in_context($oldCourseContext, 'local/rollover:include');
                 
                 foreach($users as $user) {
+                    mtrace('Migrating user '.$user->id.' - '.$user->firstname.' '.$user->lastname);
                     // Get the roles from the old course
                     $roles = get_user_roles($oldCourseContext, $user->id, false);
                     foreach($roles as $role) {
-                    if(array_key_exists($role->roleid, $allowedRoles)) {
-                        $plugin->enrol_user($enrolID, $user->id, $role->roleid);
+                        if(array_key_exists($role->roleid, $allowedRoles[0])) {
+                            mtrace('Giving them role '.$role->roleid);
+                            $plugin->enrol_user($thisEnrolment, $user->id, $role->roleid);
+                        } else {
+                            mtrace('Role '.$role->roleid.' not in the approved list');
+                        }
                     }
+                }
+                
+                // SITS Sync Rules
+                $plugin = enrol_get_plugin('sits');
+                
+                if($plugin->is_configured()) {
+                     $instances = $plugin->getEnrolInstancesForCourse($oldCourseID);
+                     
+                     if(!empty($instances)) {
+                        
+                        $firstRun = true;
+                        
+                        foreach($instances as $oldInstance) {
+                            if($firstRun) {
+                                // Every course comes with a default instance. If this
+                                // is the first instance we're touching, add the rules
+                                // to it. Otherwise, make a new instance.
+                                $newInstance = $plugin->check_instance($newCourseID);
+                                $firstRun = false;
+                            } else {
+                                // Horrible misuse of this function
+                                $newInstance = $plugin->add_first_instance($newCourse);
+                            }
+                            
+                            $rules = $plugin->getCodesForInstance($oldInstance->id);
+                            
+                            foreach($rules as $rule) {
+                                unset($rule->id);
+                                $rule->instanceid = $newInstance;
+                                $rule->timeadded = time();
+                                
+                                // If this is a module and there's a year attached,
+                                // add one to the year.
+                                
+                                if($rule->type == 'module' && !empty($rule->year)) {
+                                    $rule->year++;
+                                }
+                                
+                                $DB->insert_record('enrol_sits_code', $rule);
+                                
+                            }
+                        }
+                        
+                     }
                 }
                 
                 // Save a record that we've done this course
                 
-                $record = new stdClass();
+                $record = new \stdClass();
                 $record->oldcourse = $oldCourseID;
                 $record->newcourse = $newCourseID;
                 $record->timemodified = time();
                 
                 $DB->insert_record('local_rollover_processed', $record);
+            } else {
+                mtrace('No match found');
             }
-            
-            //mtrace('Updating user '.$thisuser->id.' - Student ID '.$thisuser->idnumber);
-            \local_rgu_core_services_observer::update_user($thisuser->id);
         }
     }
 
