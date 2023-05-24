@@ -151,3 +151,18 @@ pre {
 .enrolment-rule p {
     margin-bottom: 0;
 }
+
+// Things we're not keeping!
+
+.section .label .contentwithoutlink, .section .label .activityinstance {
+    padding-right: 0 !important;
+}
+
+.no-overflow {
+    overflow: hidden !important;
+}
+
+.primary-navigation li[danta-key="home"],
+.primary-navigation li[danta-key="mycourses"] {
+    display: none;
+}
