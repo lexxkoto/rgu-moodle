@@ -69,6 +69,50 @@
             local_rgu_core_services_observer::update_user($eventdata['relateduserid']);
         }
         
+        public static function course_created(\core\event\course_created $event) {
+            
+           $courseid = $event->courseid;
+
+            if (empty($courseid)) {
+                return false;
+            }
+            
+            local_rgu_core_services_observer::update_course($courseid);
+        }
+        
+        public static function course_created(\core\event\course_created $event) {
+            
+           $courseid = $event->courseid;
+
+            if (empty($courseid)) {
+                return false;
+            }
+            
+            local_rgu_core_services_observer::update_course($courseid);
+        }
+        
+        public static function course_restored(\core\event\course_restored $event) {
+            
+           $courseid = $event->courseid;
+
+            if (empty($courseid)) {
+                return false;
+            }
+            
+            local_rgu_core_services_observer::update_course($courseid);
+        }
+        
+        public static function course_updated(\core\event\course_updated $event) {
+            
+           $courseid = $event->courseid;
+
+            if (empty($courseid)) {
+                return false;
+            }
+            
+            local_rgu_core_services_observer::update_course($courseid);
+        }
+        
         public static function isEnabled($setting) {
             $setting = get_config('local_rgu_core_services', $setting);
             
@@ -296,6 +340,63 @@
                 $DB->update_record('user', $user);
             }
             
+        }
+        
+        public static function update_course($courseid) {
+            global $DB, $CFG;
+            
+            $update = false;
+            
+            $course = $DB->get_record('course', Array('id'=>$courseid));
+            
+            if(empty($course->idnumber) && ($course->startdate < time()) && ($course->enddate > time())) {
+                $month = date('n');
+                $thisYear = date('Y');
+                $nextYear = date('y');
+                // Allow some leeway for course creation before the real rollover
+                if($month < 7) {
+                    $thisYear--;
+                } else {
+                    $nextYear++;
+                }
+                $yearCode = $thisYear.'-'.$nextYear;
+                
+                $matches = Array();
+                preg_match('/\]\s{1,3}[A-Z]{2}[0-9|M][0-9]{3}[A-Za-z]{0,1}/', $course->shortname, $matches);
+                if(!empty($matches)) {
+                    $course->idnumber = $matches[0].'_'.$yearCode;
+                    $update = true;
+                }
+            }
+            
+            if(empty($course->sortorder)) {
+                $course->sortorder = 60;
+                
+                $matches = Array();
+                
+                $matches = preg_match('/School Study Area/', $course->shortname, $matches);
+                if(!empty($result)) {
+                    $course->sortorder = 50;
+                }
+                
+                $matches = preg_match('/Course Study Area/', $course->shortname, $matches);
+                if(!empty($result)) {
+                    $course->sortorder = 40;
+                }
+                
+                preg_match('/Module Study Area 20[0|1|2|3][0-9]\//', $course->shortname, $moduleCheck);
+                
+                if(!empty($moduleCheck)) {
+                    preg_match('/20[0|1|2|3][0-9]/', $moduleCheck[0], $matches);
+                    $course->sortorder = 2050 - (int)$matches[0];
+                }
+                
+                $update = true;
+            }
+            
+            if($update) {
+                $DB->update_record('course', $course);
+            }
         }
         
     }

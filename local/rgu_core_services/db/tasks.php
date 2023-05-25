@@ -33,5 +33,14 @@ $tasks = array(
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
+    ),
+    array(
+        'classname' => 'local_rgu_core_services\task\updatecourses',
+        'blocking' => 0,
+        'minute' => '25',
+        'hour' => '4',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
     )
 );
