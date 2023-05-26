@@ -145,7 +145,7 @@
         $page->add($setting);
         
         $settings->add($page);
-        
+        /*
         $page = new admin_settingpage('theme_garthdee_navigation', get_string('page_navigation', 'theme_garthdee'));
         
         $page->add(new admin_setting_heading('theme_garthdee/help_icon', get_string('section_help_icon', 'theme_garthdee'), ''));
@@ -169,5 +169,5 @@
         $page->add($setting);
         
         $settings->add($page);
-        
+        */
     }

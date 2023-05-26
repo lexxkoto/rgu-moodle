@@ -17,16 +17,39 @@
 /**
  * GUID Enrolment sync
  *
- * @package    local_rgu_core_services
+ * @package    local_backupcleaner
  * @copyright  2021 Alex Walker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_rgu_core_services\task;
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2023052500;
-$plugin->requires = 2017051500;
-$plugin->release = '1.0.1';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_rgu_core_services';
-$plugin->description = 'Provides core RGU services, such as appending the student number to the lastname field.';
+class updatecourses extends \core\task\scheduled_task {
+
+    public function get_name() {
+        return get_string('updatecourses', 'local_rgu_core_services');
+    }
+
+    public function execute() {
+        global $DB;
+
+        $limit = get_config('local_rgu_core_services', 'cron_num_courses');
+
+        $now = time();
+
+        $courses = $DB->get_records_sql(
+            'select id from {course} where (startime<'.$now.' and endtime>'.$now.')'.
+            'and (idnumber='' or sortorder='')',
+            0,
+            $limit
+        );
+
+        foreach ($courses as $course) {
+            //mtrace('Updating user '.$thisuser->id.' - Student ID '.$thisuser->idnumber);
+            \local_rgu_core_services_observer::update_course($course->id);
+        }
+    }
+
+}

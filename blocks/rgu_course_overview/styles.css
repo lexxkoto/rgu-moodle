@@ -1,0 +1,17 @@
+.block_rgu_course_overview ul.course-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.block_rgu_course_overview ul.course-list li {
+    padding: 10px;
+    border-bottom: 1px solid #e6e4e6;
+}
+
+.block_rgu_course_overview ul.course-list li .media-left {
+    margin-right: 10px;
+}
+
+.block_rgu_course_overview ul.course-list li:last-child {
+    border-bottom: none;
+}

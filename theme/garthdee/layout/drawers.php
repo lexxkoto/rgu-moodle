@@ -123,7 +123,7 @@ $templatecontext = [
     'contentwarning' => $contentWarning,
     'pagebanner' => $pageBannerText,
     'downtime' => $downtimeText,
-    'helpicon' => $helpText,
+    //'helpicon' => $helpText,
 ];
 
 echo $OUTPUT->render_from_template('theme_garthdee/drawers', $templatecontext);

@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,18 +16,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * GUID Enrolment sync
+ * This file contains functions used by course reports
  *
- * @package    local_rgu_core_services
- * @copyright  2021 Alex Walker
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since Moodle 2.1
+ * @package coursereport
+ * @copyright 2011 Andrew Davis
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
-$plugin->version = 2023052500;
-$plugin->requires = 2017051500;
-$plugin->release = '1.0.1';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_rgu_core_services';
-$plugin->description = 'Provides core RGU services, such as appending the student number to the lastname field.';
+/**
+ * Return a list of page types
+ * @param string $pagetype current page type
+ * @param stdClass $parentcontext Block's parent context
+ * @param stdClass $currentcontext Current context of block
+ */
+function coursereport_page_type_list($pagetype, $parentcontext, $currentcontext) {
+    $array = array(
+        '*' => get_string('page-x', 'pagetype'),
+        'course-report-*' => get_string('page-course-report-x', 'pagetype')
+    );
+    return $array;
+}

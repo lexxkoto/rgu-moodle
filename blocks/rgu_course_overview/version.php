@@ -15,18 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * GUID Enrolment sync
- *
- * @package    local_rgu_core_services
- * @copyright  2021 Alex Walker
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block
+ * @subpackage rgu_course_overview
+ * @copyright  2015 Robert Gordon University <http://rgu.ac.uk>
+ * @copyright  2015 Catalyst IT Ltd <http://catalyst-eu.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023052500;
-$plugin->requires = 2017051500;
-$plugin->release = '1.0.1';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_rgu_core_services';
-$plugin->description = 'Provides core RGU services, such as appending the student number to the lastname field.';
+$plugin->version = 2022072800; // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires = 2014110400; // Requires this Moodle version
+$plugin->component = 'block_rgu_course_overview'; // Full name of the plugin (used for diagnostics)
