@@ -258,6 +258,7 @@ function auth_oidc_get_remote_fields() {
             'officeLocation' => get_string('settings_fieldmap_field_officeLocation', 'auth_oidc'),
             'preferredName' => get_string('settings_fieldmap_field_preferredName', 'auth_oidc'),
             'manager' => get_string('settings_fieldmap_field_manager', 'auth_oidc'),
+            'manager_email' => get_string('settings_fieldmap_field_manager_email', 'auth_oidc'),
             'teams' => get_string('settings_fieldmap_field_teams', 'auth_oidc'),
             'groups' => get_string('settings_fieldmap_field_groups', 'auth_oidc'),
             'roles' => get_string('settings_fieldmap_field_roles', 'auth_oidc'),
@@ -557,8 +558,7 @@ function auth_oidc_config_name_in_form(string $stringid) {
  */
 function auth_oidc_is_setup_complete() {
     $pluginconfig = get_config('auth_oidc');
-    if (empty($pluginconfig->clientid) || empty($pluginconfig->idptype) || empty($pluginconfig->clientauthmethod) ||
-        empty($pluginconfig->tenantnameorguid)) {
+    if (empty($pluginconfig->clientid) || empty($pluginconfig->idptype) || empty($pluginconfig->clientauthmethod)) {
         return false;
     }
 
