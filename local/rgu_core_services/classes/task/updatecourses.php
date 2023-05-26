@@ -40,14 +40,15 @@ class updatecourses extends \core\task\scheduled_task {
         $now = time();
 
         $courses = $DB->get_records_sql(
-            'select id from {course} where (startime<'.$now.' and endtime>'.$now.')'.
-            'and (idnumber='' or sortorder='')',
+            'select id from {course} where (startdate<'.$now.' and enddate>'.$now.')'.
+            'and (idnumber="" or sortorder="")', 
+            [],
             0,
             $limit
         );
 
         foreach ($courses as $course) {
-            //mtrace('Updating user '.$thisuser->id.' - Student ID '.$thisuser->idnumber);
+            mtrace('Updating course '.$course->id);
             \local_rgu_core_services_observer::update_course($course->id);
         }
     }

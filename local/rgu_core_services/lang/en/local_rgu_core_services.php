@@ -70,11 +70,11 @@ $string['cron_inactive_8_weeks'] = '8 weeks';
 $string['cron_inactive_12_weeks'] = '12 weeks';
 $string['cron_inactive_24_weeks'] = '24 weeks';
 $string['cron_inactive_48_weeks'] = '48 weeks';
-$string['cron_num_users'] = 'Number of courses to update';
-$string['cron_num_users_desc'] = 'When the scheduled task runs, it will update courses that haven\'t been updated recently. This controls how many courses you want to update every time the task runs. This updates a few settings, including the library course ID number and the sort order.';
+$string['cron_num_courses'] = 'Number of courses to update';
+$string['cron_num_courses_desc'] = 'When the scheduled task runs, it will update courses that haven\'t been updated recently. This controls how many courses you want to update every time the task runs. This updates a few settings, including the library course ID number and the sort order.';
 
 $string['updateusers'] = 'Update inactive users';
-$string['updateusers'] = 'Update courses';
+$string['updatecourses'] = 'Update courses';
 
 $string['page_course'] = 'Course Settings';
 $string['library_idnumber_enabled'] = 'Save library codes to new courses';

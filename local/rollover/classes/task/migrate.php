@@ -60,7 +60,7 @@ class migrate extends \core\task\scheduled_task {
             
             $oldCourse = $DB->get_record('course', array('fullname'=>$oldCourseName), '*', IGNORE_MISSING);
             
-            if($oldCourse !== null) {
+            if($oldCourse !== false) {
             
                 mtrace('Found match in course '.$oldCourse->id.' - '.$oldCourse->fullname);
             

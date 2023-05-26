@@ -80,17 +80,6 @@
             local_rgu_core_services_observer::update_course($courseid);
         }
         
-        public static function course_created(\core\event\course_created $event) {
-            
-           $courseid = $event->courseid;
-
-            if (empty($courseid)) {
-                return false;
-            }
-            
-            local_rgu_core_services_observer::update_course($courseid);
-        }
-        
         public static function course_restored(\core\event\course_restored $event) {
             
            $courseid = $event->courseid;
@@ -347,9 +336,11 @@
             
             $update = false;
             
+            mtrace('Updating course '.$courseid);
+            
             $course = $DB->get_record('course', Array('id'=>$courseid));
             
-            if(empty($course->idnumber) && ($course->startdate < time()) && ($course->enddate > time())) {
+            if(empty($course->idnumber) && ($course->startdate < time() && $course->enddate > time())) {
                 $month = date('n');
                 $thisYear = date('Y');
                 $nextYear = date('y');
@@ -364,8 +355,11 @@
                 $matches = Array();
                 preg_match('/\]\s{1,3}[A-Z]{2}[0-9|M][0-9]{3}[A-Za-z]{0,1}/', $course->shortname, $matches);
                 if(!empty($matches)) {
-                    $course->idnumber = $matches[0].'_'.$yearCode;
+                    mtrace('Match in '.$course->shortname.': '.substr($matches[0], -6));
+                    $course->idnumber = substr($matches[0], -6).'_'.$yearCode;
                     $update = true;
+                } else {
+                    mtrace('No match in '.$course->shortname);
                 }
             }
             

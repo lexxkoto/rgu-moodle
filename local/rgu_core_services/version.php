@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2023052500;
+$plugin->version = 2023052501;
 $plugin->requires = 2017051500;
 $plugin->release = '1.0.1';
 $plugin->maturity = MATURITY_STABLE;
