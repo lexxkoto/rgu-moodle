@@ -34,6 +34,7 @@ use local_o365\oauth2\token;
 use local_o365\obj\o365user;
 use local_o365\rest\unified;
 use local_o365\utils;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -237,7 +238,7 @@ class main {
             }
         }
         if (empty($record)) {
-            $record = new \stdClass();
+            $record = new stdClass();
             $record->muserid = $muserid;
             $record->assigned = 0;
         }
@@ -370,17 +371,18 @@ class main {
     }
 
     /**
-     * Return the name of the manager of the Microsoft 365 user with the given oid.
+     * Return the $field of the manager of the Microsoft 365 user with the given oid.
      *
      * @param string $userobjectid
+     * @param string $field
      *
      * @return mixed|string
      */
-    public function get_user_manager($userobjectid) {
+    public function get_user_manager(string $userobjectid, string $field = 'displayName') {
         $apiclient = $this->construct_user_api();
         $result = $apiclient->get_user_manager($userobjectid);
-        if ($result && isset($result['displayName'])) {
-            return $result['displayName'];
+        if ($result && isset($result[$field])) {
+            return $result[$field];
         } else {
             return '';
         }
@@ -466,12 +468,12 @@ class main {
      * Apply the configured field map.
      *
      * @param array $aaddata User data from Azure AD.
-     * @param \stdClass $user Moodle user data.
+     * @param stdClass $user Moodle user data.
      * @param string $eventtype 'login', or 'create'
      *
-     * @return \stdClass Modified Moodle user data.
+     * @return stdClass Modified Moodle user data.
      */
-    public static function apply_configured_fieldmap(array $aaddata, \stdClass $user, $eventtype) {
+    public static function apply_configured_fieldmap(array $aaddata, stdClass $user, $eventtype) {
         global $CFG;
 
         require_once($CFG->dirroot . '/auth/oidc/lib.php');
@@ -518,12 +520,21 @@ class main {
             $fieldmappings = auth_oidc_get_field_mappings();
         }
 
+        if (isset($user->lang)) {
+            $originallangsetting = $user->lang;
+        } else {
+            $originallangsetting = $CFG->lang;
+        }
+
         if (unified::is_configured() && (array_key_exists('id', $aaddata) && $aaddata['id'])) {
             $objectidfieldname = 'id';
             $userobjectid = $aaddata['id'];
-        } else {
+        } else if (array_key_exists('objectId', $aaddata) && $aaddata['objectId']) {
             $objectidfieldname = 'objectId';
             $userobjectid = $aaddata['objectId'];
+        } else {
+            $objectidfieldname = 'userPrincipalName';
+            $userobjectid = $aaddata['userPrincipalName'];
         }
 
         $usersync = new self();
@@ -564,7 +575,10 @@ class main {
             if (!PHPUNIT_TEST && !defined('BEHAT_SITE_RUNNING')) {
                 switch ($remotefield) {
                     case 'manager':
-                        $user->$localfield = $usersync->get_user_manager($userobjectid);
+                        $user->$localfield = $usersync->get_user_manager($userobjectid, 'displayName');
+                        break;
+                    case 'manager_email':
+                        $user->$localfield = $usersync->get_user_manager($userobjectid, 'mail');
                         break;
                     case 'groups':
                         $user->$localfield = $usersync->get_user_group_names($userobjectid);
@@ -596,14 +610,56 @@ class main {
             }
         }
 
-        if (!empty($user->lang)) {
-            // Lang cannot be longer than 2 chars.
-            if (strlen($user->lang) > 2) {
-                $user->lang = substr($user->lang, 0, 2);
+        // Validate language sync.
+        if (array_key_exists('lang', $fieldmappings) && ($behavior === 'on' . $eventtype || $behavior === 'always')) {
+            if (!get_string_manager()->translation_exists($originallangsetting, false)) {
+                $originallangsetting = $CFG->lang;
             }
-            // Validate lang setting.
-            if (!get_string_manager()->translation_exists($user->lang, false)) {
-                $user->lang = $CFG->lang;
+
+            if (!isset($user->lang) || !$user->lang) {
+                // If the user's new language setting is empty, use original setting.
+                $user->lang = $originallangsetting;
+            } else {
+                $newlangsetting = strtolower(str_replace('-', '_' , $user->lang));
+                $newlangsettingwp = $newlangsetting . '_wp';
+                $newlangsettingsimple = substr($newlangsetting, 0, 2);
+
+                $validlangsettings = [];
+                if (!get_string_manager()->translation_exists($newlangsettingwp, false)) {
+                    $newlangsettingwp = null;
+                } else {
+                    $validlangsettings[] = 'newlangsettingwp';
+                }
+
+                if (!get_string_manager()->translation_exists($newlangsetting, false)) {
+                    $newlangsetting = null;
+                } else {
+                    $validlangsettings[] = 'newlangsetting';
+                }
+
+                if (!get_string_manager()->translation_exists($newlangsettingsimple, false)) {
+                    $newlangsettingsimple = null;
+                } else {
+                    $validlangsettings[] = 'newlangsettingsimple';
+                }
+
+                if (!$validlangsettings) {
+                    // No version of the new language setting exists, keep existing setting.
+                    $user->lang = $originallangsetting;
+                } else {
+                    // At least one version exists, update settings.
+                    if ($newlangsettingwp && $originallangsetting == $newlangsettingwp) {
+                        $user->lang = $newlangsettingwp;
+                    } else if ($newlangsetting) {
+                        $user->lang = $newlangsetting;
+                    } else {
+                        $user->lang = $newlangsettingsimple;
+                    }
+
+                    if (!$user->lang) {
+                        $user->lang = $originallangsetting;
+                    }
+                }
             }
         }
 
@@ -715,7 +771,7 @@ class main {
      *
      * @param array $aaddata Array of Azure AD user data.
      * @param array $syncoptions
-     * @return \stdClass An object representing the created Moodle user.
+     * @return stdClass An object representing the created Moodle user.
      */
     public function create_user_from_aaddata($aaddata, $syncoptions) {
         global $CFG, $DB;
@@ -816,7 +872,7 @@ class main {
      * @param array $aaddata Array of Azure AD user data.
      * @param object $fullexistinguser
      *
-     * @return \stdClass An object representing the created Moodle user.
+     * @return stdClass An object representing the created Moodle user.
      */
     public function update_user_from_aaddata($aaddata, $fullexistinguser) {
         // Locate country code.
@@ -1103,9 +1159,9 @@ class main {
                     }
                 }
 
-                $this->sync_existing_user($aadsync, $aaduser, $existinguser, $exactmatch);
+                $connected = $this->sync_existing_user($aadsync, $aaduser, $existinguser, $exactmatch);
 
-                if ($existinguser->auth === 'oidc' || empty($existinguser->tokid)) {
+                if (($existinguser->auth === 'oidc' || empty($existinguser->tokid)) && $connected) {
                     // Create userobject if it does not exist.
                     if (empty($existinguser->objectid)) {
                         $this->mtrace('Adding o365 object record for user.');
@@ -1127,7 +1183,7 @@ class main {
                 }
 
                 // Update existing user on moodle from AD.
-                if ($existinguser->auth === 'oidc') {
+                if ($existinguser->auth === 'oidc' && $connected) {
                     if (isset($aadsync['update'])) {
                         $this->mtrace('Updating Moodle user data from Azure AD user data.');
                         $fullexistinguser = get_complete_user_data('username', $existinguser->username);
@@ -1154,7 +1210,7 @@ class main {
      * @param array $aaduserdata
      * @param bool $syncguestusers
      *
-     * @return false|\stdClass|null
+     * @return false|stdClass|null
      */
     protected function sync_new_user($syncoptions, $aaduserdata, bool $syncguestusers = false) {
         global $DB;
@@ -1360,14 +1416,14 @@ class main {
      * @param array $aaduserdata
      * @param object $existinguser
      * @param bool $exactmatch
-     * @return bool|void
+     * @return bool
      */
     protected function sync_users_matchuser($syncoptions, $aaduserdata, $existinguser, $exactmatch) {
         global $DB;
 
         if (!isset($syncoptions['match'])) {
             $this->mtrace('Not matching user because that sync option is disabled.');
-            return true;
+            return false;
         }
 
         if (isset($syncoptions['matchswitchauth']) && $exactmatch) {
@@ -1402,6 +1458,8 @@ class main {
 
                 // Clear force password change preference.
                 unset_user_preference('auth_forcepasswordchange', $existinguser);
+
+                return true;
             }
         } else if (!empty($existinguser->existingconnectionid)) {
             $this->mtrace('User is already matched.');
