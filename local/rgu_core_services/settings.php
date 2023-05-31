@@ -189,4 +189,17 @@
         
         $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);                                                                                                                                                                                     
         $page->add($setting);
+        
+        $name = 'local_rgu_core_services/course_sortorder_enabled';                                                                                                   
+        $title = get_string('course_sortorder_enabled', 'local_rgu_core_services');                                                                                   
+        $description = get_string('course_sortorder_enabled_desc', 'local_rgu_core_services');
+        
+        $choices = Array(
+            'enabled' => get_string('option_on', 'local_rgu_core_services'),
+            'disabled' => get_string('option_off', 'local_rgu_core_services')
+        );                                                                     
+        $default = 'disabled';
+        
+        $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);                                                                                                                                                                                     
+        $page->add($setting);
     }

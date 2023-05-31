@@ -19,5 +19,17 @@
             'eventname' => '\core\event\user_loggedinas',
             'callback' => 'local_rgu_core_services_observer::user_loggedinas',
         ),
+        array(
+            'eventname' => '\core\event\course_created',
+            'callback' => 'local_rgu_core_services_observer::course_created',
+        ),
+        array(
+            'eventname' => '\core\event\course_restored',
+            'callback' => 'local_rgu_core_services_observer::course_restored',
+        ),
+        array(
+            'eventname' => '\core\event\course_updated',
+            'callback' => 'local_rgu_core_services_observer::course_updated',
+        ),
         
     );

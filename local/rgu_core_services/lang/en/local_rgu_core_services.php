@@ -79,4 +79,5 @@ $string['updatecourses'] = 'Update courses';
 $string['page_course'] = 'Course Settings';
 $string['library_idnumber_enabled'] = 'Save library codes to new courses';
 $string['library_idnumber_enabled_desc'] = 'If enabled, this will find current courses with nothing in the idnumber field, and put the library course code in there.';
-
+$string['course_sortorder_enabled'] = 'Set course sort order';
+$string['course_sortorder_enabled_desc'] = 'If enabled, the course sort order will be set so that module pages appear (newest first) above course and school pages';
