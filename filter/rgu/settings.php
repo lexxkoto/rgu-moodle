@@ -16,15 +16,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Filter main class for the filter_pluginname plugin.
+ * Database enrolment plugin settings and presets.
  *
- * @package   filter_rgu
- * @copyright 2023 Alex Walker a.walker43@rgu.ac.uk
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    filter
+ * @subpackage rgu
+ * @copyright  2023 Alex Walker
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
- 
- defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023060106;
-$plugin->requires  = 2022041200;
-$plugin->component = 'filter_rgu';
+defined('MOODLE_INTERNAL') || die;	
+	
+if ($ADMIN->fulltree) {
+	$url = new moodle_url('/filter/rgu/index.php');
+	$settings->add(new admin_setting_description('filter_rgu/managelink', '', '<a href="'.$url->out().'" class="btn btn-primary">Manage Content</a>'));
+}

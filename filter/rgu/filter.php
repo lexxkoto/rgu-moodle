@@ -41,6 +41,8 @@ class filter_rgu extends moodle_text_filter {
 	}
 	
 	function rewrite($array) {
+		global $DB;
+		
 		$filterText = $array[1];
 		$parts = explode(',', $filterText);
 		
@@ -51,10 +53,16 @@ class filter_rgu extends moodle_text_filter {
 		switch($filterType) {
 			case 'content_item':
 				$filterItem = str_replace('key=', '', $parts[1]);
-				$text = 'I am looking for content item '.$filterItem;
+				$placeholder = $DB->get_record('filter_rgu_content', array('contentkey'=>$filterItem));
+				
+				if(!empty($placeholder)) {
+					return $placeholder->text;
+				}
+				
+				return 'I am looking for content item '.$filterItem;
 				break;
 			default:
-				$text = 'I don\'t know what I am: '.$filterType;
+				return 'I don\'t know what I am: '.$filterType;
 				break;
 		}
 		
