@@ -28,7 +28,7 @@ class filter_rgu_renderer extends plugin_renderer_base {
         
         $string = '';
         
-        $string .= '<table class="table table-striped"><thead><tr><th>Content Key</th><th>Embed Code</th><th>Settings</th></tr></thead><tbody>';
+        $string .= '<table class="table table-striped"><thead><tr><th>Content Key</th><th>Embed Code</th><th><a class="btn btn-primary" href="edit.php"><i class="fa fa-plus-circle"></i> Add a Content Item</a></th></tr></thead><tbody>';
         
         foreach($records as $record) {
 	        $string .= '<tr>';

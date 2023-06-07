@@ -2,4 +2,9 @@
 	
 $string['filtername'] = 'RGU Filter';
 $string['managecontent'] = 'Manage RGU Filter Content';
-$string['blank'] = 'There is nothing on this page';
+$string['editcontent'] = 'Edit Content Item';
+$string['contentkey'] = 'Content Key';
+$string['nokey'] = 'A content key is required';
+$string['content'] = 'Content';
+$string['nocontent'] = 'Content is required';
+$string['audience'] = 'Audience';

@@ -40,6 +40,24 @@ class filter_rgu extends moodle_text_filter {
 		return $newtext;
 	}
 	
+	function check_audience($audience) {
+    	global $USER;
+    	
+    	var_dump($USER);
+    	
+    	switch($audience) {
+        	case 'all':
+        	    return true;
+        	    break;
+            case 'staff':
+                return $USER->institution == 'Staff';
+                break;
+            case 'student':
+                return $USER->institution == 'Student';
+                break;
+    	}
+	}
+	
 	function rewrite($array) {
 		global $DB;
 		
@@ -55,14 +73,18 @@ class filter_rgu extends moodle_text_filter {
 				$filterItem = str_replace('key=', '', $parts[1]);
 				$placeholder = $DB->get_record('filter_rgu_content', array('contentkey'=>$filterItem));
 				
+				if(!filter_rgu::check_audience($placeholder->audience)) {
+    				return '';
+				}
+				
 				if(!empty($placeholder)) {
 					return $placeholder->text;
 				}
 				
-				return 'I am looking for content item '.$filterItem;
+				return '';
 				break;
 			default:
-				return 'I don\'t know what I am: '.$filterType;
+				return 'Unknown Filter Type: '.$filterType;
 				break;
 		}
 		
