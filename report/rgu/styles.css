@@ -1,0 +1,28 @@
+body.path-admin-report-rgu #region-main-box h2, body.path-admin-report-rgu #region-main-box h3 {
+    margin-bottom: 20px;
+}
+
+body.path-admin-report-rgu #region-main-box li h4 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+body.path-admin-report-rgu #region-main-box li p {
+    margin-bottom: 0;
+}
+
+body.path-admin-report-rgu #region-main-box ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+body.path-admin-report-rgu #region-main-box li {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+body.path-admin-report-rgu #region-main-box li:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}

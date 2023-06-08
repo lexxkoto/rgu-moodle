@@ -1,0 +1,262 @@
+body {
+    background-color: $garthdee-background;
+}
+
+.navbar.fixed-top {
+    background-color: $garthdee-brand;
+    border-bottom-color: darken($garthdee-brand, 5%);
+    color: #fff;
+}
+
+.primary-navigation {
+    .navigation {
+        .nav-link {
+            color: #fff;
+        }
+    }
+}
+
+.fixed-top {
+    .moremenu {
+        .nav-link {
+            &.active {
+                background-color: $garthdee-brand-dark;
+                border-color: transparent;
+                border-bottom-color: #fff;
+            }
+            &:focus,
+            &:hover {
+                background-color: $garthdee-brand-dark !important;
+                border-bottom-color: transparent;
+            }
+        }
+    }
+}
+
+nav.navbar a.navbar-brand {
+    background-image: url([[pix:theme|rgu-logo-retina]]);
+    background-size: 204px 35px;
+    background-repeat: no-repeat;
+    width: 204px;
+    background-position: 0 50%;
+    font-size: 0;
+}
+
+body .navbar-nav .popover-region > .nav-link > .icon {
+    color: #fff !important;
+}
+
+body .navbar-nav .popover-region .icon {
+    color: $garthdee-text !important;
+}
+
+.navbar-nav .dropdown-toggle::after {
+    color: #fff;
+}
+
+.navbar-nav .text-primary {
+    color: #fff !important;
+}
+
+.navbar-nav {
+    .custom-control-input:checked ~ .custom-control-label::before {
+        color: #fff;
+        border-color: #fff;
+        background-color: #fff;
+    }
+    
+    .custom-control-input:checked ~ .custom-control-label::after {
+        color: $garthdee-brand-dark;
+        border-color: $garthdee-brand-dark;
+        background-color: $garthdee-brand-dark;
+    }
+    
+    .custom-switch .custom-control-label::before {
+        background-color: $garthdee-brand-dark;
+        color: $garthdee-brand-dark;
+        border-color: #fff;
+    }
+    
+    .custom-switch .custom-control-label::after {
+        background-color: #fff;
+        color: $garthdee-brand-dark;
+        border-color: #fff;
+    }
+}
+
+#page-login-index {
+    background-image: url([[pix:theme|login-bg]]);
+    background-size: cover;
+}
+
+#page-login-index #page {
+    background: transparent;
+    background-image: none;
+}
+
+#page-login-index #page-content {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#page-login-index .login-option.real .btn {
+    @include button-variant($garthdee-brand, $garthdee-brand-dark);
+    font-weight: bold;
+}
+
+#page-login-index .login-option.guest .btn {
+    @include button-variant($garthdee-grey, $garthdee-grey-dark);
+    font-weight: bold;
+}
+
+#page-login-index #login-holder {
+    transition: 0.4s;
+}
+
+#page-login-index .gu-feature-link {
+    text-align: center;
+}
+
+#page-login-index .login-panel {
+    background-color: rgba(243, 243, 243, 0.95);
+    padding: 20px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+}
+
+#page-login-index h1.login-heading {
+    background-color: $garthdee-brand;
+    background-image: url([[pix:theme|rgu-logo-retina]]);
+    background-size: 204px 35px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    height: 55px;
+    padding: 20px;
+    margin: 0;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+}   
+
+@include media-breakpoint-up(md) {
+    #page-login-index {
+        padding-top: 100px;
+    }
+    
+    #page-login-index .login-option.real {
+        margin-bottom: 0;
+        padding-right: 10px;
+    }
+    
+    #page-login-index .login-option.guest {
+        padding-left: 10px;
+    }
+    
+    #page-login-index .login-option .description{
+        min-height: 8rem;
+    }
+    
+    footer {
+        background-image: url([[pix:theme|rgu-footer-retina]]);
+        background-size: 275px 50px;
+        background-position: 0 20px;
+        background-repeat: no-repeat;
+        height: 90px;
+        padding-left: 295px;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    #page-login-index {
+        padding-top: 150px;
+    }
+    
+    #page-login-index .login-option .description{
+        min-height: 8rem;
+    }
+}
+
+.side-image {
+    max-width: 150px;
+    height: auto;
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    clear: left;
+}
+
+.message-outside-content {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 20px;
+}
+
+.message-closable {
+    padding-right: 60px !important;
+    display: relative;
+}
+
+.message-closable a.close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-decoration: none !important;
+}
+
+footer {
+    color: $garthdee-text-footer;
+    border-top: 1px solid $garthdee-footer-border;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+footer a {
+    color: $garthdee-text-footer;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: darken($garthdee-text-footer, 5%);
+    text-decoration: none;
+}
+
+footer p {
+    line-height: 20px;
+}
+
+.footer-links {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+    margin-bottom: 10px;
+    line-height: 20px;
+}
+
+.footer-links li {
+    display: inline-block;
+    margin-right: 1em;
+}
+
+.footer-links li a {
+    margin-right: 1em;
+}
+
+.footer-links li a ::after {
+    content: "\00B7";
+    color: $garthdee-footer-border;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.floating-help-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 48px;
+    color: $garthdee-brand;
+    transition: 0.5s;
+}
+
+.floating-help-icon:hover {
+    color: $garthdee-brand-dark;
+    text-decoration: none;
+}

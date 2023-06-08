@@ -1,0 +1,31 @@
+$spacer: 20px;
+$paragraph-margin-bottom: 20px;
+
+$garthdee-brand-dark: darken($garthdee-brand, 5%);
+
+$garthdee-grey: #475C69;
+$garthdee-grey-dark: #40535F;
+
+$garthdee-background: #F3F3F3;
+$garthdee-island-border: #EAE6EA;
+$garthdee-footer-border: #CFC6CF;
+$garthdee-text: #042029;
+$garthdee-text-footer: #0A2933;
+
+$primary: $garthdee-brand;
+$garthdee-link: $garthdee-brand;
+
+// This is NOT just used for body background! Hence the override in garthdee.scss
+$body-bg: #fff;
+$body-color: $garthdee-text;
+$link-color: $garthdee-brand;
+
+$dropdown-link-active-bg: $garthdee-brand;
+
+$activity-icon-colors: (
+    "administration": #A55EEA,
+    "assessment": #12B9B1,
+    "collaboration": #F88232,
+    "communication": #F5B731,
+    "content": #2E98DA,
+);

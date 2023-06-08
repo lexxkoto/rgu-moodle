@@ -1,0 +1,168 @@
+@mixin bullet-list ($class, $glyph, $color) {
+	ul.#{$class} {
+	  list-style: none;
+	}
+	
+	ul.#{$class} li::before {
+	  content: $glyph;
+	  font-family: "FontAwesome";
+	  color: $color;
+	  display: inline-block;
+	  width: 1em;
+	  margin-left: -1em;
+	}
+}
+
+@include bullet-list(bullet-black, "\f111", inherit);
+@include bullet-list(bullet-purple, "\f111", #8754D0);
+@include bullet-list(bullet-silver, "\f111", #D1D8E0);
+@include bullet-list(bullet-disc-black, "\f10c", inherit);
+@include bullet-list(bullet-disc-purple, "\f10c", #8754D0);
+@include bullet-list(bullet-disc-silver, "\f10c", #D1D8E0);
+@include bullet-list(bullet-check, "\f00c", #21BF6B);
+@include bullet-list(bullet-cross, "\f00d", #EB3A5B);
+@include bullet-list(bullet-star, "\f005", #F5B731);
+
+@mixin message-box ($name, $text, $background, $backgroundtype, $border, $glyph) {
+	.#{$name} {
+		background-color: $background;
+		color: $text;
+		border: 1px $backgroundtype $background;
+		padding: 20px;
+		padding-left: 84px;
+		min-height: 64px;
+		position: relative;
+		border-radius: 0.5em;
+		display: block;
+	}
+	
+	.#{$name} p:last-child {
+    	margin-bottom: 0;
+	}
+	
+	.#{$name} a {
+		color: $text;
+		text-decoration: underline;
+	}
+	
+	.#{$name}::before {
+		content: $glyph;
+		font-family: "FontAwesome";
+		font-size: 36px;
+		color: $text;
+		background: $border;
+		width: 64px;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		line-height: 84px;
+		text-align: center;
+		border-top-left-radius: 0.5rem;
+		border-bottom-left-radius: 0.5rem;
+	}
+}
+
+@include message-box(message-success, #1c3f1a, #d7e4d6, solid, #c6dac6, "\f058");
+@include message-box(message-information, #00434e, #cce6ea, solid, #b8dce2, "\f05a");
+@include message-box(message-grey, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f05a");
+@include message-box(message-notification, #6A4B23, #fcefdc, solid, #F1DFC6, "\f071");
+@include message-box(message-warning, #691911, #f4d6d2, solid, #f0c5c1, "\f071");
+@include message-box(message-assignment, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f15c");
+@include message-box(message-assignment2, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f040");
+@include message-box(message-comment, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f27a");
+@include message-box(message-deadline, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f017");
+@include message-box(message-section_overview, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f022");
+@include message-box(message-suggested_reading, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f02d");
+@include message-box(message-thought, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f0eb");
+@include message-box(message-search, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f002");
+@include message-box(message-tip, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f005");
+@include message-box(message-rounded-grey, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f0a4");
+@include message-box(message-dotted-grey, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f08d");
+@include message-box(message-rounded-hilite, #6A4B23, #fcefdc, solid, #F1DFC6, "\f0a4");
+@include message-box(message-dotted-hilite, #6A4B23, #fcefdc, solid, #F1DFC6, "\f08d");
+
+@include message-box(enrol-all-students, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f055");
+@include message-box(enrol-all-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f2c1");
+@include message-box(enrol-dept-staff, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f0c0");
+@include message-box(enrol-school, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f19c");
+@include message-box(enrol-course, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f19d");
+@include message-box(enrol-module, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f1b3");
+
+@mixin nonclass-message-box ($name, $text, $background, $backgroundtype, $border, $glyph) {
+	#{$name} {
+		background-color: $background;
+		color: $text;
+		border: 1px $backgroundtype $background;
+		padding: 20px;
+		padding-left: 84px;
+		min-height: 64px;
+		position: relative;
+		border-radius: 0.5em;
+	}
+	
+	#{$name} a {
+		color: $text;
+		text-decoration: underline;
+	}
+	
+    #{$name} p:last-child {
+    	margin-bottom: 0;
+	}
+	
+	#{$name}::before {
+		content: $glyph;
+		font-family: "FontAwesome";
+		font-size: 36px;
+		color: $text;
+		background: $border;
+		width: 64px;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		line-height: 84px;
+		text-align: center;
+		border-top-left-radius: 0.5rem;
+		border-bottom-left-radius: 0.5rem;
+	}
+}
+
+@include nonclass-message-box(blockquote, #5E4B5E, #F3F0F3, solid, #E6E1E6, "\f10d");
+
+pre {
+	background-color: #F3F3F3;
+	padding: 20px;
+	border: 1px solid $garthdee-island-border;
+	border-radius: 0.5rem;
+}
+
+.dropcap {
+	font-size: 3.5em;
+	float: left;
+	line-height: 0.8em;
+}
+
+.enrolment-rule h4 {
+    font-size: 1em;
+    margin-bottom: 0;
+}
+
+.enrolment-rule p {
+    margin-bottom: 0;
+}
+
+// Things we're not keeping!
+
+.section .label .contentwithoutlink, .section .label .activityinstance {
+    padding-right: 0 !important;
+}
+
+.no-overflow {
+    overflow: hidden !important;
+}
+
+.primary-navigation li[danta-key="home"],
+.primary-navigation li[danta-key="mycourses"] {
+    display: none;
+}

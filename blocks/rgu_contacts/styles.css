@@ -1,0 +1,144 @@
+.block.block_rgu_contacts .content .userpicture {
+    height: 80px;
+    width: 80px;
+}
+
+.block.block_rgu_contacts .content-z {
+    width:197px;
+    margin:0 auto;
+    padding:0 !important;
+    border:1px solid #aaa;
+}
+
+.block.block_rgu_contacts .content .rgu-contact-inst {
+    padding: 0;
+    margin: 0;
+}
+
+.block.block_rgu_contacts .content .rgu-contact-inst .title {
+    display: block;
+    padding: 0;
+    height: 30px;
+    background: transparent url('/blocks/rgu_contacts/pix/title_bg.png') 0 0 repeat-x;
+}
+
+.block.block_rgu_contacts .content .rgu-contact-inst .title a:link,
+.block.block_rgu_contacts .content .rgu-contact-inst .title a:active,
+.block.block_rgu_contacts .content .rgu-contact-inst .title a:visited,
+.block.block_rgu_contacts .content .rgu-contact-inst .title a:hover {
+    text-decoration: none;
+    line-height: 30px;
+    padding-left: 10px;
+    color: #595959;
+}
+
+.block.block_rgu_contacts .content {
+    line-height:normal;
+}
+
+.block.block_rgu_contacts .content .profileimage {
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    margin:0 10px 10px 0;
+    float: left;
+}
+
+.block.block_rgu_contacts .content .fullname {
+    font-weight: bold;
+    font-size:1.1em;
+    padding: 0 0 5px;
+}
+
+.block.block_rgu_contacts .content .profiledesc {
+    padding: 0 0 5px;
+}
+
+.block.block_rgu_contacts .content .viewfullprofile,
+.block.block_rgu_contacts .content .email {
+    display: block;
+    position: relative;
+    clear: both;
+    width: 100%;
+    margin: 0
+    padding: 0 0 5px;
+}
+
+div div.block-rgu-contactcontent {
+    overflow: hidden;
+    margin: 0 !important;
+}
+
+.block.block_rgu_contacts .content #rgu_contacts_accordion .ui-accordion-content {
+    display:none;
+}
+
+
+
+/* -------------- Accordion styling ---------------- */
+
+.yui3-accordion {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.yui3-accordion-item {
+  position: relative;
+  cursor: pointer;
+  width: 100%;
+}
+.yui3-accordion-item .yui3-widget-hd {
+  overflow: hidden;
+}
+.yui3-accordion-item .yui3-widget-bd {
+  cursor: default;
+  overflow: hidden;
+  position: relative;
+}
+.yui3-accordion-item-icons {
+  position: relative;
+  float: right;
+  overflow: hidden;
+  height: 25px;
+  padding: 1px;
+}
+.yui3-accordion-item-icon,.yui3-accordion-item-iconexpanded,.yui3-accordion-item-iconalwaysvisible,.yui3-accordion-item-iconclose {
+  width: 22px;
+  height: 22px;
+}
+.yui3-accordion-item-label {
+  position: relative;
+  top: 4px;
+  _height: 22px;
+}
+.yui3-accordion-item-iconclose-hidden {
+  display:none;
+}
+.yui3-skin-sam .yui3-accordion-item .yui3-widget-hd {
+  background-position: 0 0;
+  height: 25px;
+}
+.yui3-skin-sam .yui3-accordion-item-icon,.yui3-skin-sam .yui3-accordion-item-iconexpanded,.yui3-skin-sam .yui3-accordion-item-iconalwaysvisible,.yui3-skin-sam .yui3-accordion-item-iconclose {
+  background-repeat: no-repeat;
+}
+.yui3-skin-sam .yui3-accordion-item-label {
+  text-decoration: none;
+  background: transparent;
+  overflow: hidden;
+  color: #444;
+  font-weight: 700;
+}
+.yui3-skin-sam .yui3-accordion-item-label:hover {
+  text-decoration:underline;
+}
+.yui3-skin-sam .yui3-accordion-proxyel-visible {
+  color: #FFF;
+  font-weight: 700;
+  background-color: red;
+  opacity: .7;
+  filter: alpha(opacity=70);
+}
+.yui3-accordion-item-icon,.yui3-accordion-item-label,.yui3-accordion-item-iconexpanded,.yui3-accordion-item-iconalwaysvisible,.yui3-accordion-item-iconclose {
+  float: left;
+}

@@ -1,0 +1,76 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_boost/login
+
+    Login page template
+
+    Example context (json):
+    {
+        "output": {
+            "doctype": "<!DOCTYPE html>",
+            "page_title": "Login page",
+            "favicon": "favicon.ico",
+            "main_content": "<h1>Headers keep HTML validators happy</h1>"
+        }
+    }
+}}
+{{> theme_garthdee/head }}
+
+<body {{{ bodyattributes }}}>
+
+<div id="page-wrapper">
+
+    {{{ output.standard_top_of_body_html }}}
+    
+
+
+        <div id="page-content" class="row justify-content-center">
+            <div id="login-holder" class="col-xl-8 col-lg-8 col-md-8 col-sm-10 col-xs-12">
+                <div class="garthdee-login-container">
+                    <h1 class="col-12 login-heading"><span class="sr-only">{{{sitename}}}</a></h1>
+                    <div class="login-panel col-12">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6 login-option real">
+                                <div class="description">
+                                    <h4>I'm a student or member of staff</h4>
+                                    <p>Use the same username and password as you would for Outlook or Office 365.</p>
+                                </div>
+                                <a class="btn btn-block btn-lg" href="{{{oidcurl}}}"><span class="d-none d-xl-inline">Log in with my </span>RGU Account</a>
+                            </div>
+                            <div class="col-xs-12 col-md-6 login-option guest">
+                                <div class="description">
+                                    <h4>I'm an affiliate or an external user</h4>
+                                    <p>Once we approve your account, we'll send your username and password to you via email.</p>
+                                </div>
+                                <a class="btn btn-block btn-lg" href="#" id="guest-login-button"><span class="d-none d-xl-inline">Log in with an </span> Affiliate Account</a>
+                            </div>
+                            <div class="col-12 login-form">
+                                {{{ output.main_content }}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>        
+</div>
+
+{{{ output.standard_end_of_body_html }}}
+
+
+</body>
+</html>
