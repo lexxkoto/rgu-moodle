@@ -43,7 +43,7 @@ class filter_rgu extends moodle_text_filter {
 	function check_audience($audience) {
     	global $USER;
     	
-    	var_dump($USER);
+    	//var_dump($USER);
     	
     	switch($audience) {
         	case 'all':
@@ -54,6 +54,12 @@ class filter_rgu extends moodle_text_filter {
                 break;
             case 'student':
                 return $USER->institution == 'Student';
+                break;
+            case 'student-grays':
+                return ($USER->institution == 'Student' && $USER->profile['rgu_school'] == 'Gray\'s School of Art');
+                break;
+            case 'student-notgrays':
+                return ($USER->institution == 'Student' && $USER->profile['rgu_school'] != 'Gray\'s School of Art');
                 break;
     	}
 	}
