@@ -41,9 +41,9 @@ class content_items_edit_form extends moodleform {
         $audiences = Array(
             'all'               => 'Everybody',
             'staff'             => 'All Staff',
-            'student'           => 'All Students'
+            'student'           => 'All Students',
             'student-grays'     => 'All Students in Gray\'s School of Art',
-            'student-notgrays'  => 'All Students except Gray\'s School of Art'
+            'student-notgrays'  => 'All Students except Gray\'s School of Art',
         );
 
     	$mform->addElement('select', 'audience', get_string('audience','filter_rgu'), $audiences);
