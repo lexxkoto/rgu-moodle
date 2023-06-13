@@ -22,17 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/moodlelib.php');
-require_once(dirname(__FILE__).'/locallib.php');
-require_once($CFG->libdir.'/bennu/bennu.inc.php');
+require_once(__DIR__ . '/locallib.php');
+require_once($CFG->libdir . '/bennu/bennu.inc.php');
 
 // Course_module ID.
 $id = required_param('id', PARAM_INT);
 if ($id) {
-    $cm         = get_coursemodule_from_id('zoom', $id, 0, false, MUST_EXIST);
-    $course     = get_course($cm->course);
-    $zoom  = $DB->get_record('zoom', array('id' => $cm->instance), '*', MUST_EXIST);
+    $cm = get_coursemodule_from_id('zoom', $id, 0, false, MUST_EXIST);
+    $course = get_course($cm->course);
+    $zoom = $DB->get_record('zoom', ['id' => $cm->instance], '*', MUST_EXIST);
 } else {
     throw new moodle_exception('zoomerr_id_missing', 'mod_zoom');
 }
@@ -49,18 +49,18 @@ $config = get_config('zoom');
 
 // Check if the admin did not disable the feature.
 if ($config->showdownloadical == ZOOM_DOWNLOADICAL_DISABLE) {
-    $disabledredirecturl = new moodle_url('/mod/zoom/view.php', array('id' => $id));
+    $disabledredirecturl = new moodle_url('/mod/zoom/view.php', ['id' => $id]);
     throw new moodle_exception('err_downloadicaldisabled', 'mod_zoom', $disabledredirecturl);
 }
 
 // Check if we are dealing with a recurring meeting with no fixed time.
 if ($zoom->recurring && $zoom->recurrence_type == ZOOM_RECURRINGTYPE_NOTIME) {
-    $errorredirecturl = new moodle_url('/mod/zoom/view.php', array('id' => $id));
+    $errorredirecturl = new moodle_url('/mod/zoom/view.php', ['id' => $id]);
     throw new moodle_exception('err_downloadicalrecurringnofixed', 'mod_zoom', $errorredirecturl);
 }
 
 // Start ical file.
-$ical = new iCalendar;
+$ical = new iCalendar();
 $ical->add_property('method', 'PUBLISH');
 $ical->add_property('prodid', '-//Moodle Pty Ltd//NONSGML Moodle Version ' . $CFG->version . '//EN');
 
@@ -73,19 +73,20 @@ $descriptiontext = get_string('calendardescriptionURL', 'mod_zoom', $CFG->wwwroo
 if (!empty($convertedtext)) {
     $descriptiontext .= get_string('calendardescriptionintro', 'mod_zoom', $convertedtext);
 }
+
 if (!empty($meetinginvite)) {
     $descriptiontext .= "\n\n" . $meetinginvite;
 }
 
 // Get all occurrences of the meeting from the DB.
-$params = array('modulename' => 'zoom', 'instance' => $zoom->id);
+$params = ['modulename' => 'zoom', 'instance' => $zoom->id];
 $events = $DB->get_records('event', $params, 'timestart ASC');
 
 // If we haven't got at least a single occurrence.
 if (empty($events)) {
     // We could handle this case in a nicer way ans return an empty iCal file without events,
     // but as this case should not happen in real life anyway, return a fatal error to make clear that something is wrong.
-    $errorredirecturl = new moodle_url('/mod/zoom/view.php', array('id' => $id));
+    $errorredirecturl = new moodle_url('/mod/zoom/view.php', ['id' => $id]);
     throw new moodle_exception('err_downloadicalrecurringempty', 'mod_zoom', $errorredirecturl);
 }
 

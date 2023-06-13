@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
+require(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 require_once(__DIR__ . '/locallib.php');
 
@@ -37,7 +37,7 @@ if (!get_config('zoom', 'viewrecordings')) {
 
 $context = context_module::instance($cm->id);
 // Set up the page.
-$params = array('id' => $cm->id);
+$params = ['id' => $cm->id];
 $url = new moodle_url('/mod/zoom/recordings.php', $params);
 $PAGE->set_url($url);
 
@@ -81,7 +81,7 @@ if (empty($recordings)) {
     $row = new html_table_row([$cell]);
     $table->data = [$row];
 } else {
-    foreach ($recordings as $timestart => $grouping) {
+    foreach ($recordings as $grouping) {
         // Output the related recordings into the same row.
         $recordingdate = '';
         $recordinghtml = '';
@@ -94,9 +94,11 @@ if (empty($recordings)) {
                 if (empty($recordingdate)) {
                     $recordingdate = date('F j, Y, g:i:s a \P\T', $recording->recordingstart);
                 }
+
                 if (empty($recordingpasscode)) {
                     $recordingpasscode = $recording->passcode;
                 }
+
                 if ($iszoommanager && empty($recordingshowhtml)) {
                     $isrecordinghidden = intval($recording->showrecording) === 0;
                     $urlparams = [
@@ -112,12 +114,14 @@ if (empty($recordings)) {
                     if ($isrecordinghidden) {
                         $recordingshowtext = get_string('recordingshow', 'mod_zoom');
                     }
+
                     $btnclass = 'btn btn-';
                     $btnclass .= $isrecordinghidden ? 'dark' : 'primary';
                     $recordingshowbutton = html_writer::div($recordingshowtext, $btnclass);
                     $recordingshowbuttonhtml = html_writer::link($recordingshowurl, $recordingshowbutton);
                     $recordingshowhtml = html_writer::div($recordingshowbuttonhtml);
                 }
+
                 $params = ['id' => $cm->id, 'recordingid' => $recording->id];
                 $recordingurl = new moodle_url('/mod/zoom/loadrecording.php', $params);
                 $recordinglink = html_writer::link($recordingurl, $recording->name);
@@ -125,6 +129,7 @@ if (empty($recordings)) {
                 $recordinghtml .= html_writer::div($recordinglinkhtml, 'recording', ['style' => 'margin-bottom:.5rem']);
             }
         }
+
         // Output only one row per grouping.
         $table->data[] = [$recordingdate, $recordinghtml, $recordingpasscode, $recordingshowhtml];
     }

@@ -31,7 +31,6 @@ use mod_zoom_external;
  * Mobile output class for zoom
  */
 class mobile {
-
     /**
      * Returns the zoom course view for the mobile app,
      *  including meeting details and launch button (if applicable).
@@ -54,13 +53,13 @@ class mobile {
         require_capability('mod/zoom:view', $context);
         // Right now we're just implementing basic viewing, otherwise we may
         // need to check other capabilities.
-        $zoom = $DB->get_record('zoom', array('id' => $cm->instance));
+        $zoom = $DB->get_record('zoom', ['id' => $cm->instance]);
 
         // WS to get zoom state.
         try {
             $zoomstate = mod_zoom_external::get_state($cm->id);
         } catch (\Exception $e) {
-            $zoomstate = array();
+            $zoomstate = [];
         }
 
         // Format date and time.
@@ -70,7 +69,7 @@ class mobile {
         // Get audio option string.
         $optionaudio = get_string('audio_' . $zoom->option_audio, 'mod_zoom');
 
-        $data = array(
+        $data = [
             'zoom' => $zoom,
             'available' => $zoomstate['available'],
             'status' => $zoomstate['status'],
@@ -78,21 +77,21 @@ class mobile {
             'duration' => $duration,
             'option_audio' => $optionaudio,
             'cmid' => $cm->id,
-            'courseid' => $args->courseid
-        );
+            'courseid' => $args->courseid,
+        ];
 
-        return array(
-            'templates' => array(
-                array(
+        return [
+            'templates' => [
+                [
                     'id' => 'main',
                     'html' => $OUTPUT->render_from_template("mod_zoom/mobile_view_page_$versionname", $data),
-                ),
-            ),
+                ],
+            ],
             'javascript' => "this.loadMeeting = function(result) { window.open(result.joinurl, '_system'); };",
             // This JS will redirect to a joinurl passed by the mod_zoom_grade_item_update WS.
             'otherdata' => '',
-            'files' => ''
-        );
+            'files' => '',
+        ];
     }
 
 }

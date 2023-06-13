@@ -21,12 +21,12 @@
  * @copyright  2017 UC Regents
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Login check require_login() is called in zoom_get_instance_setup();.
-// @codingStandardsIgnoreLine
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/locallib.php');
 
+require_login();
+// Additional access checks in zoom_get_instance_setup().
 list($course, $cm, $zoom) = zoom_get_instance_setup();
 
 require_sesskey();
@@ -34,14 +34,14 @@ $context = context_module::instance($cm->id);
 // This capability is for managing Zoom instances in general.
 require_capability('mod/zoom:addinstance', $context);
 
-$PAGE->set_url('/mod/zoom/recreate.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/zoom/recreate.php', ['id' => $cm->id]);
 
 // Create a new meeting with Zoom API to replace the missing one.
 // We will use the logged-in user's Zoom account to recreate,
 // in case the meeting's former owner no longer exists on Zoom.
 $zoom->host_id = zoom_get_user_id();
 
-$trackingfields = $DB->get_records('zoom_meeting_tracking_fields', array('meeting_id' => $zoom->id));
+$trackingfields = $DB->get_records('zoom_meeting_tracking_fields', ['meeting_id' => $zoom->id]);
 foreach ($trackingfields as $trackingfield) {
     $field = $trackingfield->tracking_field;
     $zoom->$field = $trackingfield->value;

@@ -81,6 +81,7 @@ function xmldb_zoom_upgrade($oldversion) {
             $time->start_time = strtotime($time->start_time);
             $DB->update_record('zoom', $time);
         }
+
         $starttimes->close();
         $dbman->change_field_type($table, $field);
 
@@ -150,7 +151,7 @@ function xmldb_zoom_upgrade($oldversion) {
         $dbman->change_field_default($table, $field);
         // Meeting is recurring if type is 3.
         $DB->set_field_select('zoom', 'type', 0, 'type <> 3');
-        $DB->set_field('zoom', 'type', 1, array('type' => 3));
+        $DB->set_field('zoom', 'type', 1, ['type' => 3]);
         $dbman->rename_field($table, $field, 'recurring');
 
         // Zoom savepoint reached.
@@ -210,10 +211,10 @@ function xmldb_zoom_upgrade($oldversion) {
         $table->add_field('zoomid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table zoom_meeting_details.
-        $table->add_key('uuid_unique', XMLDB_KEY_UNIQUE, array('uuid'));
-        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('zoomid_foreign', XMLDB_KEY_FOREIGN, array('zoomid'), 'zoom', array('id'));
-        $table->add_key('meeting_unique', XMLDB_KEY_UNIQUE, array('meeting_id', 'uuid'));
+        $table->add_key('uuid_unique', XMLDB_KEY_UNIQUE, ['uuid']);
+        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('zoomid_foreign', XMLDB_KEY_FOREIGN, ['zoomid'], 'zoom', ['id']);
+        $table->add_key('meeting_unique', XMLDB_KEY_UNIQUE, ['meeting_id', 'uuid']);
 
         // Conditionally launch create table for zoom_meeting_details.
         if (!$dbman->table_exists($table)) {
@@ -237,12 +238,12 @@ function xmldb_zoom_upgrade($oldversion) {
         $table->add_field('detailsid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'name');
 
         // Adding keys to table zoom_meeting_participants.
-        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('user_by_meeting_key', XMLDB_KEY_UNIQUE, array('detailsid', 'zoomuserid'));
-        $table->add_key('detailsid_foreign', XMLDB_KEY_FOREIGN, array('detailsid'), 'zoom_meeting_details', array('id'));
+        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('user_by_meeting_key', XMLDB_KEY_UNIQUE, ['detailsid', 'zoomuserid']);
+        $table->add_key('detailsid_foreign', XMLDB_KEY_FOREIGN, ['detailsid'], 'zoom_meeting_details', ['id']);
 
         // Adding indexes to table zoom_meeting_participants.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
 
         // Conditionally launch create table for zoom_meeting_participants.
         if (!$dbman->table_exists($table)) {
@@ -267,7 +268,6 @@ function xmldb_zoom_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018092201) {
-
         // Changing type of field userid on table zoom_meeting_participants to int.
         $table = new xmldb_table('zoom_meeting_participants');
 
@@ -301,6 +301,7 @@ function xmldb_zoom_upgrade($oldversion) {
         if ($dbman->field_exists($table, $field)) {
             $dbman->change_field_notnull($table, $field);
         }
+
         // Zoom savepoint reached.
         upgrade_mod_savepoint(true, 2019061800, 'zoom');
     }
@@ -486,7 +487,7 @@ function xmldb_zoom_upgrade($oldversion) {
         $oldsettingsql = 'SELECT name
                           FROM {config_plugins}
                           WHERE plugin = :plugin AND name != :name';
-        $oldsettingparams = array('plugin' => 'mod_zoom', 'name' => 'version');
+        $oldsettingparams = ['plugin' => 'mod_zoom', 'name' => 'version'];
         $oldsettingkeys = $DB->get_fieldset_sql($oldsettingsql, $oldsettingparams);
 
         // Change the prefix of each setting.
@@ -618,11 +619,11 @@ function xmldb_zoom_upgrade($oldversion) {
         $table->add_field('value', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
         // Adding keys to table zoom_meeting_tracking_fields.
-        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table zoom_meeting_tracking_fields.
-        $table->add_index('meeting_id', XMLDB_INDEX_NOTUNIQUE, array('meeting_id'));
-        $table->add_index('tracking_field', XMLDB_INDEX_NOTUNIQUE, array('tracking_field'));
+        $table->add_index('meeting_id', XMLDB_INDEX_NOTUNIQUE, ['meeting_id']);
+        $table->add_index('tracking_field', XMLDB_INDEX_NOTUNIQUE, ['tracking_field']);
 
         // Conditionally launch create table for zoom_meeting_tracking_fields.
         if (!$dbman->table_exists($table)) {
@@ -652,8 +653,8 @@ function xmldb_zoom_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '12', null, null, null, null);
 
         // Adding keys to table zoom_meeting_recordings.
-        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('zoomid_foreign', XMLDB_KEY_FOREIGN, array('zoomid'), 'zoom', array('id'));
+        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('zoomid_foreign', XMLDB_KEY_FOREIGN, ['zoomid'], 'zoom', ['id']);
 
         // Conditionally launch create table for zoom_meeting_recordings.
         if (!$dbman->table_exists($table)) {
@@ -671,11 +672,11 @@ function xmldb_zoom_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '12', null, null, null, null);
 
         // Adding keys to table zoom_meeting_recordings_view.
-        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('recordingsid_foreign', XMLDB_KEY_FOREIGN, array('recordingsid'), 'zoom_meeting_recordings', array('id'));
+        $table->add_key('id_primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('recordingsid_foreign', XMLDB_KEY_FOREIGN, ['recordingsid'], 'zoom_meeting_recordings', ['id']);
 
         // Adding indexes to table zoom_meeting_recordings_view.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
 
         // Conditionally launch create table for zoom_meeting_recordings_view.
         if (!$dbman->table_exists($table)) {
@@ -715,7 +716,6 @@ function xmldb_zoom_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022022400) {
-
         // Change the recordings_visible_default field in the zoom table.
         $table = new xmldb_table('zoom');
         $field = new xmldb_field('recordings_visible_default', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1',
@@ -732,7 +732,6 @@ function xmldb_zoom_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022031600) {
-
         $table = new xmldb_table('zoom');
 
         // Define and conditionally add field show_schedule.
@@ -802,8 +801,8 @@ function xmldb_zoom_upgrade($oldversion) {
 
         // Adding keys to table zoom_rooms_groups.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('fk_breakoutroomid', XMLDB_KEY_FOREIGN, array('breakoutroomid'),
-            'zoom_meeting_breakout_rooms', array('id'));
+        $table->add_key('fk_breakoutroomid', XMLDB_KEY_FOREIGN, ['breakoutroomid'],
+            'zoom_meeting_breakout_rooms', ['id']);
 
         // Conditionally launch create table for customfield_category.
         if (!$dbman->table_exists($table)) {

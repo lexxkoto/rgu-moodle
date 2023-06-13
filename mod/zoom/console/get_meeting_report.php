@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../../config.php');
-require_once(dirname(__FILE__).'/../../../lib/moodlelib.php');
+require(__DIR__ . '/../../../config.php');
+require_once($CFG->libdir . '/moodlelib.php');
 
 // Force debugging errors.
 error_reporting(E_ALL);
@@ -33,7 +33,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $startdate = optional_param('start', date('Y-m-d', strtotime('-3 days')), PARAM_ALPHANUMEXT);
 $enddate = optional_param('end', date('Y-m-d'), PARAM_ALPHANUMEXT);
 
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 
 require_course_login($course);
 

@@ -33,7 +33,6 @@ require_once("$CFG->libdir/externallib.php");
  * Zoom external functions
  */
 class mod_zoom_external extends external_api {
-
     /**
      * Returns description of method parameters
      *
@@ -42,9 +41,9 @@ class mod_zoom_external extends external_api {
      */
     public static function get_state_parameters() {
         return new external_function_parameters(
-            array(
-                'zoomid' => new external_value(PARAM_INT, 'zoom course module id')
-            )
+            [
+                'zoomid' => new external_value(PARAM_INT, 'zoom course module id'),
+            ]
         );
     }
 
@@ -62,15 +61,17 @@ class mod_zoom_external extends external_api {
         global $DB, $CFG;
         require_once($CFG->dirroot . "/mod/zoom/locallib.php");
 
-        $params = self::validate_parameters(self::get_state_parameters(),
-                                            array(
-                                                'zoomid' => $zoomid
-                                            ));
-        $warnings = array();
+        $params = self::validate_parameters(
+            self::get_state_parameters(),
+            [
+                'zoomid' => $zoomid,
+            ]
+        );
+        $warnings = [];
 
         // Request and permission validation.
-        $cm = $DB->get_record('course_modules', array('id' => $params['zoomid']), '*', MUST_EXIST);
-        $zoom  = $DB->get_record('zoom', array('id' => $cm->instance), '*', MUST_EXIST);
+        $cm = $DB->get_record('course_modules', ['id' => $params['zoomid']], '*', MUST_EXIST);
+        $zoom = $DB->get_record('zoom', ['id' => $cm->instance], '*', MUST_EXIST);
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -80,7 +81,7 @@ class mod_zoom_external extends external_api {
         // Call the zoom/locallib API.
         list($inprogress, $available, $finished) = zoom_get_state($zoom);
 
-        $result = array();
+        $result = [];
         $result['available'] = $available;
 
         if ($zoom->recurring) {
@@ -90,6 +91,7 @@ class mod_zoom_external extends external_api {
             $result['start_time'] = $zoom->start_time;
             $result['duration'] = $zoom->duration;
         }
+
         $result['haspassword'] = (isset($zoom->password) && $zoom->password !== '');
         $result['joinbeforehost'] = $zoom->option_jbh;
         $result['startvideohost'] = $zoom->option_host_video;
@@ -109,6 +111,7 @@ class mod_zoom_external extends external_api {
         } else {
             $status = get_string('recurringmeetinglong', 'mod_zoom');
         }
+
         $result['status'] = $status;
 
         $result['warnings'] = $warnings;
@@ -123,7 +126,7 @@ class mod_zoom_external extends external_api {
      */
     public static function get_state_returns() {
         return new external_single_structure(
-            array(
+            [
                 'available' => new external_value(PARAM_BOOL, 'if true, run grade_item_update and redirect to meeting url'),
 
                 'start_time' => new external_value(PARAM_INT, 'meeting start time as unix timestamp (0 if recurring)'),
@@ -137,8 +140,8 @@ class mod_zoom_external extends external_api {
 
                 'status' => new external_value(PARAM_TEXT, 'meeting status: not_started, started, finished, expired, recurring'),
 
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -150,9 +153,9 @@ class mod_zoom_external extends external_api {
      */
     public static function grade_item_update_parameters() {
         return new external_function_parameters(
-            array(
-                'zoomid' => new external_value(PARAM_INT, 'zoom course module id')
-            )
+            [
+                'zoomid' => new external_value(PARAM_INT, 'zoom course module id'),
+            ]
         );
     }
 
@@ -171,11 +174,11 @@ class mod_zoom_external extends external_api {
 
         $params = self::validate_parameters(
             self::get_state_parameters(),
-            array(
+            [
                 'zoomid' => $zoomid,
-            )
+            ]
         );
-        $warnings = array();
+        $warnings = [];
 
         $context = context_module::instance($params['zoomid']);
         self::validate_context($context);
@@ -184,7 +187,7 @@ class mod_zoom_external extends external_api {
         $meetinginfo = zoom_load_meeting($params['zoomid'], $context, $usestarturl = false);
 
         // Pass url to join zoom meeting in order to redirect user.
-        $result = array();
+        $result = [];
         if ($meetinginfo['nexturl']) {
             $result['status'] = true;
             $result['joinurl'] = $meetinginfo['nexturl']->__toString();
@@ -192,6 +195,7 @@ class mod_zoom_external extends external_api {
             $warningmsg = clean_param($meetinginfo['error'], PARAM_TEXT);
             throw new invalid_response_exception($warningmsg);
         }
+
         $result['warnings'] = $warnings;
         return $result;
     }
@@ -204,11 +208,11 @@ class mod_zoom_external extends external_api {
      */
     public static function grade_item_update_returns() {
         return new external_single_structure(
-            array(
+            [
                 'status' => new external_value(PARAM_BOOL, 'status: true if success'),
                 'joinurl' => new external_value(PARAM_RAW, 'Zoom meeting join url'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 

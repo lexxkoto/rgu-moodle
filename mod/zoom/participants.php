@@ -21,14 +21,14 @@
  * @copyright  2015 UC Regents
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Login check require_login() is called in zoom_get_instance_setup();.
-// @codingStandardsIgnoreLine
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/../../lib/accesslib.php');
-require_once(dirname(__FILE__).'/../../lib/moodlelib.php');
+require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/locallib.php');
+require_once($CFG->libdir . '/accesslib.php');
+require_once($CFG->libdir . '/moodlelib.php');
 
+require_login();
+// Additional access checks in zoom_get_instance_setup().
 list($course, $cm, $zoom) = zoom_get_instance_setup();
 
 global $DB;
@@ -40,7 +40,7 @@ require_capability('mod/zoom:addinstance', $context);
 $uuid = required_param('uuid', PARAM_RAW);
 $export = optional_param('export', null, PARAM_ALPHA);
 
-$PAGE->set_url('/mod/zoom/participants.php', array('id' => $cm->id, 'uuid' => $uuid, 'export' => $export));
+$PAGE->set_url('/mod/zoom/participants.php', ['id' => $cm->id, 'uuid' => $uuid, 'export' => $export]);
 
 $strname = $zoom->name;
 $strtitle = get_string('participants', 'mod_zoom');
@@ -55,7 +55,7 @@ if ($maskparticipantdata) {
     zoom_fatal_error(
         'participantdatanotavailable_help',
         'mod_zoom',
-        new moodle_url('/mod/zoom/report.php', array('id' => $cm->id))
+        new moodle_url('/mod/zoom/report.php', ['id' => $cm->id])
     );
 }
 
@@ -71,7 +71,7 @@ if (empty($export) || empty($participants)) {
     // Stop if there is no data.
     if (empty($participants)) {
         notice(get_string('noparticipants', 'mod_zoom'),
-                new moodle_url('/mod/zoom/report.php', array('id' => $cm->id)));
+                new moodle_url('/mod/zoom/report.php', ['id' => $cm->id]));
         echo $OUTPUT->footer();
         exit();
     }
@@ -80,7 +80,7 @@ if (empty($export) || empty($participants)) {
 // Loop through each user to generate id->idnumber mapping.
 $coursecontext = context_course::instance($course->id);
 $enrolled = get_enrolled_users($coursecontext);
-$moodleidtouids = array();
+$moodleidtouids = [];
 foreach ($enrolled as $user) {
     $moodleidtouids[$user->id] = $user->idnumber;
 }
@@ -88,27 +88,31 @@ foreach ($enrolled as $user) {
 $table = new html_table();
 // If we are exporting, then put email as a separate column.
 if (!empty($export)) {
-    $table->head = array(get_string('idnumber'),
-                         get_string('name'),
-                         get_string('email'),
-                         get_string('jointime', 'mod_zoom'),
-                         get_string('leavetime', 'mod_zoom'),
-                         get_string('duration', 'mod_zoom'));
+    $table->head = [
+        get_string('idnumber'),
+        get_string('name'),
+        get_string('email'),
+        get_string('jointime', 'mod_zoom'),
+        get_string('leavetime', 'mod_zoom'),
+        get_string('duration', 'mod_zoom'),
+    ];
 } else {
-    $table->head = array(get_string('idnumber'),
-                         get_string('name'),
-                         get_string('jointime', 'mod_zoom'),
-                         get_string('leavetime', 'mod_zoom'),
-                         get_string('duration', 'mod_zoom'));
+    $table->head = [
+        get_string('idnumber'),
+        get_string('name'),
+        get_string('jointime', 'mod_zoom'),
+        get_string('leavetime', 'mod_zoom'),
+        get_string('duration', 'mod_zoom'),
+    ];
 }
 
 foreach ($participants as $p) {
-    $row = array();
+    $row = [];
 
     // Gets moodleuser so we can try to match information to Moodle database.
     $moodleuser = new stdClass();
     if (!empty($p->userid)) {
-        $moodleuser = $DB->get_record('user', array('id' => $p->userid), 'idnumber, email');
+        $moodleuser = $DB->get_record('user', ['id' => $p->userid], 'idnumber, email');
     }
 
     // ID number.
@@ -148,6 +152,7 @@ foreach ($participants as $p) {
     if ($durationremainder != 0) {
         $p->duration += 60 - $durationremainder;
     }
+
     $row[] = $p->duration / 60;
 
     $table->data[] = $row;
@@ -156,18 +161,18 @@ foreach ($participants as $p) {
 if ($export != 'xls') {
     echo html_writer::table($table);
 
-    $exporturl = new moodle_url('/mod/zoom/participants.php', array(
-            'id' => $cm->id,
-            'uuid' => $uuid,
-            'export' => 'xls'
-        ));
+    $exporturl = new moodle_url('/mod/zoom/participants.php', [
+        'id' => $cm->id,
+        'uuid' => $uuid,
+        'export' => 'xls',
+    ]);
     $xlsstring = get_string('application/vnd.ms-excel', 'mimetypes');
-    $xlsicon = html_writer::img($OUTPUT->image_url('f/spreadsheet'), $xlsstring, array('title' => $xlsstring));
+    $xlsicon = html_writer::img($OUTPUT->image_url('f/spreadsheet'), $xlsstring, ['title' => $xlsstring]);
     echo get_string('export', 'mod_zoom') . ': ' . html_writer::link($exporturl, $xlsicon);
 
     echo $OUTPUT->footer();
 } else {
-    require_once(dirname(__FILE__).'/../../lib/excellib.class.php');
+    require_once($CFG->libdir . '/excellib.class.php');
 
     $workbook = new MoodleExcelWorkbook("zoom_participants_{$zoom->meeting_id}");
     $worksheet = $workbook->add_worksheet($strtitle);
@@ -178,13 +183,17 @@ if ($export != 'xls') {
     foreach ($table->head as $colname) {
         $worksheet->write_string($row, $col++, $colname, $boldformat);
     }
-    $row++; $col = 0;
+
+    $row++;
+    $col = 0;
 
     foreach ($table->data as $entry) {
         foreach ($entry as $value) {
             $worksheet->write_string($row, $col++, $value);
         }
-        $row++; $col = 0;
+
+        $row++;
+        $col = 0;
     }
 
     $workbook->close();

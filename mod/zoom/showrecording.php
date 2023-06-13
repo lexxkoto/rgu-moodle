@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
+require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/moodlelib.php');
 require_once(__DIR__ . '/locallib.php');
 
@@ -42,7 +42,7 @@ $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 require_capability('mod/zoom:addinstance', $context);
 
-$urlparams = array('id' => $cm->id);
+$urlparams = ['id' => $cm->id];
 $url = new moodle_url('/mod/zoom/recordings.php', $urlparams);
 if (!confirm_sesskey()) {
     redirect($url, get_string('sesskeyinvalid', 'mod_zoom'));

@@ -21,21 +21,21 @@
  * @copyright  2015 UC Regents
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Login check require_login() is called in zoom_get_instance_setup();.
-// @codingStandardsIgnoreLine
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/mod_form.php');
-require_once(dirname(__FILE__).'/../../lib/moodlelib.php');
+require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/locallib.php');
+require_once(__DIR__ . '/mod_form.php');
+require_once($CFG->libdir . '/moodlelib.php');
 
+require_login();
+// Additional access checks in zoom_get_instance_setup().
 list($course, $cm, $zoom) = zoom_get_instance_setup();
 
 // Check capability.
 $context = context_module::instance($cm->id);
 require_capability('mod/zoom:addinstance', $context);
 
-$PAGE->set_url('/mod/zoom/report.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/zoom/report.php', ['id' => $cm->id]);
 
 $strname = $zoom->name;
 $strtitle = get_string('sessions', 'mod_zoom');
@@ -52,16 +52,18 @@ $sessions = zoom_get_sessions_for_display($zoom->id);
 if (!empty($sessions)) {
     $maskparticipantdata = get_config('zoom', 'maskparticipantdata');
     $table = new html_table();
-    $table->head = array(get_string('title', 'mod_zoom'),
-                         get_string('starttime', 'mod_zoom'),
-                         get_string('endtime', 'mod_zoom'),
-                         get_string('duration', 'mod_zoom'),
-                         get_string('participants', 'mod_zoom'));
-    $table->align = array('left', 'left', 'left', 'left', 'left');
+    $table->head = [
+        get_string('title', 'mod_zoom'),
+        get_string('starttime', 'mod_zoom'),
+        get_string('endtime', 'mod_zoom'),
+        get_string('duration', 'mod_zoom'),
+        get_string('participants', 'mod_zoom'),
+    ];
+    $table->align = ['left', 'left', 'left', 'left', 'left'];
     $format = get_string('strftimedatetimeshort', 'langconfig');
 
     foreach ($sessions as $uuid => $meet) {
-        $row = array();
+        $row = [];
         $row[] = $meet['topic'];
         $row[] = $meet['starttime'];
         $row[] = $meet['endtime'];
@@ -74,9 +76,8 @@ if (!empty($sessions)) {
                          . get_string('participantdatanotavailable', 'mod_zoom')
                          . '] '
                          . $OUTPUT->help_icon('participantdatanotavailable', 'mod_zoom');
-
             } else {
-                $url = new moodle_url('/mod/zoom/participants.php', array('id' => $cm->id, 'uuid' => $uuid));
+                $url = new moodle_url('/mod/zoom/participants.php', ['id' => $cm->id, 'uuid' => $uuid]);
                 $row[] = html_writer::link($url, $meet['count']);
             }
         } else {

@@ -22,7 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_zoom_generator extends testing_module_generator {
-
     /**
      * Creates new Zoom module instance.
      * @param array|stdClass $record
@@ -31,7 +30,7 @@ class mod_zoom_generator extends testing_module_generator {
      */
     public function create_instance($record = null, array $options = null) {
         global $CFG;
-        require_once($CFG->dirroot.'/mod/zoom/locallib.php');
+        require_once($CFG->dirroot . '/mod/zoom/locallib.php');
 
         set_config('clientid', 'test', 'zoom');
         set_config('clientsecret', 'test', 'zoom');
@@ -41,7 +40,7 @@ class mod_zoom_generator extends testing_module_generator {
         set_config('apisecret', 'test', 'zoom');
 
         // Mock Zoom data for testing.
-        $defaultzoomsettings = array(
+        $defaultzoomsettings = [
             'grade' => 0,
             'name' => 'Test Zoom Meeting',
             'meeting_id' => 1,
@@ -58,7 +57,7 @@ class mod_zoom_generator extends testing_module_generator {
             'start_time' => mktime(0, 0, 0, 2, 22, 2021),
             'duration' => 60,
             'exists_on_zoom' => ZOOM_MEETING_EXPIRED,
-        );
+        ];
 
         $record = (object) (array) $record;
         foreach ($defaultzoomsettings as $name => $value) {
@@ -66,6 +65,7 @@ class mod_zoom_generator extends testing_module_generator {
                 $record->{$name} = $value;
             }
         }
+
         return parent::create_instance($record, $options);
     }
 }

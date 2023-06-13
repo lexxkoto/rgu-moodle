@@ -34,7 +34,6 @@ use zoom_api_retry_failed_exception;
  * @covers \mod_zoom_webservice
  */
 class mod_zoom_webservice_test extends advanced_testcase {
-
     /**
      * Setup to ensure that fixtures are loaded.
      */
@@ -79,7 +78,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
              * @return array
              */
             public function get_info() {
-                return array('http_code' => 404);
+                return ['http_code' => 404];
             }
         };
     }
@@ -107,7 +106,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
      */
     public function test_meeting_not_found_exception() {
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('make_curl_call', 'get_curl_object', 'get_access_token'))
+            ->setMethods(['make_curl_call', 'get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -130,6 +129,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
             $this->assertTrue(zoom_is_meeting_gone_error($error));
             $foundexception = true;
         }
+
         $this->assertTrue($foundexception);
     }
 
@@ -138,7 +138,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
      */
     public function test_user_not_found_exception() {
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('make_curl_call', 'get_curl_object', 'get_access_token'))
+            ->setMethods(['make_curl_call', 'get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -162,6 +162,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
             $this->assertTrue(zoom_is_user_not_found_error($error));
             $foundexception = true;
         }
+
         $this->assertTrue($foundexception || !$founduser);
     }
 
@@ -192,12 +193,12 @@ class mod_zoom_webservice_test extends advanced_testcase {
              * @return array
              */
             public function get_info() {
-                return array('http_code' => 400);
+                return ['http_code' => 400];
             }
         };
 
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('make_curl_call', 'get_curl_object', 'get_access_token'))
+            ->setMethods(['make_curl_call', 'get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -221,6 +222,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
             $this->assertTrue(zoom_is_user_not_found_error($error));
             $foundexception = true;
         }
+
         $this->assertTrue($foundexception || !$founduser);
     }
 
@@ -255,9 +257,10 @@ class mod_zoom_webservice_test extends advanced_testcase {
             public function get_info() {
                 $this->numgetinfocalls++;
                 if ($this->numgetinfocalls <= 3) {
-                    return array('http_code' => 429);
+                    return ['http_code' => 429];
                 }
-                return array('http_code' => 200);
+
+                return ['http_code' => 200];
             }
             // @codingStandardsIgnoreStart
             /**
@@ -275,7 +278,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
         };
 
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('make_curl_call', 'get_curl_object', 'get_access_token'))
+            ->setMethods(['make_curl_call', 'get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -331,9 +334,10 @@ class mod_zoom_webservice_test extends advanced_testcase {
             public function get_info() {
                 $this->numgetinfocalls++;
                 if ($this->numgetinfocalls <= 3) {
-                    return array('http_code' => 429);
+                    return ['http_code' => 429];
                 }
-                return array('http_code' => 200);
+
+                return ['http_code' => 200];
             }
             // @codingStandardsIgnoreStart
             /**
@@ -347,7 +351,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
         };
 
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('make_curl_call', 'get_curl_object', 'get_access_token'))
+            ->setMethods(['make_curl_call', 'get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -429,7 +433,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
         };
 
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('get_curl_object', 'get_access_token'))
+            ->setMethods(['get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -447,6 +451,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
             $foundexception = true;
             $this->assertEquals($error->response, 'too many retries');
         }
+
         $this->assertTrue($foundexception);
         // Check that we retried MAX_RETRIES times.
         $this->assertDebuggingCalledCount(mod_zoom_webservice::MAX_RETRIES);
@@ -456,7 +461,6 @@ class mod_zoom_webservice_test extends advanced_testcase {
      * Tests that we are waiting 1 minute for QPS rate limit types.
      */
     public function test_retryqps_exception() {
-
         $retryqpsmockcurl = new class {
             public $urlpath = null;
             // @codingStandardsIgnoreStart
@@ -481,7 +485,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
              * @return array
              */
             public function get_info() {
-                return array('http_code' => 429);
+                return ['http_code' => 429];
             }
             /**
              * Returns error code and message.
@@ -496,6 +500,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
                     // We should be getting the same path every time.
                     return '{"code":-1, "message":"incorrect url"}';
                 }
+
                 return '{"code":-1, "message":"too many retries"}';
             }
             // @codingStandardsIgnoreStart
@@ -511,7 +516,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
         };
 
         $mockservice = $this->getMockBuilder('\mod_zoom_webservice')
-            ->setMethods(array('get_curl_object', 'get_access_token'))
+            ->setMethods(['get_curl_object', 'get_access_token'])
             ->getMock();
 
         $mockservice->expects($this->any())
@@ -529,6 +534,7 @@ class mod_zoom_webservice_test extends advanced_testcase {
             $foundexception = true;
             $this->assertEquals($error->response, 'too many retries');
         }
+
         $this->assertTrue($foundexception);
 
         // Check that we waited 1 minute.

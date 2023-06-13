@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
+require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/moodlelib.php');
 require_once(__DIR__ . '/locallib.php');
 
@@ -52,7 +52,7 @@ if (empty($rec)) {
     throw new moodle_exception('recordingnotfound', 'mod_zoom', '', get_string('recordingnotfound', 'zoom'));
 }
 
-$params = array('recordingsid' => $rec->id, 'userid' => $USER->id);
+$params = ['recordingsid' => $rec->id, 'userid' => $USER->id];
 $now = time();
 
 // Keep track of whether someone has viewed the recording or not.
