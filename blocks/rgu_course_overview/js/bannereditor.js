@@ -1,3 +1,0 @@
-function toggleTextarea(){
-	alert('toggle');
-}
