@@ -1,0 +1,38 @@
+.block_rgu_courses .nav i {
+    margin-right: 1em;
+}
+
+.block_rgu_courses .rgu-course-list {
+    margin: 0;
+    padding-left: 0;
+}
+
+.block_rgu_courses .rgu-course-list li {
+    list-style: none;
+    padding: 7px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.block_rgu_courses .rgu-course-list li:last-child {
+    border-bottom: none;
+}
+
+.block_rgu_courses .rgu-course-list li i {
+    display: inline-block;
+    width: 1.5em;
+    text-align: center;
+}
+
+.block_rgu_courses .rgu-course-list li.dim a {
+    color: #999;
+}
+
+.block_rgu_courses .star-starred {
+    color: #E74B3C;
+    text-decoration: none;
+}
+
+.block_rgu_courses .star-unstarred {
+    color: #999;
+    text-decoration: none;
+}
