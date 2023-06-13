@@ -1,24 +1,33 @@
 History
 =============
+Version 401.1.1 - 11/05/2023
+----------------------------
+1. Fix 'Better way to calculate completion progress' - #180.
+2. Fix 'Better scrolling experience using popup Modal' - #179.
+3. Improve single section navigation appearance.
 
-Version 400.2.2 - 11/05/2023
+Version 401.1.0 - 01/04/2023
+----------------------------
+1. Fix 'Out of frame pictures in RTL language courses' - #173.
+2. Show the section image under the section title when editing.
+
+Version 401.0.3 - 16/02/2023
 ----------------------------
 1. Improve popup CSS.
 2. Better content handler.
-3. Fix 'Out of frame pictures in RTL language courses' - #173.
-4. Show the section image under the section title when editing.
-5. Fix 'Better way to calculate completion progress' - #180.
-6. Fix 'Better scrolling experience using popup Modal' - #179.
-7. Improve single section navigation appearance.
 
-Version 400.2.1 - 03/02/2023
+Version 401.0.2 - 03/02/2023
 ----------------------------
 1. Add Modal back, new implementation from the M3.11 version.  Admin setting 'defaultpopup' and course setting 'popup' added,
    default of 'No' and '-' respectively.
 2. Add completion indication.  Admin setting 'showcompletiondefault' and course setting 'showcompletion' added, default of 'No'
    and '-' respectively.  Note:  When 'defaultpopup' is being used with this and the popup is closed, the page will refresh.
-   This is to allow the incidication to be updated.  This solution is not perfect but works and may in future be replaced with
+   This is to allow the indication to be updated.  This solution is not perfect but works and may in future be replaced with
    a far more complicated AJAX one.  However, please do not raise bug issues about it.
+
+Version 401.0.1 - 27/11/2022
+----------------------------
+1. Release candidate for Moodle 4.1.
 
 Version 400.2.0 - 16/10/2022
 ----------------------------
