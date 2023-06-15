@@ -68,11 +68,11 @@ class block_rgu_courses extends block_base {
         }
         
         $courseArray = Array(
-            'starred' => Array(),
             'module' => Array(),
             'course' => Array(),
             'school' => Array(),
             'other' => Array(),
+            'starred' => Array(),
             'all' => Array()
         );
         
@@ -132,18 +132,18 @@ class block_rgu_courses extends block_base {
         $this->content->text = '';
         
         $this->content->text .= '<ul class="nav nav-pills nav-fill mb-4" role="tablist">';
-        $this->content->text .= '<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#courses_tab_starred" role="tab" aria-controls="starred courses" aria-selected="true"><i class="fa fa-heart"></i>Favourites</a></li>';
-        $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_module" role="tab" aria-controls="modules" aria-selected="false"><i class="fa fa-cubes"></i>Modules</a></li>';
+        $this->content->text .= '<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#courses_tab_module" role="tab" aria-controls="modules" aria-selected="true"><i class="fa fa-cubes"></i>Modules</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_course" role="tab" aria-controls="courses" aria-selected="false"><i class="fa fa-mortar-board"></i>Courses</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_school" role="tab" aria-controls="school" aria-selected="false"><i class="fa fa-institution"></i>School</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_other" role="tab" aria-controls="other" aria-selected="false"><i class="fa fa-puzzle-piece"></i>Other</a></li>';
+        $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_starred" role="tab" aria-controls="starred" aria-selected="false"><i class="fa fa-heart"></i>Favourites</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_all" role="tab" aria-controls="other" aria-selected="false"><i class="fa fa-search"></i>Search</a></li>';
         $this->content->text .= '</ul>';
         
         $this->content->text .= '<div class="tab-content">';
         foreach($courseArray as $type=>$data) {
             $this->content->text .= '<div class="tab-pane fade show ';
-            if ($type == 'starred') {
+            if ($type == 'module') {
                 $this->content->text .= ' show active';
             }
             $this->content->text .= '" id="courses_tab_'.$type.'">';
