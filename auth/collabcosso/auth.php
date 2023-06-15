@@ -1,193 +1,227 @@
 <?php
-/*****************************************************************************************************************************************/
-/*    ____ ___  _     _        _    ____   ____ ___  
-/*   / ___/ _ \| |   | |      / \  | __ ) / ___/ _ \ 
-/*  | |  | | | | |   | |     / _ \ |  _ \| |  | | | |
-/*  | |__| |_| | |___| |___ / ___ \| |_) | |__| |_| |
-/*   \____\___/|_____|_____/_/   \_\____/ \____\___/ 
-/* 
-/*****************************************************************************************************************************************/
-/*  Author:			Collabco Software (Oli Newsham)
-/*  Support:		support@collabco.co.uk
-/*  Website:		Collabco.co.uk
-/*  Twitter:		@collabco
-/*****************************************************************************************************************************************/
-/*
-/*  This source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-/*
-/*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT 
-/*  NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-/*  THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
-/*  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-/*  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-/*  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-/*
-/*****************************************************************************************************************************************/
 
-	if (!defined('MOODLE_INTERNAL')) 
-	{
-		die('Direct access to this script is forbidden.');
-	}
-	
-	@date_default_timezone_set('UTC');	
+defined('MOODLE_INTERNAL') || die();
 
-	require_once($CFG->libdir.'/authlib.php');
-	
+@date_default_timezone_set('UTC');	
 
-	class auth_plugin_collabcosso extends auth_plugin_base {
-		
-        function auth_plugin_collabcosso() {
-			$this->authtype = 'collabcosso';
-			$this->config = get_config('auth/collabcosco');
-		}
+require_once($CFG->libdir.'/authlib.php');
 
-		function user_login($username, $password) {
-		   return false;
-		}
+class auth_plugin_collabcosso extends auth_plugin_base {
+    
+    function __construct() {
+        $this->authtype = 'collabcosso';
+        $this->config = get_config('auth/collabcosco');
+    }
 
-		function can_reset_password() {
-			return false;
-		}
+    function user_login($username, $password) {
+        return false;
+    }
 
-		function can_signup() {
-			return false;
-		}
+    function can_reset_password() {
+        return false;
+    }
 
-		function can_confirm() {
-			return false;
-		}
+    function can_signup() {
+        return false;
+    }
 
-		function can_change_password() {
-			return false;
-		}
-		
-		function is_internal() {
-			return true;
-		}
-		
-		function loginpage_hook() 
-		{      
-			$plugin_loggingname = "Collabco SSO";
+    function can_confirm() {
+        return false;
+    }
+
+    function can_change_password() {
+        return false;
+    }
+
+    function can_edit_profile() {
+        return false;
+    }
+    
+    function is_internal() {
+        return false;
+    }
+    
+    function loginpage_hook() 
+    {      
+        global $CFG, $USER, $SESSION;
+
+        $username =     optional_param('u', null, PARAM_TEXT);
+        $time =         optional_param('t', null, PARAM_ALPHANUMEXT);
+        $hash =         optional_param('h', null, PARAM_BASE64);
+        $redirect =     optional_param('r', null, PARAM_LOCALURL);
+
+        if ($CFG->auth_collabcosso_verbose)
+        {   
+            if (!is_null($username) || !is_null($time) || !is_null($hash) || !is_null($redirect))
+            {
+                $ssolog_username =      isset($username) ? $username : 'null';
+                $ssolog_time =          isset($time) ? $time : 'null';
+                $ssolog_hash =          isset($hash) ? $hash : 'null';
+                $ssolog_redirect =      isset($redirect) ? $redirect : 'null';
+
+                \auth_collabcosso\event\collabcosso_verbose::create(array(
+                    'context' => context_system::instance(),
+                    'other' => array(
+                        'message' => sprintf(get_string('sso_parameterlog', 'auth_collabcosso'), $ssolog_username, $ssolog_time, $ssolog_hash, $ssolog_redirect)
+                    )
+                ))->trigger();
+            }
+        }
+        
+        if (is_null($username) || is_null($time) || is_null($hash) || is_null($redirect))
+        {
+            return false;
+        }
+
+        if (empty($CFG->auth_collabcosso_salt))
+        {                            
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+                'context' => context_system::instance(),
+                'other' => array(
+                    'message' => sprintf(get_string('sso_failure_settingincorrect', 'auth_collabcosso'), get_string('salt', 'auth_collabcosso'))
+                )
+            ))->trigger();
             
-            global $CFG, $USER, $SESSION;    
+            return false;
+        }
 
-			if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['u']) && !empty($_GET['t']) && !empty($_GET['h']) && !empty($_GET['r'])) 
-			{            
-				$username = $_GET['u'];
-				$time = $_GET['t'];
-				$hash = $_GET['h'];
-				$redirect = urldecode($_GET['r']);
-				
-				//Ensure we don't generate the hash on an escaped backslash
-				$usernameH = str_replace("\\\\","\\",$username);
-                
-                if (strlen($CFG->auth_collabcosso_salt) == 0)
-				{
-					add_to_log(SITEID, $plugin_loggingname, 'Error', 'auth.php', "Salt is not set." );
-					return false;
-				}
-                else if (strlen($CFG->auth_collabcosso_salt) <= 10)
-                {
-                    add_to_log(SITEID, $plugin_loggingname, 'Error', 'auth.php', "Salt is an insufficient length." );
-					return false;
-                }
-				
-				$strToHash = $usernameH . $time . $redirect . $CFG->auth_collabcosso_salt;
-				
-				$expectedHash = md5($strToHash);
+        if (empty($CFG->auth_collabcosso_method))
+        {
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+                'context' => context_system::instance(),
+                'other' => array(
+                    'message' => sprintf(get_string('sso_failure_settingincorrect', 'auth_collabcosso'), get_string('hashingalgorithm', 'auth_collabcosso'))
+                )
+            ))->trigger();
 
-				if (strcmp($hash,$expectedHash) !== 0)
-				{
-					add_to_log(SITEID, $plugin_loggingname, 'Error', 'auth.php', "Bad hash: " . addslashes($username));
-					return false;
-				}
+            return false;
+        }
 
-				if (isloggedin() && !isguestuser()) 
-				{                
-                    add_to_log(SITEID, $plugin_loggingname, 'Warning', 'auth.php', "User is already loggedin: " . addslashes($username));
-                    
-                    echo "<script language='Javascript'>";
-					echo "    alert ('this single sign on link has expired')";
-                    echo "    window.location.replace('" . $CFG->wwwroot . "/" . $redirect . "')";
-					echo "</script>";
-                    
-				    //redirect($CFG->wwwroot . "/" . $redirect);
-                    
-				    return false;
-				}
-				
-				$dbits = explode("-",$time);				
-				
-				$incomingDateString = $dbits[2].'-'.$dbits[1].'-'.$dbits[0].' '.$dbits[3].':'.$dbits[4].':'.$dbits[5];
-				
-				$timestamp = strtotime($incomingDateString);				
+        $userData = get_complete_user_data('username', $username);
 
-				$now = time();
-								
-				if ($now - $timestamp <= 120)
-				{
-					//Moodle doesn't contain user principals so strip the domain
-					if (strpos($username,"\\\\") !== false)
-					{
-						$usernameBits = explode("\\\\", $username);
-						$username = $usernameBits[1];
-					}
-                    
-					if ($user)
-					{          
-						add_to_log(SITEID, $plugin_loggingname, 'sso login event', "auth.php" , "SSO login: " . addslashes($username), 0, $USER->id);
-
-						$auth = empty($USER->auth) ? 'manual' : $USER->auth;  // use manual if auth not set
-
-						if (!empty($USER->suspended)) 
-						{
-							add_to_log(SITEID, $plugin_loggingname, 'Error', 'auth.php', "Suspended login: " . addslashes($username), 0, $USER->id);
-							return false;
-						}
+        if (empty($userData))
+        {                    
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+               'context' => context_system::instance(),
+               'other' => array(
+                   'message' => sprintf(get_string('sso_failure_unknownuser', 'auth_collabcosso'), $username)
+               )
+           ))->trigger();
             
-						if ($auth=='nologin' or !is_enabled_auth($auth)) 
-						{
-							add_to_log(SITEID, $plugin_loggingname, 'Error', 'auth.php', "Disabled login: " . addslashes($username), 0, $USER->id);
-							return false;
-						}	
-          
-						complete_user_login($user);
+            return false;
+        }
+
+        $strToHash = $username . $time . $redirect . $CFG->auth_collabcosso_salt;
+
+        $expectedHash = hash($CFG->auth_collabcosso_method, $strToHash);
+        
+        if (strcmp($hash,$expectedHash) !== 0)
+        {
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+                'context' => context_user::instance($userData->id),
+                'other' => array(
+                    'message' => get_string('sso_failure_hashinvalid', 'auth_collabcosso')
+                )
+            ))->trigger();
             
-						if (user_not_fully_set_up($USER)) 
-						{
-						   $urltogo = $CFG->wwwroot . "/user/edit.php";
-						}
-						else
-						{
-						   $urltogo = $CFG->wwwroot . "/" . $redirect;
-						}
-                        
-                        add_to_log(SITEID, $plugin_loggingname, 'Sign-In', 'auth.php', "Successfully signed in: " . addslashes($username), 0, $USER->id);
-						
-						redirect($urltogo);
-					}
-					else
-					{
-                        add_to_log(SITEID, $plugin_loggingname, 'Error', 'auth.php', "Unknown user: " . addslashes($username));
-						return false;
-					}
-				}
-				else
-				{
-					echo "<script language='Javascript'>";
-					echo "alert ('this single sign on link has expired')";
-					echo "</script>";
-				}
-			}
-		}
-		
-		function config_form($config, $err, $user_fields) {
-			include "config.html";
-		}
-		
-		function process_config($config) {
-			return true;
-		}
-	}
+            return false;
+        }
+
+        if (isloggedin()) 
+        {
+            if ($CFG->auth_collabcosso_verbose)
+            {
+                \auth_collabcosso\event\collabcosso_verbose::create(array(
+                    'context' => context_user::instance($userData->id),
+                    'other' => array(
+                        'message' => get_string('sso_verbose_hashinvalid', 'auth_collabcosso')
+                    )
+                ))->trigger();                    
+            }
+            
+            $url = sprintf("%s/%s", $CFG->wwwroot, $redirect);
+
+            redirect($url);
+        }
+        
+        $timeCorrectFormat = DateTime::createFromFormat('d-m-Y-H-i-s', $time);
+        $timestamp = $timeCorrectFormat->getTimestamp();
+
+        $timeParamString = $timeCorrectFormat->format('d-m-Y H:i:s');
+        $now = new DateTime("now", new DateTimeZone("UTC"));
+        $ssoPluginTimeString = $now->format('d-m-Y H:i:s');
+
+        if ($now->getTimestamp() - $timestamp >= $CFG->auth_collabcosso_timedrift * 60)
+        {            
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+                'context' => context_system::instance(),
+                'other' => array(
+                    'message' => 'SSO request failed because the link used has expired. Time parameter = '.$timeParamString.'; Moodle server time = '.$ssoPluginTimeString
+                )
+            ))->trigger(); 
+
+            return false;
+        }
+
+        if (!empty($userData->suspended)) 
+        {                        
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+                'context' => context_user::instance($userData->id),
+                'other' => array(
+                    'message' => get_string('sso_failure_accountsuspended', 'auth_collabcosso')
+                )
+            ))->trigger();
+            
+            return false;
+        }
+        
+        if ($userData->auth === 'nologin' || !is_enabled_auth($userData->auth))
+        {
+            \auth_collabcosso\event\collabcosso_failure::create(array(
+                'context' => context_user::instance($userData->id),
+                'other' => array(
+                    'message' => get_string('sso_failure_authunavailable', 'auth_collabcosso')
+                )
+            ))->trigger();
+
+            return false;
+        }
+        
+        complete_user_login($userData);
+        
+        if (user_not_fully_set_up($userData)) 
+        {
+            $urltogo = sprintf("%s//user//edit.php", $CFG->wwwroot);
+        }
+        else
+        {
+            if (stripos($redirect, $CFG->wwwroot) === 0)
+            {
+                $urltogo = $redirect;
+            }
+            else
+            {
+                $urltogo = sprintf("%s/%s", $CFG->wwwroot, $redirect);
+            }                        
+        }
+
+        // \auth_collabcosso\event\collabcosso_success::create(array(
+        //     'context' => context_user::instance($userData->id),
+        //     'other' => array(
+        //         'message' => get_string('sso_success_complete', 'auth_collabcosso')
+        //     )
+        // ))->trigger();
+        
+        redirect($urltogo);
+    }
+    
+    function config_form($config, $err, $user_fields) {
+        include "config.html";
+    }
+    
+    function process_config($config) {
+        return true;
+    }
+}
 
 ?>
