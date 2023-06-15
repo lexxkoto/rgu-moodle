@@ -179,6 +179,39 @@
                 'user_count'    => 'number-format'
             ),
         ),
+        'rollover' => Array(
+            'name'              => 'Annual Module Rollover',
+            'desc'              => 'Generates a list of module codes to be used in the annual rollover process.',
+            'query'             => 'SELECT DISTINCT REPLACE({course}.shortname,"__oldyear__","__newyear__") AS shortname, '.
+                                   'REPLACE({course}.fullname,"__oldyear__","__newyear__") AS fullname, '.
+                                   '{course}.category, "modelcourse" AS templatecourse '.
+                                   'FROM {course} '.
+                                   'INNER JOIN {context} ON {course}.id = {context}.instanceid '.
+                                   'INNER JOIN {role_assignments} ON {context}.id = {role_assignments}.contextid '.
+                                   'INNER JOIN {role} ON {role_assignments}.roleid = {role}.id '.
+                                   'WHERE ({role}.shortname = "student" OR {role}.shortname = "rgu_student") '.
+                                   'AND {course}.shortname LIKE "%module%__oldyear__%" '.
+                                   'ORDER BY shortname',
+            'placeholders'      => Array(
+                'oldyear'       => Array(
+                    'label'     => 'Previous Year',
+                    'default'   => '2023/2024',
+                    'hint'      => 'The previous academic year in the format 2023/2024',
+                ),
+                'newyear'       => Array(
+                    'label'     => 'Upcoming Year',
+                    'default'   => '2024/2025',
+                    'hint'      => 'The previous academic year in the format 2024/2025',
+                ),
+            ),
+            'capability'        => 'moodle/site:viewreports',
+            'titles'            => Array(
+                'shortname'     => 'Course Shortname',
+                'fullname'      => 'Course Fullname',
+                'category'      => 'Course Category',
+                'templatecourse'=> 'Template Course'
+            ),
+        ),
     );
     
     $categories = Array(
@@ -192,6 +225,9 @@
         ),
         'Course Auditing' => Array(
             'opencourses',
+        ),
+        'Annual Rollover' => Array(
+            'rollover'
         ),
         'Test Category' => Array(
             'test'
