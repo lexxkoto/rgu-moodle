@@ -5,10 +5,21 @@ class block_rgu_courses extends block_base {
         $this->title = get_string('pluginname', 'block_rgu_courses');
     }
     
-    public function outputCourseList($courses, $title='') {
+    public function outputCourseList($courses, $type, $year, $title='') {
         $text = '';
-        if(!empty($title)) {
-            $text .= '<h6 class="mt-4 mb-2">'.$title.'</h6>';
+        
+        $isInPast = ($year < $this->timeToAcademicYear(time()));
+        
+        if($year != 9999) {
+            if($isInPast) {
+                $text .= '<h6 class="mt-3 mb-3 yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="false" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-right"></i>'.$title.'</a></h6>';
+                $text .= '<div id="coursepanel-'.$type.'-'.$year.'" class="collapse">';
+            } else {
+                $text .= '<h6 class="mt-3 mb-3 yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="true" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-down"></i>'.$title.'</a></h6>';
+                $text .= '<div id="coursepanel-'.$type.'-'.$year.'" class="collapse show">';
+            }
+        } else {
+            $text .= '<div>';
         }
         $text .= '<ul class="rgu-course-list">';
         foreach($courses as $course) {
@@ -39,7 +50,7 @@ class block_rgu_courses extends block_base {
             }
             $text .= '</div></a></li>';
         }
-        $text .= '</ul>';
+        $text .= '</ul></div>';
         return $text;
     }
     
@@ -77,6 +88,8 @@ class block_rgu_courses extends block_base {
         );
         
         // Build the course array
+        
+        $currentYear = $this->timeToAcademicYear(time());
         
         foreach($userCourses as $course) {
             $thisCourse = new stdClass();
@@ -163,14 +176,14 @@ class block_rgu_courses extends block_base {
                     
                     $thisYear = array_pop($data);
                     
-                    $this->content->text .= $this->outputCourseList($thisYear);
+                    $this->content->text .= $this->outputCourseList($thisYear, $type, 9999, '');
                 } else {
                     krsort($data);
                     foreach($data as $year=>$content) {
                         if($year !== 9999) {
-                            $this->content->text .= $this->outputCourseList($content, 'Academic Year '.$year.'-'.(substr($year, 2)+1));
+                            $this->content->text .= $this->outputCourseList($content, $type, $year, 'Academic Year '.$year.'-'.(substr($year, 2)+1));
                         } else {
-                            $this->content->text .= $this->outputCourseList($content, '');
+                            $this->content->text .= $this->outputCourseList($content, $type, $year, '');
                         }
                     }
                 }

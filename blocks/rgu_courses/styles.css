@@ -36,3 +36,14 @@
     color: #999;
     text-decoration: none;
 }
+
+.block_rgu_courses .yearTitle {
+  padding: 5px 0;
+}
+
+.block_rgu_courses .yearTitle i {
+  display: inline-block;
+  width: 1.5em;
+  text-align: center;
+  margin-right: 0.5em;
+}
