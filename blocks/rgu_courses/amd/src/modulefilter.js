@@ -1,9 +1,9 @@
 define(['jquery'], function($) {
     return {
         init: function() {
-            $('.block_rgu_courses .yearTitle a').on("click", function(e) {
+            $('.block_rgu_courses .yearTitle a').on("click", function() {
                 $(this).children("i").toggleClass("fa-caret-right fa-caret-down");
-                e.stopPropagation();
+                //e.stopPropagation();
             });
             $('#rgu_course_search').on("keyup", function() {
                 var searchQuery = $(this).val().toLowerCase();
