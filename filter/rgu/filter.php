@@ -65,12 +65,20 @@ class filter_rgu extends moodle_text_filter {
 	}
 	
 	function rewrite($array) {
-		global $DB;
+		global $DB, $USER;
 		
 		$filterText = $array[1];
 		$parts = explode(',', $filterText);
 		
 		$filterType = $parts[0];
+		
+		$filterOptions = Array();
+		if(count($parts) > 1) {
+    		foreach(array_slice($parts, 1) as $thisOption) {
+        		$option = explode('=', $thisOption);
+        		$filterOptions[$option[0]] = $option[1];
+    		}
+        }
 		
 		$text = '';
 		
@@ -89,6 +97,37 @@ class filter_rgu extends moodle_text_filter {
 				
 				return '';
 				break;
+            case 'welcome_area':
+                $userCourses = enrol_get_all_users_courses($USER->id, false, array(), 'fullname');
+                $welcomeArea = false;
+                
+                // I know. But doing it this way doesn't hit the database
+                
+                foreach($userCourses as $course) {
+                    if(preg_match('/\] PRE/', $course->shortname)) {
+                        $welcomeArea = $course->id;
+                    }
+                }
+                
+                if($welcomeArea) {
+                    $welcomeLink = new moodle_url('/course/view.php', array('id'=>$welcomeArea));
+                    $text .= '<a class="btn';
+                    if(!empty($filterOptions['class'])) {
+                        $text .= ' '.$filterOptions['class'];
+                    } else {
+                        $text .= ' btn-primary';
+                    }
+                    $text .= '" href="'.$welcomeLink->out().'"><i class="fa fa-arrow-circle-right"></i>&ensp;Course Induction for New Students</a>';
+                    return $text;
+                }
+                $text .= '<a class="btn btn-primary';
+                if(!empty($filterOptions['class'])) {
+                    $text .= ' '.$filterOptions['class'];
+                }
+                $text .= '" href="#"><i class="fa fa-ban"></i>&ensp;Course Induction for New Students</a>';
+                return $text;
+                
+                break;
 			default:
 				return 'Unknown Filter Type: '.$filterType;
 				break;
