@@ -162,7 +162,7 @@ pre {
     overflow: hidden !important;
 }
 
-.primary-navigation li[danta-key="home"],
-.primary-navigation li[danta-key="mycourses"] {
+.primary-navigation li[data-key="home"],
+.primary-navigation li[data-key="mycourses"] {
     display: none;
 }
