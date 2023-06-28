@@ -51,6 +51,12 @@ if ($courseindexopen) {
     $extraclasses[] = 'drawer-open-index';
 }
 
+if(isset($USER->institution)) {
+    $extraclasses[] = 'rgu-usertype-'.strtolower(addslashes($USER->institution));
+} else {
+    $extraclasses[] = 'rgu-usertype-none';
+}
+
 $blockshtml = $OUTPUT->blocks('side-pre');
 $hasblocks = (strpos($blockshtml, 'data-block=') !== false || !empty($addblockbutton));
 if (!$hasblocks) {

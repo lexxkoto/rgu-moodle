@@ -163,6 +163,8 @@ pre {
 }
 
 .primary-navigation li[data-key="home"],
-.primary-navigation li[data-key="mycourses"] {
+.primary-navigation li[data-key="mycourses"],
+body.rgu-usertype-student .primary-navigation li a[href*="94226"]
+ {
     display: none;
 }
