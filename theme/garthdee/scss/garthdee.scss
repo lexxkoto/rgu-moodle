@@ -273,3 +273,9 @@ footer p {
 .garthdee-tint-bd {
     border-color: $garthdee-brand;
 }
+
+// Fix for tabbedcontent
+
+.course-content .description-inner ul.nav {
+    list-style: none;
+}
