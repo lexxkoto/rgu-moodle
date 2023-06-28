@@ -35,11 +35,12 @@ body {
 
 nav.navbar a.navbar-brand {
     background-image: url([[pix:theme|rgu-logo-retina]]);
-    background-size: 204px 35px;
+    background-size: 244px 35px;
     background-repeat: no-repeat;
-    width: 204px;
+    width: 244px;
     background-position: 0 50%;
     font-size: 0;
+    margin-right: 20px !important;
 }
 
 body .navbar-nav .popover-region > .nav-link > .icon {
