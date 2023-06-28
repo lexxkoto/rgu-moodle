@@ -15,7 +15,7 @@ class block_rgu_courses extends block_base {
                 $text .= '<h6 class="yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="false" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-right"></i>'.$title.'</a></h6>';
                 $text .= '<div id="coursepanel-'.$type.'-'.$year.'" class="collapse">';
             } else {
-                $text .= '<h6 class="mt-3 mb-3 yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="true" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-down"></i>'.$title.'</a></h6>';
+                $text .= '<h6 class="yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="true" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-down"></i>'.$title.'</a></h6>';
                 $text .= '<div id="coursepanel-'.$type.'-'.$year.'" class="collapse show">';
             }
         } else {
@@ -144,7 +144,7 @@ class block_rgu_courses extends block_base {
         
         $this->content->text = '';
         
-        $this->content->text .= '<ul class="nav nav-pills nav-fill mb-4" role="tablist">';
+        $this->content->text .= '<ul class="nav nav-pills nav-fill" role="tablist">';
         $this->content->text .= '<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#courses_tab_module" role="tab" aria-controls="modules" aria-selected="true"><i class="fa fa-cubes"></i>Modules</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_course" role="tab" aria-controls="courses" aria-selected="false"><i class="fa fa-mortar-board"></i>Courses</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_school" role="tab" aria-controls="school" aria-selected="false"><i class="fa fa-institution"></i>School</a></li>';
@@ -152,6 +152,8 @@ class block_rgu_courses extends block_base {
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_starred" role="tab" aria-controls="starred" aria-selected="false"><i class="fa fa-heart"></i>Favourites</a></li>';
         $this->content->text .= '<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#courses_tab_all" role="tab" aria-controls="other" aria-selected="false"><i class="fa fa-search"></i>Search</a></li>';
         $this->content->text .= '</ul>';
+        
+        $this->content->text .= '<hr class="garthdee-tint-bd" />';
         
         $this->content->text .= '<div class="tab-content">';
         foreach($courseArray as $type=>$data) {
