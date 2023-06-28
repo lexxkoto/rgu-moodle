@@ -38,7 +38,9 @@
 }
 
 .block_rgu_courses .yearTitle {
-  padding: 5px 0;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+    margin-top: 20px;
 }
 
 .block_rgu_courses .yearTitle i {

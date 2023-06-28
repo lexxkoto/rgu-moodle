@@ -12,7 +12,7 @@ class block_rgu_courses extends block_base {
         
         if($year != 9999) {
             if($isInPast) {
-                $text .= '<h6 class="mt-3 mb-3 yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="false" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-right"></i>'.$title.'</a></h6>';
+                $text .= '<h6 class="yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="false" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-right"></i>'.$title.'</a></h6>';
                 $text .= '<div id="coursepanel-'.$type.'-'.$year.'" class="collapse">';
             } else {
                 $text .= '<h6 class="mt-3 mb-3 yearTitle"><a data-toggle="collapse" href="#coursepanel-'.$type.'-'.$year.'" role="button" aria-expanded="true" aria-controls="coursepanel-'.$type.'-'.$year.'"><i class="fa fa-caret-down"></i>'.$title.'</a></h6>';
@@ -56,12 +56,12 @@ class block_rgu_courses extends block_base {
     
     public function get_content() {
         global $OUTPUT, $USER;
-        
-        $this->page->requires->js_call_amd('block_rgu_courses/modulefilter', 'init');
 
         if ($this->content !== null) {
             return $this->content;
         }
+        
+        $this->page->requires->js_call_amd('block_rgu_courses/modulefilter', 'init');
 
         $this->content = new stdClass();
         $this->content->footer = '';
@@ -196,7 +196,7 @@ class block_rgu_courses extends block_base {
     }
     
     public function timeToAcademicYear($timestamp) {
-        if (date('n', $timestamp) < 7) {
+        if (date('n', $timestamp) < 8) {
             return date('Y', $timestamp)-1; 
         }
         return date('Y', $timestamp);

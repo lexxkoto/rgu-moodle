@@ -2,8 +2,7 @@ define(['jquery'], function($) {
     return {
         init: function() {
             $('.block_rgu_courses .yearTitle a').on("click", function() {
-                $(this).children("i").toggleClass("fa-caret-right fa-caret-down");
-                //e.stopPropagation();
+                $(this).children(".fa").toggleClass("fa-caret-right fa-caret-down");
             });
             $('#rgu_course_search').on("keyup", function() {
                 var searchQuery = $(this).val().toLowerCase();
