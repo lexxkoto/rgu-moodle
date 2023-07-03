@@ -25,6 +25,6 @@
  
  defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023060106;
+$plugin->version   = 2023070300;
 $plugin->requires  = 2022041200;
 $plugin->component = 'filter_rgu';

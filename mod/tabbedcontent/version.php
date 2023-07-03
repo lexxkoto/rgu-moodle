@@ -27,7 +27,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015052201;
+$plugin->version   = 2023070300;
 $plugin->requires  = 2010112400;
 $plugin->component = 'mod_tabbedcontent';
 

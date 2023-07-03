@@ -27,5 +27,5 @@
 defined('MOODLE_INTERNAL') or die();
 
 $plugin->component = 'block_rgu_library_search';
-$plugin->version = 2022080300;
+$plugin->version = 2023070300;
 $plugin->requires = 2014110400;

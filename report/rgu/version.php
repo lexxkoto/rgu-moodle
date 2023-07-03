@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023021403;
+$plugin->version   = 2023070300;
 $plugin->requires  = 2018051700;
 $plugin->component = 'report_rgu';
 $plugin->maturity = MATURITY_STABLE;
