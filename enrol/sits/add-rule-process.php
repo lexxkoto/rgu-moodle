@@ -188,6 +188,10 @@ switch($rule) {
         require_capability('enrol/sits:bulk', $context);
         $DB->insert_record('enrol_sits_code', $record);
         break;
+    case 'all-staff':
+        require_capability('enrol/sits:bulk', $context);
+        $DB->insert_record('enrol_sits_code', $record);
+        break;
     case 'dept-staff':
         $record->code = ifPosted('dept', true);
         $DB->insert_record('enrol_sits_code', $record);
