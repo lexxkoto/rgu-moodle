@@ -44,12 +44,44 @@ $prefix = get_config('local_inspector', 'prefix');
 foreach ($queries as $code=>$query) {
     try {
         $result = $DB->get_records_sql($query);
-        if(isset($result) && isset($result[0]) && isset($result[0]->ttl)) {
-            $response[$prefix.'-'.$code] = intval($result[0]->ttl);
-        }
-    } catch(exception $e) {
-        // Do nothing
+        $answer = array_pop($result);
+        $response[$prefix.'-'.$code] = intval($answer->ttl);
+    } catch (Exception $e) {
+        $response[$prefix.'-'.$code] = 0;
     }
 }
 
-echo json_encode($response);
+$result = $DB->get_records_sql('select classname, count(*) ttl from {task_adhoc} where classname in ('.str_replace("\\", "\\\\", implode(', ', array_keys($cronTasks))).') group by classname');
+
+
+$taskResults = Array();
+foreach($result as $task) {
+    $taskResults[str_replace('\\', '_', $task->classname)] = $task->ttl;
+}
+
+foreach($cronTasks as $key=>$value) {
+    $cleanKey = str_replace('"', '', str_replace('\\', '_', $key));
+    if(isset($taskResults[$cleanKey])) {
+        $response[$prefix.'-'.$value] = intval($taskResults[$cleanKey]);
+    } else {
+        $response[$prefix.'-'.$value] = 0;
+    }
+}
+
+$result = $DB->get_records_sql('select eventname, count(*) ttl from {logstore_standard_log} where eventname in ('.str_replace("\\", "\\\\", implode(', ', array_keys($logEvents))).') and timecreated >= '.strtotime('-5 minutes', $roundedTimestamp).' and timecreated < '.$roundedTimestamp.' group by eventname');
+
+$logResults = Array();
+foreach($result as $act) {
+    $logResults[str_replace('\\', '_', $act->eventname)] = $act->ttl;
+}
+
+foreach($logEvents as $key=>$value) {
+    $cleanKey = str_replace('"', '', str_replace('\\', '_', $key));
+    if(isset($logResults[$cleanKey])) {
+        $response[$prefix.'-'.$value] = intval($logResults[$cleanKey]);
+    } else {
+        $response[$prefix.'-'.$value] = 0;
+    }
+}
+
+echo json_encode($response, JSON_PRETTY_PRINT);
