@@ -27,6 +27,11 @@ require('../../config.php');
 $CFG->debug = 0;
 $CFG->debugdisplay = 0;
 
+$force = false;
+if(isset($_GET['force'])) {
+    $force = true;
+}
+
 require_login();
 
 $courseID = required_param('id', PARAM_INT);
@@ -37,7 +42,11 @@ require_login();
 $context = context_course::instance($course->id, MUST_EXIST);
 require_capability('enrol/sits:manage', $context);
 
+include('raw-styles.css');
+
 echo '<pre>';
 $plugin = enrol_get_plugin('sits');
-$plugin->syncCourse($courseID, true);
+$plugin->syncCourse($courseID, $force, true);
 echo '</pre>';
+
+include('back-to-course.php');

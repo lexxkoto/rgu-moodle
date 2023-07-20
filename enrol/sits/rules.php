@@ -55,7 +55,13 @@ $output = $PAGE->get_renderer('enrol_sits');
 
 $plugin = enrol_get_plugin('sits');
 
-echo '<ul class="nav nav-pills mt-4 mb-4"><li class="nav-item"><a class="nav-link active" href="rules.php?id='.$courseID.'">Manage Rules</a></li><li class="nav-item"><a class="nav-link" href="log.php?id='.$courseID.'">View Logs</a></li><li class="nav-item"><a class="nav-link" href="detect.php?id='.$courseID.'">Detect Rules</a></li><li class="nav-item"><a class="nav-link" href="force.php?id='.$courseID.'">Force Re-Sync</a></li></ul>';
+echo '
+    <ul class="nav nav-pills mt-4 mb-4">
+        <li class="nav-item"><a class="nav-link active" href="rules.php?id='.$courseID.'"><i class="fa fa-wrench"></i>&ensp;Manage Rules</a></li>
+        <li class="nav-item"><a class="nav-link" href="log.php?id='.$courseID.'"><i class="fa fa-list"></i>&ensp;View Logs</a></li>
+        <li class="nav-item"><a class="nav-link" href="detect.php?id='.$courseID.'"><i class="fa fa-bolt"></i>&ensp;Detect Rules</a></li>
+        <li class="nav-item"><a class="nav-link" href="force.php?id='.$courseID.'"><i class="fa fa-refresh"></i>&ensp;Sync Users Now</a></li>
+    </ul>';
 
 foreach($instances as $instance) {
     if(!empty($instance->name)) {
