@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_backupcleaner\privacy;
+namespace local_rgu_core_services\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
