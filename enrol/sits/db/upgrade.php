@@ -36,5 +36,40 @@ function xmldb_enrol_sits_upgrade($oldversion) {
 
         upgrade_plugin_savepoint(true, 2023041800, 'enrol', 'sits');
     }
+    if ($oldversion < 2023070301) {
+        $table = new xmldb_table('enrol_sits_code');
+        
+        $field = new xmldb_field('course', XMLDB_TYPE_CHAR, '200', XMLDB_UNSIGNED, null, null, null, 'instanceid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_precision($table, $field);
+        }
+        
+        $field = new xmldb_field('status', XMLDB_TYPE_CHAR, '30', XMLDB_UNSIGNED, null, null, null, 'instanceid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_precision($table, $field);
+        }
+        
+        $field = new xmldb_field('start', XMLDB_TYPE_CHAR, '30', XMLDB_UNSIGNED, null, null, null, 'instanceid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_precision($table, $field);
+        }
+        
+        $field = new xmldb_field('blocks', XMLDB_TYPE_CHAR, '30', XMLDB_UNSIGNED, null, null, null, 'instanceid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_precision($table, $field);
+        }
+        
+        $field = new xmldb_field('occurrence', XMLDB_TYPE_CHAR, '30', XMLDB_UNSIGNED, null, null, null, 'instanceid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_precision($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2023070301, 'enrol', 'sits');
+    }
     return true;
 }

@@ -10,11 +10,11 @@
         <FIELD NAME="type" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="code" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="modes" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="course" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="start" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="blocks" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="occurrence" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="start" TYPE="char" LENGTH="30" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="blocks" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="occurrence" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="level" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="period" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="year" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
