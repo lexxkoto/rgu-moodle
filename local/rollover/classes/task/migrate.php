@@ -48,6 +48,11 @@ class migrate extends \core\task\scheduled_task {
             $limit
         );
         
+        if(empty($new) || empty($old) || empty($limit)) {
+            mtrace('Looks like the plugin is not configured. Quitting.');
+            return false;
+        }
+        
         mtrace('Considering '.count($courses).' courses for rollover...');
 
         foreach ($courses as $newCourse) {
@@ -60,7 +65,7 @@ class migrate extends \core\task\scheduled_task {
             
             $oldCourse = $DB->get_record('course', array('fullname'=>$oldCourseName), '*', IGNORE_MISSING);
             
-            if($oldCourse !== false) {
+            if($oldCourse !== false && $oldCourse->id != $newCourse->id) {
             
                 mtrace('Found match in course '.$oldCourse->id.' - '.$oldCourse->fullname);
             
