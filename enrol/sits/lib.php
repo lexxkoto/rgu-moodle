@@ -1188,7 +1188,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                 $match = preg_match('/Occurrence ([a-zA-Z0-9, ]+)/i', $value);
                 if($match) {
                     $matches = Array();
-                    preg_match('/Block ([0-9, ]+)/i', $value, $matches);
+                    preg_match('/Occurrence ([a-zA-Z0-9, ]+)/i', $value, $matches);
                     if(count($matches) > 1) {
                         $cleanMatches = array_slice($matches, 1);
                         $occs = Array();
