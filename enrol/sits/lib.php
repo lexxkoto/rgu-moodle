@@ -606,6 +606,8 @@ class enrol_sits_plugin extends enrol_plugin {
                     
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.count($users).' user'.$this->s(count($users)).' from SITS.', $debug);
                     
+                    $this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
+                    
                     $users = $this->sendQueryToSITS($sql);
                                         
                     foreach($users as $user) {
@@ -672,6 +674,8 @@ class enrol_sits_plugin extends enrol_plugin {
                             $sql .= ' AND ('.implode(' OR ', $periodSQL).')';
                         }
                     }
+                    
+                    $this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
                     
                     $users = $this->sendQueryToSITS($sql);
                     
@@ -831,6 +835,8 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                             $sql .= ' AND ('.implode(' OR ', $modeSQL).')';
                         }
                     }
+                    
+                    $this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
 
                     $users = $this->sendQueryToSITS($sql);
                     
@@ -1095,7 +1101,10 @@ and INTUIT.cam_mav.mav_begp = "Y"';
             }
         }
         
+        $matchedAny = false;
+        
         if((strpos(strtolower($course->shortname), 'module study area') !== false) || (strpos(strtolower($course->shortname), 'module') !== false)) {
+            $matchedAny = true;
             if($debug) {
                 echo 'This looks like a module study area.'.PHP_EOL;
             }            
@@ -1144,6 +1153,10 @@ and INTUIT.cam_mav.mav_begp = "Y"';
             foreach($filters as $filter) {
                 $value = trim($filter);
                 
+                if($debug) {
+                    echo 'Trying to find match for: '.$value.PHP_EOL;
+                }
+                
                 // Is this a block filter?
                 
                 $match = preg_match('/Block [0-9]+/i', $value);
@@ -1181,6 +1194,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                             echo 'Added a filter for period: '.$record->period.'.'.PHP_EOL;
                         } 
                     }
+                    continue;
                 }
                   
                 // Is this an occurrence?
@@ -1300,7 +1314,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
         }
         
         if(strpos(strtolower($course->shortname), 'course study area') !== false) {
-            
+            $matchedAny = true;
             if($debug) {
                 echo 'This looks like a course study area.'.PHP_EOL;
             } 
@@ -1435,6 +1449,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
         }
         
         if(strpos(strtolower($course->shortname), 'school study area') !== false) {
+            $matchedAny = true;
             if($debug) {
                 echo 'This looks like a school study area.'.PHP_EOL;
             }
@@ -1465,6 +1480,11 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                 }
             }
             $DB->insert_record('enrol_sits_code', $record);
+        }
+        if(!$matchedAny) {
+            if($debug) {
+                echo 'This course wasn\'t detected as a Module, Course or School study area. What is in square brackets at the start of the shortname?'.PHP_EOL;
+            }
         }
     }
 }

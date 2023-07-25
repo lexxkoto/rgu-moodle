@@ -162,7 +162,7 @@ class enrol_sits_renderer extends plugin_renderer_base {
                             echo '<p>Period: <strong>'.str_replace(Array(':', '1', '2', '3', 'YE'), Array(', ', 'Semester 1', 'Semester 2', 'Semester 3', 'Year'), $code->period).'</strong></p>';
                         }
                         if(!empty($code->occurrence)) {
-                            echo '<p>Occurrence: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
+                            echo '<p>Occurrence: <strong>'.str_replace(':', ', ', $code->occurrence).'</strong></p>';
                         }
                         if(!empty($code->blocks)) {
                             echo '<p>Blocks: <strong>'.str_replace(':', ', ', $code->blocks).'</strong></p>';
