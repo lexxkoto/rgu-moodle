@@ -606,7 +606,7 @@ class enrol_sits_plugin extends enrol_plugin {
                     
                     $this->addToLog($instance->id, $instance->courseid, 'i', 'Got a list of '.count($users).' user'.$this->s(count($users)).' from SITS.', $debug);
                     
-                    $this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
+                    //$this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
                     
                     $users = $this->sendQueryToSITS($sql);
                                         
@@ -675,7 +675,7 @@ class enrol_sits_plugin extends enrol_plugin {
                         }
                     }
                     
-                    $this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
+                    //$this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
                     
                     $users = $this->sendQueryToSITS($sql);
                     
@@ -836,7 +836,7 @@ and INTUIT.cam_mav.mav_begp = "Y"';
                         }
                     }
                     
-                    $this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
+                    //$this->addToLog($instance->id, $instance->courseid, 's', $sql, $debug);
 
                     $users = $this->sendQueryToSITS($sql);
                     
